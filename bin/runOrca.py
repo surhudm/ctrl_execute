@@ -28,9 +28,12 @@ import re, sys, os, os.path, shutil, subprocess
 import optparse, traceback, time
 import lsst.pex.config as pexConfig
 from lsst.ctrl.execute.Configurator import Configurator
+from lsst.ctrl.execute.Parser import Parser
 def main():
+    p = Parser(sys.argv)
+    opts = p.getOpts()
     # TODO: split out parser
-    creator = Configurator(sys.argv)
+    creator = Configurator(opts)
     # TODO: resolve this through "eups.productDir" methods
     configName = "$CTRL_EXECUTE_DIR/etc/configs/%s_config.py" % creator.platform
     creator.load(configName)

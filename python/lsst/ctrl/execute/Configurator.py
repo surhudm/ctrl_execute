@@ -104,18 +104,15 @@ class UserConfig(pexConfig.Config):
     platform = pexConfig.ConfigChoiceField("platform info", FakeTypeMap(PlatformInfoConfig))
 
 class Configurator(object):
-    def __init__(self, argv):
+    def __init__(self, opts):
+
+        self.opts = opts
 
         self.defaults = {}
         self.commandLineDefaults = {}
         self.commandLineDefaults["USER_NAME"] = os.getlogin()
         self.commandLineDefaults["USER_HOME"] = os.getenv('HOME')
         
-        self.opts = {}
-        self.args = []
-        
-        self.opts, self.args = self.parseArgs(argv)
-
         self.commandLineDefaults["DEFAULT_ROOT"]  = self.opts.defaultRoot
         self.commandLineDefaults["LOCAL_SCRATCH"] = self.opts.localScratch
         self.commandLineDefaults["DATA_DIRECTORY"] = self.opts.dataDirectory
@@ -138,10 +135,6 @@ class Configurator(object):
         else:
             self.runid = self.createRunId()
         
-        #if ((defaultRoot == None) or (localScratch == None) or (fileSystemDomain == None) or (dataDirectory == None) or (idsPerJob == None) or (inputDataFile == None) ) :
-        #    print usage
-        #    sys.exit(100)
-        
         self.platform = self.opts.platform
         self.commandLineDefaults["COMMAND"] = self.opts.command
         if self.commandLineDefaults["INPUT_DATA_FILE"] is not None:
@@ -149,32 +142,6 @@ class Configurator(object):
 
         self.outputFileName = "/tmp/%s_config.py" % (self.runid)
         
-    def parseArgs(self, argv):
-        self.usage = """usage: Configurator.py [-n node-set] [-j ids-per-job] [-r default-root] [-l local-scratch] [-d data-directory] [-D filesystem-domain] [-u user] [-H user-home] -e EUPS_PATH -p platform -c command -i id-file"""
-        
-        parser = optparse.OptionParser(self.usage)
-        parser.add_option("-n", "--node-set", action="store", default=None, dest="nodeSet", help="name of collection of nodes to use")
-        parser.add_option("-j", "--ids-per-job", action="store", default=None, dest="idsPerJob", help="ids per job")
-        parser.add_option("-r", "--default-root", action="store", dest="defaultRoot", default=None, help="remote working directory for Condor")
-        parser.add_option("-l", "--local-scratch", action="store", dest="localScratch", default=None, help="local staging directory for Condor")
-        parser.add_option("-d", "--data-directory", action="store", dest="dataDirectory", default=None, help="where the data is located")
-        
-        
-        parser.add_option("-F", "--file-system-domain", action="store", dest="fileSystemDomain", default=None, help="file system domain")
-        parser.add_option("-u", "--user-name", action="store", dest="user_name", default=None, help="user")
-        parser.add_option("-H", "--user-home", action="store", dest="user_home", default=None, help="home")
-        parser.add_option("-i", "--id-file", action="store", dest="inputDataFile", default=None, help="list of ids")
-        #parser.add_option("-o", "--output-file", action="store", dest="outputFileName", default=None, help="configuration output file")
-        parser.add_option("-c", "--command", action="store", dest="command", default=None, help="command")
-        parser.add_option("-p", "--platform", action="store", dest="platform", default=None, help="platform")
-        parser.add_option("-e", "--eups-path", action="store", dest="eupsPath", default=None, help="eups path")
-        parser.add_option("-R", "--run-id", action="store", dest="runid", default=None, help="run id")
-        parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="verbose")
-        
-        opts, args = parser.parse_args(argv)
-
-        return opts, args
-
     def createRunId(self):
         now = datetime.now()
         runid = "%s_%02d%02d%02d_%02d%02d%02d" % (os.getlogin(), now.month, now.day, now.year, now.hour, now.minute, now.second)
