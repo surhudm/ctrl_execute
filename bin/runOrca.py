@@ -29,10 +29,14 @@ import optparse, traceback, time
 import lsst.pex.config as pexConfig
 from lsst.ctrl.execute.Configurator import Configurator
 def main():
+    # TODO: split out parser
     creator = Configurator(sys.argv)
+    # TODO: resolve this through "eups.productDir" methods
     configName = "$CTRL_EXECUTE_DIR/etc/configs/%s_config.py" % creator.platform
     creator.load(configName)
 
+    # TODO: load the generic template from the default platform environment, since the scripts have
+    #       different requirements. (ie, "modules add gnu")
     outputFile = creator.createConfiguration("$CTRL_EXECUTE_DIR/etc/templates/generic_config.py.template")
 
     runid = creator.getRunid()
