@@ -29,24 +29,34 @@ import optparse, traceback, time
 import lsst.pex.config as pexConfig
 from lsst.ctrl.execute.Configurator import Configurator
 from lsst.ctrl.execute.Parser import Parser
+import eups
+
 def main():
     p = Parser(sys.argv)
     opts = p.getOpts()
     creator = Configurator(opts)
-    # TODO: resolve this through "eups.productDir" methods
-    configName = "$CTRL_EXECUTE_DIR/etc/configs/%s_config.py" % creator.platform
+
+    platformPkgDir = eups.productDir("ctrl_platform_"+creator.platform)
+    if platformPkgDir != "":
+        configName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
+    else:
+        raise RuntimeError("Can't find platform specific config for %s" % creator.platform)
+    
+
+    #configName = "$CTRL_EXECUTE_DIR/etc/configs/%s_config.py" % creator.platform
     creator.load(configName)
 
-    # TODO: load the generic template from the default platform environment, since the scripts have
-    #       different requirements. (ie, "modules add gnu")
-    outputFile = creator.createConfiguration("$CTRL_EXECUTE_DIR/etc/templates/generic_config.py.template")
+    
+    executePkgDir = eups.productDir("ctrl_execute")
+    genericConfigName = os.path.join(executePkgDir, "etc", "templates", "generic_config.py.template")
+    generatedConfigFile = creator.createConfiguration(genericConfigName)
 
     runid = creator.getRunid()
 
     print "runid for this run is ",runid
 
     # TODO: allow -L and -V on this command line
-    cmd = "orca.py %s %s" % (outputFile, runid)
+    cmd = "orca.py %s %s" % (generatedConfigFile, runid)
     cmd_split = cmd.split()
     pid = os.fork()
     if not pid:
