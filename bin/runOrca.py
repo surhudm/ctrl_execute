@@ -43,6 +43,8 @@ def main():
 
     runid = creator.getRunid()
 
+    print "runid for this run is ",runid
+
     # TODO: allow -L and -V on this command line
     cmd = "orca.py %s %s" % (outputFile, runid)
     cmd_split = cmd.split()

@@ -33,21 +33,19 @@ root.workflow["workflow1"].configuration["condor"].condorData.localScratch = "$L
 
 root.workflow["workflow1"].task["task1"].scriptDir = "workers"
 
-#root.workflow["workflow1"].task["task1"].preJob.script.inputFile = "$DATAREL_DIR/dagutils/dag/sdss/ccd/dag/templates/preJob.sh.template"
-root.workflow["workflow1"].task["task1"].preJob.script.inputFile = "$DATAREL_DIR/dagutils/dag/sdss/ccd/dag/templates/lsst_preJob.sh.template"
+root.workflow["workflow1"].task["task1"].preJob.script.inputFile = "$PLATFORM_DIR/etc/templates/preJob.sh.template"
 root.workflow["workflow1"].task["task1"].preJob.script.outputFile = "preJob.sh"
-root.workflow["workflow1"].task["task1"].preJob.condor.inputFile = "$DATAREL_DIR/dagutils/dag/sdss/ccd/dag/templates/preJob.condor.template"
+root.workflow["workflow1"].task["task1"].preJob.condor.inputFile = "$CTRL_EXECUTE_DIR/etc/templates/preJob.condor.template"
 root.workflow["workflow1"].task["task1"].preJob.condor.outputFile = "S2012Pipe.pre"
 
-root.workflow["workflow1"].task["task1"].postJob.script.inputFile = "$DATAREL_DIR/dagutils/dag/sdss/ccd/dag/templates/postJob.sh.template"
+root.workflow["workflow1"].task["task1"].postJob.script.inputFile = "$PLATFORM_DIR/etc/templates/postJob.sh.template"
 root.workflow["workflow1"].task["task1"].postJob.script.outputFile = "postJob.sh"
-root.workflow["workflow1"].task["task1"].postJob.condor.inputFile = "$DATAREL_DIR/dagutils/dag/sdss/ccd/dag/templates/postJob.condor.template"
+root.workflow["workflow1"].task["task1"].postJob.condor.inputFile = "$CTRL_EXECUTE_DIR/etc/templates/postJob.condor.template"
 root.workflow["workflow1"].task["task1"].postJob.condor.outputFile = "S2012Pipe.post"
 
-#root.workflow["workflow1"].task["task1"].workerJob.script.inputFile = "$DATAREL_DIR/dagutils/dag/sdss/ccd/dag/templates/worker.sh.template"
-root.workflow["workflow1"].task["task1"].workerJob.script.inputFile = "/home/srp/condortool/worker.sh.template"
+root.workflow["workflow1"].task["task1"].workerJob.script.inputFile = "$PLATFORM_DIR/etc/templates/worker.sh.template"
 root.workflow["workflow1"].task["task1"].workerJob.script.outputFile = "worker.sh"
-root.workflow["workflow1"].task["task1"].workerJob.condor.inputFile = "$DATAREL_DIR/dagutils/dag/sdss/ccd/dag/templates/workerJob.condor.template"
+root.workflow["workflow1"].task["task1"].workerJob.condor.inputFile = "$CTRL_EXECUTE_DIR/etc/templates/workerJob.condor.template"
 root.workflow["workflow1"].task["task1"].workerJob.condor.outputFile = "S2012Pipeline-template.condor"
 
 
@@ -65,8 +63,6 @@ root.workflow["workflow1"].task["task1"].workerJob.script.keywords["COMMAND"] = 
 
 
 root.workflow["workflow1"].task["task1"].dagGenerator.dagName = "S2012Pipe"
-root.workflow["workflow1"].task["task1"].dagGenerator.script = "$DATAREL_DIR/dagutils/dag/sdss/ccd/dag/scripts/newgenerateDag.py"
+root.workflow["workflow1"].task["task1"].dagGenerator.script = "$CTRL_EXECUTE_DIR/etc/scripts/generateDag.py"
 root.workflow["workflow1"].task["task1"].dagGenerator.idsPerJob = $IDS_PER_JOB
 root.workflow["workflow1"].task["task1"].dagGenerator.input = "$INPUT_DATA_FILE"
-
-
