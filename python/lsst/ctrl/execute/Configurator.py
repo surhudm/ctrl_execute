@@ -160,7 +160,7 @@ class Configurator(object):
         self.defaults["EUPS_PATH"] = configuration.platform.eupsPath
         # TODO:  Change this to do it the eups way when the new package
         # issue is resolved.
-        platform_dir = "$CTRL_PLATFORM_"+self.opts.platform.upper()
+        platform_dir = "$CTRL_PLATFORM_"+self.opts.platform.upper()+"_DIR"
         platform_dir = EnvString.resolve(platform_dir)
         self.defaults["PLATFORM_DIR"] = platform_dir
 
