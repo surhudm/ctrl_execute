@@ -4,7 +4,7 @@ executable=$ORCA_SCRIPT
 
 transfer_executable=true
 
-Requirements = (FileSystemDomain != "") && (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0)
+Requirements = (FileSystemDomain != "$FILE_SYSTEM_DOMAIN") && (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0)
 
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT

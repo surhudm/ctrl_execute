@@ -12,7 +12,7 @@ output=logs/worker-pre.out
 error=logs/worker-pre.err
 log=logs/worker-pre.log
 
-Requirements = (FileSystemDomain != "") && (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0)
+Requirements = (FileSystemDomain != "$FILE_SYSTEM_DOMAIN") && (Arch != "") && (OpSys != "") && (Disk != -1) && (Memory != -1) && (DiskUsage >= 0)
 # queue 20
 #
 

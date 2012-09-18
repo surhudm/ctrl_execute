@@ -138,7 +138,7 @@ class Configurator(object):
         self.platform = self.opts.platform
         self.commandLineDefaults["COMMAND"] = self.opts.command
         if self.commandLineDefaults["INPUT_DATA_FILE"] is not None:
-            self.commandLineDefaults["COMMAND"] = self.commandLineDefaults["COMMAND"]+" --id ${id_option}"
+            self.commandLineDefaults["COMMAND"] = self.commandLineDefaults["COMMAND"]+" ${id_option}"
 
         self.outputFileName = "/tmp/%s_config.py" % (self.runid)
         
