@@ -43,7 +43,8 @@ class Parser(object):
         self.opts, self.args = self.parseArgs(argv)
 
     def parseArgs(self, argv):
-        self.usage = """usage: Configurator.py [-n node-set] [-j ids-per-job] [-r default-root] [-l local-scratch] [-d data-directory] [-D filesystem-domain] [-u user] [-H user-home] -e EUPS_PATH -p platform -c command -i id-file"""
+        basename = os.path.basename(argv[0])
+        self.usage = """usage: """+basename+""" [-n node-set] [-j ids-per-job] [-r default-root] [-l local-scratch] [-d data-directory] [-D filesystem-domain] [-u user] [-H user-home] -e EUPS_PATH -p platform -c command -i id-file"""
         
         parser = optparse.OptionParser(self.usage)
         parser.add_option("-n", "--node-set", action="store", default=None, dest="nodeSet", help="name of collection of nodes to use")
