@@ -37,7 +37,7 @@ def main():
     creator = Configurator(opts)
 
     platformPkgDir = eups.productDir("ctrl_platform_"+creator.platform)
-    if platformPkgDir != "":
+    if platformPkgDir is not None:
         configName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
     else:
         raise RuntimeError("Can't find platform specific config for %s" % creator.platform)

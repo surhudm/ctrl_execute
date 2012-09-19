@@ -27,6 +27,7 @@ import re, sys, os, os.path, shutil, subprocess
 import optparse, traceback, time
 from datetime import datetime
 import lsst.pex.config as pexConfig
+import eups
 
 class EnvString:
 
@@ -45,7 +46,8 @@ class EnvString:
             var = i[1:]
             val = os.getenv(var, None)
             if val == None:
-                raise RuntimeError("couldn't find "+i+" environment variable")
+                raise RuntimeError("couldn't find environment variable "+i)
+                sys.exit(120)
             retVal = p.sub(val,retVal,1)
         return retVal
     resolve = staticmethod(resolve)
@@ -144,7 +146,7 @@ class Configurator(object):
         
     def createRunId(self):
         now = datetime.now()
-        runid = "%s_%02d%02d%02d_%02d%02d%02d" % (os.getlogin(), now.month, now.day, now.year, now.hour, now.minute, now.second)
+        runid = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
         return runid
 
     def load(self, name):
@@ -160,8 +162,9 @@ class Configurator(object):
         self.defaults["EUPS_PATH"] = configuration.platform.eupsPath
         # TODO:  Change this to do it the eups way when the new package
         # issue is resolved.
-        platform_dir = "$CTRL_PLATFORM_"+self.opts.platform.upper()+"_DIR"
-        platform_dir = EnvString.resolve(platform_dir)
+        #platform_dir = "$CTRL_PLATFORM_"+self.opts.platform.upper()+"_DIR"
+        #platform_dir = EnvString.resolve(platform_dir)
+        platform_dir = eups.productDir("ctrl_platform_"+self.opts.platform)
         self.defaults["PLATFORM_DIR"] = platform_dir
 
     def createConfiguration(self, input):

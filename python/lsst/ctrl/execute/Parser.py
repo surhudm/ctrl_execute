@@ -44,7 +44,7 @@ class Parser(object):
 
     def parseArgs(self, argv):
         basename = os.path.basename(argv[0])
-        self.usage = """usage: """+basename+""" [-n node-set] [-j ids-per-job] [-r default-root] [-l local-scratch] [-d data-directory] [-D filesystem-domain] [-u user] [-H user-home] -e EUPS_PATH -p platform -c command -i id-file"""
+        self.usage = """usage: """+basename+""" -e EUPS_PATH -p platform -c command -i id-file [-j ids-per-job] [-d data-directory] [-u user] [-H user-home] [-n node-set] [-r default-root] [-l local-scratch] [-D filesystem-domain]"""
         
         parser = optparse.OptionParser(self.usage)
         parser.add_option("-n", "--node-set", action="store", default=None, dest="nodeSet", help="name of collection of nodes to use")
@@ -65,6 +65,15 @@ class Parser(object):
         parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="verbose")
         
         opts, args = parser.parse_args(argv)
+
+        if opts.eupsPath is None:
+            raise RuntimeError("error: required argument --eups-path is not specified")
+        if opts.platform is None:
+            raise RuntimeError("error: required argument --platform is not specified")
+        if opts.command is None:
+            raise RuntimeError("error: required argument --command is not specified")
+        if opts.inputDataFile is None:
+            raise RuntimeError("error: required argument --id-file is not specified")
 
         return opts, args
 
