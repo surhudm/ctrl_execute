@@ -28,7 +28,7 @@ import optparse, traceback, time
 from datetime import datetime
 import lsst.pex.config as pexConfig
 
-class Parser(object):
+class RunOrcaParser(object):
     def __init__(self, argv):
 
         self.defaults = {}
