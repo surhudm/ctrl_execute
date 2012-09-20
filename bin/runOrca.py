@@ -28,11 +28,11 @@ import re, sys, os, os.path, shutil, subprocess
 import optparse, traceback, time
 import lsst.pex.config as pexConfig
 from lsst.ctrl.execute.Configurator import Configurator
-from lsst.ctrl.execute.Parser import Parser
+from lsst.ctrl.execute.RunOrcaParser import RunOrcaParser
 import eups
 
 def main():
-    p = Parser(sys.argv)
+    p = RunOrcaParser(sys.argv)
     opts = p.getOpts()
     creator = Configurator(opts)
 

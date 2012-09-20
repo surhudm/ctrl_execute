@@ -27,6 +27,7 @@ import re, sys, os, os.path, shutil, subprocess
 import optparse, traceback, time
 from datetime import datetime
 import lsst.pex.config as pexConfig
+from string import Template
 import eups
 
 class EnvString:
@@ -155,7 +156,11 @@ class Configurator(object):
         configuration.load(resolvedName)
         self.defaults = {}
         self.defaults["DEFAULT_ROOT"] = EnvString.resolve(configuration.platform.defaultRoot)
-        self.defaults["LOCAL_SCRATCH"] = EnvString.resolve(configuration.platform.localScratch)
+        tempLocalScratch = Template(configuration.platform.localScratch)
+        self.defaults["LOCAL_SCRATCH"] = tempLocalScratch.substitute(USER_HOME=self.commandLineDefaults["USER_HOME"])
+        print 'self.defaults["LOCAL_SCRATCH"] = ', self.defaults["LOCAL_SCRATCH"]
+        
+        #self.defaults["LOCAL_SCRATCH"] = EnvString.resolve(configuration.platform.localScratch)
         self.defaults["IDS_PER_JOB"] = configuration.platform.idsPerJob
         self.defaults["DATA_DIRECTORY"] = EnvString.resolve(configuration.platform.dataDirectory)
         self.defaults["FILE_SYSTEM_DOMAIN"] = configuration.platform.fileSystemDomain
