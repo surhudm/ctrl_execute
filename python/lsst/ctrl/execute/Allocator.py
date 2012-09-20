@@ -28,88 +28,80 @@ import optparse, traceback, time
 from datetime import datetime
 import lsst.pex.config as pexConfig
 from string import Template
-from TemplateWriter import TemplateWriter
-from CondorConfig import CondorConfig
 import eups
 
-class EnvString:
+# This class takes template files and substitutes the values for the given
+# keys, writing a new file generated from the template.
+#
+class TemplateWriter:
 
-    ##
-    # given a string, look for any $ prefixed word, attempt to subsitute
-    # an environment variable with that name.  
     #
-    # @throw exception if the environment variable doesn't exist
+    # given a input template, take the keys from the key/values in the config
+    # object and substitute the values, and write those to the output file.
     #
-    # Return the resulting string
-    def resolve(strVal):
-        p = re.compile('\$[a-zA-Z0-9_]+')
-        retVal = strVal
-        exprs = p.findall(retVal)
-        for i in exprs:
-            var = i[1:]
-            val = os.getenv(var, None)
-            if val == None:
-                raise RuntimeError("couldn't find environment variable "+i)
-                sys.exit(120)
-            retVal = p.sub(val,retVal,1)
-        return retVal
-    resolve = staticmethod(resolve)
+    def rewrite(self, input, output, pairs):
+        fpInput = open(input, 'r')
+        fpOutput = open(output, 'w')
 
-class Configurator(object):
+        while True:
+            line = fpInput.readline()
+            if len(line) == 0:
+                break
+
+            # replace the user defined names
+            for name in pairs:
+                key = "$"+name
+                val = str(pairs[name])
+                line = line.replace(key, val)
+            fpOutput.write(line)
+        fpInput.close()
+        fpOutput.close()
+
+class AllocatedPlatformConfig(pexConfig.Config):
+    queueName = pexConfig.Field("default root working for directories",str, default=None)
+    emailNotification = pexConfig.Field("local scratch directory",str, default="yes") 
+    outputLogName = pexConfig.Field("output log filename", str, default="nodeset.out")
+    errorLogName = pexConfig.Field("error log filename", str, default="nodeset.err")
+    eupsPath = pexConfig.Field("eups path", str, default=None)
+
+class AllocationConfig(pexConfig.Config):
+    platform = pexConfig.ConfigField("platform allocation", AllocatedPlatformConfig)
+
+class Allocator(object):
     def __init__(self, opts):
 
         self.opts = opts
 
-        self.defaults = {}
         self.commandLineDefaults = {}
-        self.commandLineDefaults["USER_NAME"] = os.getlogin()
-        self.commandLineDefaults["USER_HOME"] = os.getenv('HOME')
-        
-        self.commandLineDefaults["DEFAULT_ROOT"]  = self.opts.defaultRoot
-        self.commandLineDefaults["LOCAL_SCRATCH"] = self.opts.localScratch
-        self.commandLineDefaults["DATA_DIRECTORY"] = self.opts.dataDirectory
-        self.commandLineDefaults["IDS_PER_JOB"] = self.opts.idsPerJob
-        self.commandLineDefaults["nodeSet"] = self.opts.nodeSet
-        self.commandLineDefaults["INPUT_DATA_FILE"] = self.opts.inputDataFile
-        self.commandLineDefaults["FILE_SYSTEM_DOMAIN"] = self.opts.fileSystemDomain
-        self.commandLineDefaults["EUPS_PATH"] = self.opts.eupsPath
 
-        # override user name, if given
-        if self.opts.user_name is not None:
-            self.commandLineDefaults["USER_NAME"] = self.opts.user_name
-        
-        # override user home, if given
-        if self.opts.user_home is not None:
-            self.commandLineDefaults["USER_HOME"] = self.opts.user_home
+        self.commandLineDefaults["NODE_COUNT"] = self.opts.nodeCount
+        self.commandLineDefaults["SLOTS"] = self.opts.slots
+        self.commandLineDefaults["WALLCLOCK"] = self.opts.maximumWallClock
 
-        if self.opts.runid is not None:
-            self.runid = self.opts.runid
-        else:
-            self.runid = self.createRunId()
-        
-        self.platform = self.opts.platform
-        self.commandLineDefaults["COMMAND"] = self.opts.command
-        if self.commandLineDefaults["INPUT_DATA_FILE"] is not None:
-            self.commandLineDefaults["COMMAND"] = self.commandLineDefaults["COMMAND"]+" ${id_option}"
 
-        self.outputFileName = "/tmp/%s_config.py" % (self.runid)
+        nodeSetName = self.opts.nodeSet
+        if nodeSetName is None:
+            nodeSetName = self.createNodeSetName()
+
+        self.outputFileName = "/tmp/alloc_%s.pbs" % (nodeSetName)
         
-    def createRunId(self):
+    def createNodeSetName(self):
+        # TODO: change this to an incrementing name, based on a 'save pid' typ
+        # of file in the ~/.lsst directory.
         now = datetime.now()
-        runid = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
-        return runid
+        nodeSetName = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
+        return nodeSetName
+
 
     def load(self, name):
         resolvedName = EnvString.resolve(name)
-        configuration = CondorConfig()
+        configuration = AllocationConfig()
         configuration.load(resolvedName)
         self.defaults = {}
-        
-        tempDefaultRoot = Template(configuration.platform.defaultRoot)
-        self.defaults["DEFAULT_ROOT"] = tempDefaultRoot.substitute(USER_NAME=self.commandLineDefaults["USER_NAME"])
-        #self.defaults["DEFAULT_ROOT"] = EnvString.resolve(configuration.platform.defaultRoot)
+        self.defaults["QUEUE_NAME"] = configuration.platform.defaultRoot)
         tempLocalScratch = Template(configuration.platform.localScratch)
         self.defaults["LOCAL_SCRATCH"] = tempLocalScratch.substitute(USER_HOME=self.commandLineDefaults["USER_HOME"])
+        print 'self.defaults["LOCAL_SCRATCH"] = ', self.defaults["LOCAL_SCRATCH"]
         
         #self.defaults["LOCAL_SCRATCH"] = EnvString.resolve(configuration.platform.localScratch)
         self.defaults["IDS_PER_JOB"] = configuration.platform.idsPerJob
@@ -148,5 +140,5 @@ class Configurator(object):
             val =  self.defaults[value]
         return val
 
-    def getRunid(self):
-        return self.runid
+    def getNodeSetName(self):
+        return self.nodeSetName
