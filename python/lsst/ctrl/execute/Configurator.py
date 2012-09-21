@@ -99,6 +99,16 @@ class Configurator(object):
         runid = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
         return runid
 
+    def getSetupPackages(self):
+        e = eups.Eups()
+        setupProducts = e.getSetupProducts()
+        a = ""
+        for i in setupProducts:
+            if i.version.startswith("LOCAL:") == False:
+                a = a + "setup -j %s %s\n" % (i.name, i.version)
+        return a
+
+        return setupProducts
     def load(self, name):
         resolvedName = EnvString.resolve(name)
         configuration = CondorConfig()
@@ -133,6 +143,8 @@ class Configurator(object):
             val = self.commandLineDefaults[key]
             if val is not None:
                 substitutes[key] = self.commandLineDefaults[key]
+
+        substitutes["CTRL_EXECUTE_SETUP_PACKAGES"] = getSetupPackages()
         
         if self.opts.verbose == True:
             print "writing new configuration to ",self.outputFileName
