@@ -103,9 +103,10 @@ class Configurator(object):
         e = eups.Eups()
         setupProducts = e.getSetupProducts()
         a = ""
+        # write out all setup products, except those that are setup locally.
         for i in setupProducts:
             if i.version.startswith("LOCAL:") == False:
-                a = a + "setup -j %s %s\n" % (i.name, i.version)
+                a = a + "setup -j %s %s\\n\\\n" % (i.name, i.version)
         return a
 
         return setupProducts
@@ -144,7 +145,7 @@ class Configurator(object):
             if val is not None:
                 substitutes[key] = self.commandLineDefaults[key]
 
-        substitutes["CTRL_EXECUTE_SETUP_PACKAGES"] = getSetupPackages()
+        substitutes["CTRL_EXECUTE_SETUP_PACKAGES"] = self.getSetupPackages()
         
         if self.opts.verbose == True:
             print "writing new configuration to ",self.outputFileName
