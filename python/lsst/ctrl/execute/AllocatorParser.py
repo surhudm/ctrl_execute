@@ -67,6 +67,9 @@ class AllocatorParser(object):
     def getArgs(self):
         return self.args
 
+    def getPlatform(self):
+        return self.args[1]
+
 
 if __name__ == "__main__":
     al = AllocatorParser(sys.argv)
