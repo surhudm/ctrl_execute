@@ -103,6 +103,15 @@ class Configurator(object):
 
         self.outputFileName = "/tmp/%s_config.py" % (self.runid)
         
+    def getGenericConfigFileName(self):
+        executePkgDir = eups.productDir("ctrl_execute")
+        genericConfigName = None
+        if (self.opts.setup == None) and (self.platform == "lsst"):
+            genericConfigName = os.path.join(executePkgDir, "etc", "templates", "config_with_getenv.py.template")
+        else:
+            genericConfigName = os.path.join(executePkgDir, "etc", "templates", "config_with_setups.py.template")
+        return genericConfigName
+
     def createRunId(self):
         now = datetime.now()
         runid = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)

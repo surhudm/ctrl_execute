@@ -1,6 +1,3 @@
-#
-# Orchestration Layer Config for a DC3 production
-#
 root.production.shortName = "DataRelease"
 root.production.eventBrokerHost = "lsst8.ncsa.uiuc.edu"
 root.production.productionShutdownTopic = "productionShutdown2"
@@ -33,19 +30,19 @@ root.workflow["workflow1"].configuration["condor"].condorData.localScratch = "$L
 
 root.workflow["workflow1"].task["task1"].scriptDir = "workers"
 
-root.workflow["workflow1"].task["task1"].preJob.script.inputFile = "$PLATFORM_DIR/etc/templates/preJob.sh.template"
+root.workflow["workflow1"].task["task1"].preJob.script.inputFile = "$PLATFORM_DIR/etc/templates/getenv/preJob.sh.template"
 root.workflow["workflow1"].task["task1"].preJob.script.outputFile = "preJob.sh"
-root.workflow["workflow1"].task["task1"].preJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/preJob.condor.template"
+root.workflow["workflow1"].task["task1"].preJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/getenv/preJob.condor.template"
 root.workflow["workflow1"].task["task1"].preJob.condor.outputFile = "S2012Pipe.pre"
 
-root.workflow["workflow1"].task["task1"].postJob.script.inputFile = "$PLATFORM_DIR/etc/templates/postJob.sh.template"
+root.workflow["workflow1"].task["task1"].postJob.script.inputFile = "$PLATFORM_DIR/etc/templates/getenv/postJob.sh.template"
 root.workflow["workflow1"].task["task1"].postJob.script.outputFile = "postJob.sh"
-root.workflow["workflow1"].task["task1"].postJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/postJob.condor.template"
+root.workflow["workflow1"].task["task1"].postJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/getenv/postJob.condor.template"
 root.workflow["workflow1"].task["task1"].postJob.condor.outputFile = "S2012Pipe.post"
 
-root.workflow["workflow1"].task["task1"].workerJob.script.inputFile = "$PLATFORM_DIR/etc/templates/worker.sh.template"
+root.workflow["workflow1"].task["task1"].workerJob.script.inputFile = "$PLATFORM_DIR/etc/templates/getenv/worker.sh.template"
 root.workflow["workflow1"].task["task1"].workerJob.script.outputFile = "worker.sh"
-root.workflow["workflow1"].task["task1"].workerJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/workerJob.condor.template"
+root.workflow["workflow1"].task["task1"].workerJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/getenv/workerJob.condor.template"
 root.workflow["workflow1"].task["task1"].workerJob.condor.outputFile = "S2012Pipeline-template.condor"
 
 

@@ -43,12 +43,11 @@ def main():
         raise RuntimeError("Can't find platform specific config for %s" % creator.platform)
     
 
-    #configName = "$CTRL_EXECUTE_DIR/etc/configs/%s_config.py" % creator.platform
     creator.load(configName)
 
     
-    executePkgDir = eups.productDir("ctrl_execute")
-    genericConfigName = os.path.join(executePkgDir, "etc", "templates", "generic_config.py.template")
+    genericConfigName = creator.getGenericConfigFileName()
+    #genericConfigName = os.path.join(executePkgDir, "etc", "templates", "generic_config.py.template")
     generatedConfigFile = creator.createConfiguration(genericConfigName)
 
     runid = creator.getRunid()

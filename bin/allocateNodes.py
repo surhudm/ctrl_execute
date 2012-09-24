@@ -61,8 +61,9 @@ def main():
     cmd = "gsissh %s qsub %s/%s" % (hostName, scratchDir, generatedConfigFile)
     runCommand(cmd)
 
-
 def runCommand(cmd):
+    print cmd
+    return
     cmd_split = cmd.split()
     pid = os.fork()
     if not pid:

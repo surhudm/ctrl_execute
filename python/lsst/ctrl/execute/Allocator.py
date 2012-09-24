@@ -39,7 +39,7 @@ class Allocator(object):
 
         self.commandLineDefaults["NODE_COUNT"] = self.opts.nodeCount
         self.commandLineDefaults["SLOTS"] = self.opts.slots
-        self.commandLineDefaults["WALLCLOCK"] = self.opts.maximumWallClock
+        self.commandLineDefaults["WALL_CLOCK"] = self.opts.maximumWallClock
 
         self.commandLineDefaults["QUEUE"] = self.opts.queueName
         self.commandLineDefaults["EMAIL_NOTIFICATION"] = self.opts.emailNotification
@@ -74,9 +74,9 @@ class Allocator(object):
         configuration.load(resolvedName)
 
         self.defaults = {}
-        self.defaults["QUEUE_NAME"] = configuration.platform.queueName
+        self.defaults["QUEUE"] = configuration.platform.queue
         self.defaults["EMAIL_NOTIFICATION"] = configuration.platform.emailNotification
-        self.defaults["HOST_NAME"] = configuration.platform.hostName
+        self.defaults["HOST_NAME"] = configuration.platform.loginHostName
         self.defaults["SCRATCH_DIR"] = configuration.platform.scratchDir
 
     def createPBSFile(self, input):
