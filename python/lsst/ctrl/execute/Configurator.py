@@ -106,7 +106,7 @@ class Configurator(object):
         # write out all setup products, except those that are setup locally.
         for i in setupProducts:
             if i.version.startswith("LOCAL:") == False:
-                a = a + "setup -j %s %s\\n\\\n" % (i.name, i.version)
+                a = a + "eups_setup -j %s %s >tmp.sh && source tmp.sh && cat tmp.sh >>env.sh\\n\\\n" % (i.name, i.version)
         return a
 
         return setupProducts
