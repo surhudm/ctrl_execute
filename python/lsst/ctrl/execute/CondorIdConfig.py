@@ -25,6 +25,7 @@
 from __future__ import with_statement
 import re, sys, os, os.path, shutil, subprocess
 import lsst.pex.config as pexConfig
+from EnvString import EnvString
 
 class FakeTypeMap(dict):
    def __init__(self, configClass):
@@ -45,7 +46,9 @@ class CondorInfoConfig(pexConfig.Config):
 
 if __name__ == "__main__":
     config = CondorInfoConfig()
-    config.load("/lsst/home/srp/.lsst/condor-info.py")
+    filename = "$HOME/.lsst/condor-info.py"
+    filename = EnvString.resolve(filename)
+    config.load(filename)
 
     for i in config.platform.keys():
         print i

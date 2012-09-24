@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # 
 # LSST Data Management System
 # Copyright 2008, 2009, 2010 LSST Corporation.
@@ -23,7 +22,7 @@
 #
 
 from __future__ import with_statement
-import re, sys, os, os.path, shutil, subprocess
+import sys, os, os.path, shutil, subprocess
 import optparse, traceback, time
 from datetime import datetime
 import lsst.pex.config as pexConfig
@@ -31,29 +30,7 @@ from string import Template
 from TemplateWriter import TemplateWriter
 from CondorConfig import CondorConfig
 import eups
-
-class EnvString:
-
-    ##
-    # given a string, look for any $ prefixed word, attempt to subsitute
-    # an environment variable with that name.  
-    #
-    # @throw exception if the environment variable doesn't exist
-    #
-    # Return the resulting string
-    def resolve(strVal):
-        p = re.compile('\$[a-zA-Z0-9_]+')
-        retVal = strVal
-        exprs = p.findall(retVal)
-        for i in exprs:
-            var = i[1:]
-            val = os.getenv(var, None)
-            if val == None:
-                raise RuntimeError("couldn't find environment variable "+i)
-                sys.exit(120)
-            retVal = p.sub(val,retVal,1)
-        return retVal
-    resolve = staticmethod(resolve)
+from EnvString import EnvString
 
 class Configurator(object):
     def __init__(self, opts):
