@@ -29,18 +29,51 @@ import lsst.pex.config as pexConfig
 from string import Template
 from TemplateWriter import TemplateWriter
 from CondorConfig import CondorConfig
+from CondorInfoConfig import CondorInfoConfig
 import eups
 from EnvString import EnvString
 
 class Configurator(object):
     def __init__(self, opts):
-
         self.opts = opts
 
         self.defaults = {}
+
+        configFileName = "$HOME/.lsst/condor-info.py"
+        fileName = EnvString.resolve(configFileName)
+
+        condorInfoConfig = CondorInfoConfig()
+        condorInfoConfig.load(fileName)
+
+        self.platform = self.opts.platform
+
+
+        # Look up the user's name and home directory in the $HOME//.lsst/condor-info.py file
+        # If the platform is lsst, and the user_name or user_home is not in there, then default to
+        # user running this command and the value of $HOME, respectively.
+        user_name = None
+        user_home = None
+        for name in condorInfoConfig.platform.keys():
+            if name == self.platform:
+                user_name = condorInfoConfig.platform[name].user.name
+                user_home = condorInfoConfig.platform[name].user.home
+
+        if self.platform == "lsst":
+            if user_name is None:
+                user_name = os.getlogin()
+            if user_home is None:
+                user_home = os.getenv('HOME')
+
+        if user_name is None:
+            raise RuntimeError("error: %s does not specify user name for platform %s" % (configFileName, self.platform))
+        if user_home is None:
+            raise RuntimeError("error: %s does not specify user home for platform %s" % (configFileName, self.platform))
+        
+            
+
         self.commandLineDefaults = {}
-        self.commandLineDefaults["USER_NAME"] = os.getlogin()
-        self.commandLineDefaults["USER_HOME"] = os.getenv('HOME')
+        self.commandLineDefaults["USER_NAME"] = user_name
+        self.commandLineDefaults["USER_HOME"] = user_home
         
         self.commandLineDefaults["DEFAULT_ROOT"]  = self.opts.defaultRoot
         self.commandLineDefaults["LOCAL_SCRATCH"] = self.opts.localScratch
@@ -64,7 +97,6 @@ class Configurator(object):
         else:
             self.runid = self.createRunId()
         
-        self.platform = self.opts.platform
         self.commandLineDefaults["COMMAND"] = self.opts.command
         if self.commandLineDefaults["INPUT_DATA_FILE"] is not None:
             self.commandLineDefaults["COMMAND"] = self.commandLineDefaults["COMMAND"]+" ${id_option}"
@@ -80,13 +112,27 @@ class Configurator(object):
         e = eups.Eups()
         setupProducts = e.getSetupProducts()
         a = ""
-        # write out all setup products, except those that are setup locally.
+
+        # create a new list will all products and versions
+        allProducts = {}
         for i in setupProducts:
-            if i.version.startswith("LOCAL:") == False:
-                a = a + "eups_setup -j %s %s >tmp.sh && source tmp.sh && cat tmp.sh >>env.sh\\n\\\n" % (i.name, i.version)
+            allProducts[i.name] = i.version
+
+        # replace any products that we saw on the command line
+        if self.opts.setup is not None:
+            for i, pkg in enumerate(self.opts.setup):
+                name = pkg[0]
+                version = pkg[1]
+                print "name = %s, version = %s" % (name, version)
+                allProducts[name] = version
+
+        # write out all products, except those that are setup locally.
+        for name in allProducts:
+            version = allProducts[name]
+            if version.startswith("LOCAL:") == False:
+                a = a + "setup -j %s %s\\n\\\n" % (name, version)
         return a
 
-        return setupProducts
     def load(self, name):
         resolvedName = EnvString.resolve(name)
         configuration = CondorConfig()
@@ -96,10 +142,10 @@ class Configurator(object):
         tempDefaultRoot = Template(configuration.platform.defaultRoot)
         self.defaults["DEFAULT_ROOT"] = tempDefaultRoot.substitute(USER_NAME=self.commandLineDefaults["USER_NAME"])
         #self.defaults["DEFAULT_ROOT"] = EnvString.resolve(configuration.platform.defaultRoot)
-        tempLocalScratch = Template(configuration.platform.localScratch)
-        self.defaults["LOCAL_SCRATCH"] = tempLocalScratch.substitute(USER_HOME=self.commandLineDefaults["USER_HOME"])
+        #tempLocalScratch = Template(configuration.platform.localScratch)
+        #self.defaults["LOCAL_SCRATCH"] = tempLocalScratch.substitute(USER_HOME=self.commandLineDefaults["USER_HOME"])
         
-        #self.defaults["LOCAL_SCRATCH"] = EnvString.resolve(configuration.platform.localScratch)
+        self.defaults["LOCAL_SCRATCH"] = EnvString.resolve(configuration.platform.localScratch)
         self.defaults["IDS_PER_JOB"] = configuration.platform.idsPerJob
         self.defaults["DATA_DIRECTORY"] = EnvString.resolve(configuration.platform.dataDirectory)
         self.defaults["FILE_SYSTEM_DOMAIN"] = configuration.platform.fileSystemDomain

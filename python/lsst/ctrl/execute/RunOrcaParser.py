@@ -63,6 +63,7 @@ class RunOrcaParser(object):
         parser.add_option("-e", "--eups-path", action="store", dest="eupsPath", default=None, help="eups path")
         parser.add_option("-R", "--run-id", action="store", dest="runid", default=None, help="run id")
         parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="verbose")
+        parser.add_option("-s", "--setup", action="append", nargs=2, help="setup")
         
         opts, args = parser.parse_args(argv)
 
