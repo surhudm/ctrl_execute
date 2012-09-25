@@ -127,7 +127,8 @@ class Configurator(object):
         for i in setupProducts:
             allProducts[i.name] = i.version
 
-        # replace any products that we saw on the command line
+        # replace any existing products that we saw on the command line, adding
+        # them if they're not already there.
         if self.opts.setup is not None:
             for i, pkg in enumerate(self.opts.setup):
                 name = pkg[0]
