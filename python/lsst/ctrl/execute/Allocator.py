@@ -31,13 +31,47 @@ from datetime import datetime
 from string import Template
 from EnvString import EnvString
 from AllocationConfig import AllocationConfig
+from CondorInfoConfig import CondorInfoConfig
 from TemplateWriter import TemplateWriter
 
 class Allocator(object):
-    def __init__(self, opts):
+    def __init__(self, platform, opts):
 
         self.opts = opts
         self.defaults = {}
+
+        configFileName = "$HOME/.lsst/condor-info.py"
+        fileName = EnvString.resolve(configFileName)
+
+        condorInfoConfig = CondorInfoConfig()
+        condorInfoConfig.load(fileName)
+
+        self.platform = platform
+
+
+        # Look up the user's name and home directory in the $HOME//.lsst/condor-info.py file
+        # If the platform is lsst, and the user_name or user_home is not in there, then default to
+        # user running this command and the value of $HOME, respectively.
+        user_name = None
+        user_home = None
+        for name in condorInfoConfig.platform.keys():
+            if name == self.platform:
+                user_name = condorInfoConfig.platform[name].user.name
+                user_home = condorInfoConfig.platform[name].user.home
+
+        if self.platform == "lsst":
+            if user_name is None:
+                user_name = os.getlogin()
+            if user_home is None:
+                user_home = os.getenv('HOME')
+
+        if user_name is None:
+            raise RuntimeError("error: %s does not specify user name for platform %s" % (configFileName, self.platform))
+        if user_home is None:
+            raise RuntimeError("error: %s does not specify user home for platform %s" % (configFileName, self.platform))
+
+        self.defaults["USER_NAME"] = user_name
+        self.defaults["USER_HOME"] = user_home
 
         self.commandLineDefaults = {}
 
@@ -47,6 +81,7 @@ class Allocator(object):
 
         self.commandLineDefaults["QUEUE"] = self.opts.queue
         self.commandLineDefaults["EMAIL_NOTIFICATION"] = self.opts.email
+
         
     def createNodeSetName(self):
         # TODO: change this to an incrementing name, based on a 'save pid' type
@@ -59,13 +94,16 @@ class Allocator(object):
     def load(self, name):
         resolvedName = EnvString.resolve(name)
         configuration = AllocationConfig()
+        if os.path.exists(resolvedName) == False:
+            print "%s was not found." % resolvedName
+            return False
         configuration.load(resolvedName)
 
-        self.defaults = {}
         self.defaults["QUEUE"] = configuration.platform.queue
         self.defaults["EMAIL_NOTIFICATION"] = configuration.platform.email
         self.defaults["HOST_NAME"] = configuration.platform.loginHostName
         self.defaults["SCRATCH_DIR"] = configuration.platform.scratchDirectory
+        self.defaults["UTILITY_PATH"] = configuration.platform.utilityPath
 
 
         self.defaults["NODE_SET"] = self.opts.nodeSet
@@ -85,6 +123,7 @@ class Allocator(object):
             self.defaults["ERROR_LOG"] = "%s.err" % nodeSetName
 
         self.outputFileName = "/tmp/alloc_%s.pbs" % (nodeSetName)
+        return True
 
     def createPBSFile(self, input):
         resolvedInputName = EnvString.resolve(input)
@@ -104,6 +143,21 @@ class Allocator(object):
 
     def isVerbose(self):
         return self.opts.verbose
+
+    def getUserName(self):
+        return self.getParameter("USER_NAME")
+
+    def getUserHome(self):
+        return self.getParameter("USER_HOME")
+
+    def getHostName(self):
+        return self.getParameter("HOST_NAME")
+
+    def getUtilityPath(self):
+        return self.getParameter("UTILITY_PATH")
+
+    def getScratchDirectory(self):
+        return self.getParameter("SCRATCH_DIR")
 
     def getParameter(self,value):
         if value in self.commandLineDefaults:

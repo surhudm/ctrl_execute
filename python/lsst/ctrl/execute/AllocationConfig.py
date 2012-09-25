@@ -28,6 +28,7 @@ class AllocatedPlatformConfig(pexConfig.Config):
 
     scratchDirectory  = pexConfig.Field("scratch directory",str, default=None)
     loginHostName  = pexConfig.Field("host name",str, default=None)
+    utilityPath = pexConfig.Field("utility path", str, default=None)
 
 class AllocationConfig(pexConfig.Config):
     platform = pexConfig.ConfigField("platform allocation", AllocatedPlatformConfig)

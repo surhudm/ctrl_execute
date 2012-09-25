@@ -29,51 +29,54 @@ import optparse, traceback, time
 import lsst.pex.config as pexConfig
 from lsst.ctrl.execute.Allocator import Allocator
 from lsst.ctrl.execute.AllocatorParser import AllocatorParser
+from string import Template
 import eups
 
 def main():
     p = AllocatorParser(sys.argv)
-    opts = p.getOpts()
     platform = p.getPlatform()
 
-    creator = Allocator(opts)
+    creator = Allocator(platform, p.getOpts())
 
     platformPkgDir = eups.productDir("ctrl_platform_"+platform)
     if platformPkgDir is not None:
         configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
     else:
-        raise RuntimeError("Can't find platform specific PBS file for %s" % platform)
+        raise RunTimeError("ctrl_platform_%s was not found.  Is it setup?" % platform)
     
 
-    creator.load(configName)
+    if creator.load(configName) == False:
+        raise RunTimeError "Couldn't find pbs config file for platform: %s" % platform)
 
     
     pbsName = os.path.join(platformPkgDir, "etc", "templates", "generic.pbs.template")
     generatedPBSFile = creator.createPBSFile(pbsName)
 
-    scratchDir = creator.getParameter("SCRATCH_DIR")
-    hostName = creator.getParameter("HOST_NAME")
-    # need to copy this to a better spot
+    scratchDirParam = creator.getScratchDirectory()
+    template = Template(scratchDirParam)
+    scratchDir = template.substitute(USER_HOME=creator.getUserHome())
+    
+    hostName = creator.getHostName()
 
-    cmd = "gsiscp %s %s:%s/%s" % (generatedPBSFile, hostName, scratchDir, generatedPBSFile)
+    utilityPath = creator.getUtilityPath()
+
+    cmd = "gsiscp %s %s:%s/%s" % (generatedPBSFile, hostName, scratchDir, os.path.basename(generatedPBSFile))
     runCommand(cmd)
 
-    cmd = "gsissh %s qsub %s/%s" % (hostName, scratchDir, generatedPBSFile)
+    cmd = "gsissh %s %s/qsub %s/%s" % (hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
     runCommand(cmd)
 
 def runCommand(cmd):
     print cmd
-    return
     cmd_split = cmd.split()
     pid = os.fork()
     if not pid:
-        sys.stdin.close()
-        sys.stdout.close()
-        sys.stderr.close()
-        if creator.isVerbose == False:
-            os.close(0)
-            os.close(1)
-            os.close(2)
+#        sys.stdin.close()
+#        sys.stdout.close()
+#        sys.stderr.close()
+#            os.close(0)
+#            os.close(1)
+#            os.close(2)
         os.execvp(cmd_split[0], cmd_split)
     os.wait()[0]
 
