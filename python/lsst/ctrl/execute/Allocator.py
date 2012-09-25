@@ -25,15 +25,19 @@
 from __future__ import with_statement
 import re, sys, os, os.path, shutil, subprocess
 import optparse, traceback, time
-from datetime import datetime
 import lsst.pex.config as pexConfig
-from string import Template
 import eups
+from datetime import datetime
+from string import Template
+from EnvString import EnvString
+from AllocationConfig import AllocationConfig
+from TemplateWriter import TemplateWriter
 
 class Allocator(object):
     def __init__(self, opts):
 
         self.opts = opts
+        self.defaults = {}
 
         self.commandLineDefaults = {}
 
@@ -41,24 +45,8 @@ class Allocator(object):
         self.commandLineDefaults["SLOTS"] = self.opts.slots
         self.commandLineDefaults["WALL_CLOCK"] = self.opts.maximumWallClock
 
-        self.commandLineDefaults["QUEUE"] = self.opts.queueName
-        self.commandLineDefaults["EMAIL_NOTIFICATION"] = self.opts.emailNotification
-
-        self.defaults["NODE_SET"] = self.opts.nodeSet
-        if self.defaults["NODE_SET"] is None:
-            self.defaults["NODE_SET"] = self.createNodeSetName()
-
-        if self.opts.outputLog is not None:
-            self.defaults["OUTPUT_LOG"] = self.opts.outputLog
-        else:
-            self.defaults["OUTPUT_LOG"] = "%s.out" % nodeSetName
-
-        if self.opts.errorLog is not None:
-            self.defaults["ERROR_LOG"] = self.opts.errorLog
-        else:
-            self.defaults["ERROR_LOG"] = "%s.err" % nodeSetName
-
-        self.outputFileName = "/tmp/alloc_%s.pbs" % (nodeSetName)
+        self.commandLineDefaults["QUEUE"] = self.opts.queue
+        self.commandLineDefaults["EMAIL_NOTIFICATION"] = self.opts.email
         
     def createNodeSetName(self):
         # TODO: change this to an incrementing name, based on a 'save pid' type
@@ -75,9 +63,28 @@ class Allocator(object):
 
         self.defaults = {}
         self.defaults["QUEUE"] = configuration.platform.queue
-        self.defaults["EMAIL_NOTIFICATION"] = configuration.platform.emailNotification
+        self.defaults["EMAIL_NOTIFICATION"] = configuration.platform.email
         self.defaults["HOST_NAME"] = configuration.platform.loginHostName
-        self.defaults["SCRATCH_DIR"] = configuration.platform.scratchDir
+        self.defaults["SCRATCH_DIR"] = configuration.platform.scratchDirectory
+
+
+        self.defaults["NODE_SET"] = self.opts.nodeSet
+        if self.defaults["NODE_SET"] is None:
+            self.defaults["NODE_SET"] = self.createNodeSetName()
+
+        nodeSetName = self.defaults["NODE_SET"]
+
+        if self.opts.outputLog is not None:
+            self.defaults["OUTPUT_LOG"] = self.opts.outputLog
+        else:
+            self.defaults["OUTPUT_LOG"] = "%s.out" % nodeSetName
+
+        if self.opts.errorLog is not None:
+            self.defaults["ERROR_LOG"] = self.opts.errorLog
+        else:
+            self.defaults["ERROR_LOG"] = "%s.err" % nodeSetName
+
+        self.outputFileName = "/tmp/alloc_%s.pbs" % (nodeSetName)
 
     def createPBSFile(self, input):
         resolvedInputName = EnvString.resolve(input)
@@ -99,10 +106,11 @@ class Allocator(object):
         return self.opts.verbose
 
     def getParameter(self,value):
-        val = self.commandLineDefaults[value]
-        if val == None:
-            val =  self.defaults[value]
-        return val
+        if value in self.commandLineDefaults:
+            return self.commandLineDefaults[value]
+        if value in self.defaults:
+            return self.defaults[value]
+        return None
 
     def getNodeSetName(self):
         return self.nodeSetName

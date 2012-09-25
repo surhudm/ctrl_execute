@@ -189,10 +189,11 @@ class Configurator(object):
         return self.opts.verbose
 
     def getParameter(self,value):
-        val = self.commandLineDefaults[value]
-        if val == None:
-            val =  self.defaults[value]
-        return val
+        if value in self.commandLineDefaults:
+            return self.commandLineDefaults[value]
+        if value in self.defaults:
+            return self.defaults[value]
+        return None
 
     def getRunid(self):
         return self.runid

@@ -32,7 +32,6 @@ class TemplateWriter:
     # object and substitute the values, and write those to the output file.
     #
     def rewrite(self, input, output, pairs):
-        print "rewrited with ", pairs
         fpInput = open(input, 'r')
         fpOutput = open(output, 'w')
 

@@ -49,18 +49,27 @@ class AllocatorParser(object):
         parser.add_option("-e", "--email", action="store_false", dest="email", default=True, help="email notification flag")
         parser.add_option("-O", "--output-log", action="store", dest="outputLog", default=None, help="Output log filename")
         parser.add_option("-E", "--error-log", action="store", dest="errorLog", default=None, help="Error log filename")
+        parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="verbose")
         
         opts, args = parser.parse_args(argv)
 
         if opts.nodeCount is None:
-            raise RuntimeError("error: required argument --node-count is not specified")
+            print "error: required argument --node-count is not specified"
+            print self.usage
+            sys.exit(10)
         if opts.slots is None:
-            raise RuntimeError("error: required argument --slots is not specified")
+            print "error: required argument --slots is not specified"
+            print self.usage
+            sys.exit(10)
         if opts.maximumWallClock is None:
-            raise RuntimeError("error: required argument --maximum-wall-clock is not specified")
+            print "error: required argument --maximum-wall-clock is not specified"
+            print self.usage
+            sys.exit(10)
         
         if len(args) != 2:
-            raise RuntimeError("error: required argument 'platform' is not specified")
+            print "error: required argument 'platform' is not specified"
+            print self.usage
+            sys.exit(10)
 
 
         return opts, args

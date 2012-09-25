@@ -23,8 +23,8 @@
 import lsst.pex.config as pexConfig
 
 class AllocatedPlatformConfig(pexConfig.Config):
-    queueName = pexConfig.Field("default root working for directories",str, default=None)
-    emailNotification = pexConfig.Field("local scratch directory", bool, default=None)
+    queue = pexConfig.Field("default root working for directories",str, default=None)
+    email = pexConfig.Field("local scratch directory", bool, default=None)
 
     scratchDirectory  = pexConfig.Field("scratch directory",str, default=None)
     loginHostName  = pexConfig.Field("host name",str, default=None)

@@ -55,10 +55,10 @@ def main():
     hostName = creator.getParameter("HOST_NAME")
     # need to copy this to a better spot
 
-    cmd = "gsiscp %s %s:%s/%s" % (generatedConfigFile, hostName, scratchDir, generatedConfigFile)
+    cmd = "gsiscp %s %s:%s/%s" % (generatedPBSFile, hostName, scratchDir, generatedPBSFile)
     runCommand(cmd)
 
-    cmd = "gsissh %s qsub %s/%s" % (hostName, scratchDir, generatedConfigFile)
+    cmd = "gsissh %s qsub %s/%s" % (hostName, scratchDir, generatedPBSFile)
     runCommand(cmd)
 
 def runCommand(cmd):
