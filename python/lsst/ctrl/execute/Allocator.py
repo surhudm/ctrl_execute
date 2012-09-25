@@ -107,9 +107,12 @@ class Allocator(object):
         self.defaults["QUEUE"] = configuration.platform.queue
         self.defaults["EMAIL_NOTIFICATION"] = configuration.platform.email
         self.defaults["HOST_NAME"] = configuration.platform.loginHostName
-        self.defaults["SCRATCH_DIR"] = configuration.platform.scratchDirectory
-        self.defaults["UTILITY_PATH"] = configuration.platform.utilityPath
 
+        template = Template(configuration.platform.scratchDirectory)
+        scratchDir = template.substitute(USER_HOME=self.getUserHome())
+        self.defaults["SCRATCH_DIR"] = scratchDir
+
+        self.defaults["UTILITY_PATH"] = configuration.platform.utilityPath
 
         if self.opts.nodeSet is None:
             self.defaults["NODE_SET"] = self.createNodeSetName()
@@ -130,13 +133,22 @@ class Allocator(object):
 
         uniqueFileName = self.createUniqueFileName()
 
-        self.outputFileName = "/tmp/alloc_%s.pbs" % uniqueFileName
+        self.pbsFileName = "/tmp/alloc_%s.pbs" % uniqueFileName
+        self.condorConfigFileName = "/tmp/condor_%s.config" % uniqueFileName
+
+        self.defaults["GENERATED_CONFIG"] = os.path.basename(self.condorConfigFileName)
         return True
 
     def createPBSFile(self, input):
+        return self.createFile(input, self.pbsFileName, "PBS")
+
+    def createCondorConfigFile(self, input):
+        return self.createFile(input, self.condorConfigFileName, "condor_config")
+
+    def createFile(self, input, output, fileType):
         resolvedInputName = EnvString.resolve(input)
         if self.opts.verbose == True:
-            print "creating PBS file using ",resolvedInputName
+            print "creating %s file using %s" % (fileType, resolvedInputName)
         template = TemplateWriter()
         substitutes = self.defaults.copy()
         for key in self.commandLineDefaults:
@@ -145,9 +157,11 @@ class Allocator(object):
                 substitutes[key] = self.commandLineDefaults[key]
         
         if self.opts.verbose == True:
-            print "writing new PBS file to ",self.outputFileName
-        template.rewrite(resolvedInputName, self.outputFileName, substitutes)
-        return self.outputFileName
+            print "writing new %s file to %s" % (fileType, output)
+        template.rewrite(resolvedInputName, output, substitutes)
+        return output
+
+
 
     def isVerbose(self):
         return self.opts.verbose

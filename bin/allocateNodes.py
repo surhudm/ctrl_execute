@@ -52,6 +52,9 @@ def main():
     pbsName = os.path.join(platformPkgDir, "etc", "templates", "generic.pbs.template")
     generatedPBSFile = creator.createPBSFile(pbsName)
 
+    condorFile = os.path.join(platformPkgDir, "etc", "templates", "glidein_condor_config.template")
+    generatedCondorConfigFile = creator.createCondorConfigFile(condorFile)
+
     scratchDirParam = creator.getScratchDirectory()
     template = Template(scratchDirParam)
     scratchDir = template.substitute(USER_HOME=creator.getUserHome())
@@ -61,6 +64,9 @@ def main():
     utilityPath = creator.getUtilityPath()
 
     cmd = "gsiscp %s %s:%s/%s" % (generatedPBSFile, hostName, scratchDir, os.path.basename(generatedPBSFile))
+    runCommand(cmd)
+
+    cmd = "gsiscp %s %s:%s/%s" % (generatedCondorConfigFile, hostName, scratchDir, os.path.basename(generatedCondorConfigFile))
     runCommand(cmd)
 
     cmd = "gsissh %s %s/qsub %s/%s" % (hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
