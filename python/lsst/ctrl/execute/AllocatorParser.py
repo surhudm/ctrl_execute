@@ -46,10 +46,10 @@ class AllocatorParser(object):
         parser.add_option("-m", "--maximum-wall-clock", action="store", dest="maximumWallClock", default=None, help="maximum wall clock time")
         parser.add_option("-N", "--node-set", action="store", dest="nodeSet", default=None, help="node set name")
         parser.add_option("-q", "--queue", action="store", dest="queue", default=None, help="pbs queue name")
-        parser.add_option("-e", "--email", action="store_false", dest="email", default=True, help="email notification flag")
+        parser.add_option("-e", "--email", action="store", dest="email", default=None, help="email notification flag")
         parser.add_option("-O", "--output-log", action="store", dest="outputLog", default=None, help="Output log filename")
         parser.add_option("-E", "--error-log", action="store", dest="errorLog", default=None, help="Error log filename")
-        parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False, help="verbose")
+        parser.add_option("-v", "--verbose", action="store_true", dest="verbose",help="verbose")
         
         opts, args = parser.parse_args(argv)
 

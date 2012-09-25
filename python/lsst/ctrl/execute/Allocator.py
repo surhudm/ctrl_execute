@@ -33,6 +33,7 @@ from EnvString import EnvString
 from AllocationConfig import AllocationConfig
 from CondorInfoConfig import CondorInfoConfig
 from TemplateWriter import TemplateWriter
+from SeqFile import SeqFile
 
 class Allocator(object):
     def __init__(self, platform, opts):
@@ -80,15 +81,19 @@ class Allocator(object):
         self.commandLineDefaults["WALL_CLOCK"] = self.opts.maximumWallClock
 
         self.commandLineDefaults["QUEUE"] = self.opts.queue
-        self.commandLineDefaults["EMAIL_NOTIFICATION"] = self.opts.email
+        if self.opts.email == "no":
+            self.commandLineDefaults["EMAIL_NOTIFICATION"] = "#"
 
-        
     def createNodeSetName(self):
-        # TODO: change this to an incrementing name, based on a 'save pid' type
-        # of file in the ~/.lsst directory.
-        now = datetime.now()
-        nodeSetName = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
+        s = SeqFile("$HOME/.lsst/node-set.seq")
+        n = s.nextSeq()
+        nodeSetName = "%s_%d" % (self.defaults["USER_NAME"], n)
         return nodeSetName
+        
+    def createUniqueFileName(self):
+        now = datetime.now()
+        fileName = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
+        return fileName
 
 
     def load(self, name):
@@ -106,9 +111,10 @@ class Allocator(object):
         self.defaults["UTILITY_PATH"] = configuration.platform.utilityPath
 
 
-        self.defaults["NODE_SET"] = self.opts.nodeSet
-        if self.defaults["NODE_SET"] is None:
+        if self.opts.nodeSet is None:
             self.defaults["NODE_SET"] = self.createNodeSetName()
+        else:
+            self.defaults["NODE_SET"] = self.opts.nodeSet
 
         nodeSetName = self.defaults["NODE_SET"]
 
@@ -122,7 +128,9 @@ class Allocator(object):
         else:
             self.defaults["ERROR_LOG"] = "%s.err" % nodeSetName
 
-        self.outputFileName = "/tmp/alloc_%s.pbs" % (nodeSetName)
+        uniqueFileName = self.createUniqueFileName()
+
+        self.outputFileName = "/tmp/alloc_%s.pbs" % uniqueFileName
         return True
 
     def createPBSFile(self, input):
@@ -159,12 +167,12 @@ class Allocator(object):
     def getScratchDirectory(self):
         return self.getParameter("SCRATCH_DIR")
 
+    def getNodeSetName(self):
+        return self.getParameter("NODE_SET")
+
     def getParameter(self,value):
         if value in self.commandLineDefaults:
             return self.commandLineDefaults[value]
         if value in self.defaults:
             return self.defaults[value]
         return None
-
-    def getNodeSetName(self):
-        return self.nodeSetName

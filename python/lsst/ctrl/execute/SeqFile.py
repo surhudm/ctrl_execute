@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # 
 # LSST Data Management System
 # Copyright 2008, 2009, 2010 LSST Corporation.
@@ -20,16 +21,35 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import lsst.pex.config as pexConfig
+from __future__ import with_statement
+from EnvString import EnvString
+import sys, os, os.path
 
-class AllocatedPlatformConfig(pexConfig.Config):
-    queue = pexConfig.Field("default root working for directories",str, default=None)
-    email = pexConfig.Field("notify by e-mail pbs string", str, default=None)
+class SeqFile(object):
+    def __init__(self, seqFileName):
+        self.fileName = EnvString.resolve(seqFileName)
 
-    scratchDirectory  = pexConfig.Field("scratch directory",str, default=None)
-    loginHostName  = pexConfig.Field("host name",str, default=None)
-    utilityPath = pexConfig.Field("utility path", str, default=None)
+    def nextSeq(self):
+        seq = 0
+        if os.path.exists(self.fileName) == False:
+            self.writeSeq(seq)
+        else:
+            seq = self.readSeq()
+            seq += 1
+            self.writeSeq(seq)
+        return seq
 
-class AllocationConfig(pexConfig.Config):
-    platform = pexConfig.ConfigField("platform allocation", AllocatedPlatformConfig)
+    def readSeq(self):
+        with open(self.fileName) as seqFile:
+            line = seqFile.read()
+            seq = int(line)
+        return seq
+        
+    def writeSeq(self, seq):
+        with open(self.fileName,'w') as seqFile:
+            print >>seqFile, seq
 
+if __name__ == "__main__":
+    s = SeqFile()
+    n = s.nextSeq()
+    print n

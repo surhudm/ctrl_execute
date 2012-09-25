@@ -42,11 +42,11 @@ def main():
     if platformPkgDir is not None:
         configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
     else:
-        raise RunTimeError("ctrl_platform_%s was not found.  Is it setup?" % platform)
+        raise RuntimeError("ctrl_platform_%s was not found.  Is it setup?" % platform)
     
 
     if creator.load(configName) == False:
-        raise RunTimeError "Couldn't find pbs config file for platform: %s" % platform)
+        raise RuntimeError("Couldn't find pbs config file for platform: %s" % platform)
 
     
     pbsName = os.path.join(platformPkgDir, "etc", "templates", "generic.pbs.template")
@@ -65,6 +65,9 @@ def main():
 
     cmd = "gsissh %s %s/qsub %s/%s" % (hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
     runCommand(cmd)
+
+    print "Node set name:"
+    print creator.getNodeSetName()
 
 def runCommand(cmd):
     print cmd
