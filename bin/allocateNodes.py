@@ -48,6 +48,8 @@ def main():
     if creator.load(configName) == False:
         raise RuntimeError("Couldn't find pbs config file for platform: %s" % platform)
 
+    verbose = creator.isVerbose()
+
     
     pbsName = os.path.join(platformPkgDir, "etc", "templates", "generic.pbs.template")
     generatedPBSFile = creator.createPBSFile(pbsName)
@@ -64,19 +66,28 @@ def main():
     utilityPath = creator.getUtilityPath()
 
     cmd = "gsiscp %s %s:%s/%s" % (generatedPBSFile, hostName, scratchDir, os.path.basename(generatedPBSFile))
+    if verbose:
+        print cmd
     runCommand(cmd)
 
     cmd = "gsiscp %s %s:%s/%s" % (generatedCondorConfigFile, hostName, scratchDir, os.path.basename(generatedCondorConfigFile))
+    if verbose:
+        print cmd
     runCommand(cmd)
 
     cmd = "gsissh %s %s/qsub %s/%s" % (hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
+    if verbose:
+        print cmd
     runCommand(cmd)
 
+    nodes = creator.getNodes()
+    slots = creator.getSlots()
+    wallClock = creator.getWallClock()
+    print "%s nodes allocated on %s with %s slots per node and maximum time limit of %s" % (nodes, platform, slots, wallClock)
     print "Node set name:"
     print creator.getNodeSetName()
 
 def runCommand(cmd):
-    print cmd
     cmd_split = cmd.split()
     pid = os.fork()
     if not pid:

@@ -184,6 +184,16 @@ class Allocator(object):
     def getNodeSetName(self):
         return self.getParameter("NODE_SET")
 
+    def getNodes(self):
+        return self.getParameter("NODE_COUNT")
+
+    def getSlots(self):
+        return self.getParameter("SLOTS")
+
+    def getWallClock(self):
+        return self.getParameter("WALL_CLOCK")
+
+
     def getParameter(self,value):
         if value in self.commandLineDefaults:
             return self.commandLineDefaults[value]
