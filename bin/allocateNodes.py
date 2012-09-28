@@ -83,7 +83,7 @@ def main():
     nodes = creator.getNodes()
     slots = creator.getSlots()
     wallClock = creator.getWallClock()
-    print "%s nodes allocated on %s with %s slots per node and maximum time limit of %s" % (nodes, platform, slots, wallClock)
+    print "%s nodes will be allocated on %s with %s slots per node and maximum time limit of %s" % (nodes, platform, slots, wallClock)
     print "Node set name:"
     print creator.getNodeSetName()
 
