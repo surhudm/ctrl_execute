@@ -142,8 +142,11 @@ class Configurator(object):
         # write out all products, except those that are setup locally.
         for name in allProducts:
             version = allProducts[name]
-            if version.startswith("LOCAL:") == False:
+            if self.platform == "lsst":
                 a = a + "setup -j %s %s\\n\\\n" % (name, version)
+            else:
+                if version.startswith("LOCAL:") == False:
+                    a = a + "setup -j %s %s\\n\\\n" % (name, version)
         return a
 
     def load(self, name):
