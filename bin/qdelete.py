@@ -67,5 +67,4 @@ if __name__ == "__main__":
     utilityPath = allocationConfig.platform.utilityPath
     userName = condorInfoConfig.platform[platform].user.name
     cmd = "gsissh %s %s/qdel %s" % (hostName, utilityPath, jobId)
-    print cmd
     runCommand(cmd)
