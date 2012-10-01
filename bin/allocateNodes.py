@@ -68,17 +68,26 @@ def main():
     cmd = "gsiscp %s %s:%s/%s" % (generatedPBSFile, hostName, scratchDir, os.path.basename(generatedPBSFile))
     if verbose:
         print cmd
-    runCommand(cmd)
+    exitCode = runCommand(cmd)
+    if exitCode != 0:
+        print "error running gsiscp to %s.  Did you run grid-proxy-init?" % hostName
+        sys.exit(exitCode)
 
     cmd = "gsiscp %s %s:%s/%s" % (generatedCondorConfigFile, hostName, scratchDir, os.path.basename(generatedCondorConfigFile))
     if verbose:
         print cmd
-    runCommand(cmd)
+    exitCode = runCommand(cmd)
+    if exitCode != 0:
+        print "error running gsiscp to %s.  Did you run grid-proxy-init?" % hostName
+        sys.exit(exitCode)
 
     cmd = "gsissh %s %s/qsub %s/%s" % (hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
     if verbose:
         print cmd
-    runCommand(cmd)
+    exitCode = runCommand(cmd)
+    if exitCode != 0:
+        print "error running gsissh to %s.  Did you run grid-proxy-init?" % hostName
+        sys.exit(exitCode)
 
     nodes = creator.getNodes()
     slots = creator.getSlots()
@@ -86,19 +95,22 @@ def main():
     print "%s nodes will be allocated on %s with %s slots per node and maximum time limit of %s" % (nodes, platform, slots, wallClock)
     print "Node set name:"
     print creator.getNodeSetName()
+    sys.exit(0)
 
 def runCommand(cmd):
     cmd_split = cmd.split()
     pid = os.fork()
     if not pid:
-#        sys.stdin.close()
-#        sys.stdout.close()
-#        sys.stderr.close()
-#            os.close(0)
-#            os.close(1)
-#            os.close(2)
+        sys.stdin.close()
+        sys.stdout.close()
+        sys.stderr.close()
+        os.close(0)
+        os.close(1)
+        os.close(2)
         os.execvp(cmd_split[0], cmd_split)
-    os.wait()[0]
+    pid, status = os.wait()
+    exitCode = (status & 0xff00)  >> 8
+    return exitCode
 
 if __name__ == "__main__":
     main()

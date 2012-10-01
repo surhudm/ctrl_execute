@@ -35,14 +35,10 @@ def runCommand(cmd):
     cmd_split = cmd.split()
     pid = os.fork()
     if not pid:
-#        sys.stdin.close()
-#        sys.stdout.close()
-#        sys.stderr.close()
-#            os.close(0)
-#            os.close(1)
-#            os.close(2)
         os.execvp(cmd_split[0], cmd_split)
-    os.wait()[0]
+    pid, status = os.wait()
+    exitCode = (status & 0xff00)  >> 8
+    return exitCode
 
 if __name__ == "__main__":  
     platform = sys.argv[1]
@@ -65,4 +61,7 @@ if __name__ == "__main__":
     utilityPath = allocationConfig.platform.utilityPath
     userName = condorInfoConfig.platform[platform].user.name
     cmd = "gsissh %s %s/qstat -u%s" % (hostName, utilityPath, userName)
-    runCommand(cmd)
+    exitCode = runCommand(cmd)
+    if exitCode != 0:
+        sys.exit(exitCode)
+    sys.exit(0)

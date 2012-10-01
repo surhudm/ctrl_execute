@@ -133,31 +133,41 @@ class Allocator(object):
 
         uniqueFileName = self.createUniqueFileName()
 
-        self.pbsFileName = "/tmp/alloc_%s.pbs" % uniqueFileName
-        self.condorConfigFileName = "/tmp/condor_%s.config" % uniqueFileName
+        # write these pbs and config files to {SCRATCH_DIR}/configs
+        configDir = os.path.join(scratchDir, "configs")
+        if os.path.exists(configDir) == False:
+            os.mkdir(configDir)
+        self.pbsFileName = os.path.join(configDir, "alloc_%s.pbs" % uniqueFileName)
+
+        self.condorConfigFileName = os.path.join(configDir, "condor_%s.config" % uniqueFileName)
 
         self.defaults["GENERATED_CONFIG"] = os.path.basename(self.condorConfigFileName)
         return True
 
     def createPBSFile(self, input):
-        return self.createFile(input, self.pbsFileName, "PBS")
+        if self.opts.verbose == True:
+            print "creating PBS file using %s" % resolvedInputName
+        outfile = self.createFile(input, self.pbsFileName)
+        if self.opts.verbose == True:
+            print "wrote new PBS file to %s" %  outfile
+        return outfile
 
     def createCondorConfigFile(self, input):
-        return self.createFile(input, self.condorConfigFileName, "condor_config")
-
-    def createFile(self, input, output, fileType):
-        resolvedInputName = EnvString.resolve(input)
         if self.opts.verbose == True:
-            print "creating %s file using %s" % (fileType, resolvedInputName)
+            print "creating condor_config file using %s" % resolvedInputName
+        outfile = self.createFile(input, self.condorConfigFileName)
+        if self.opts.verbose == True:
+            print "wrote new condor_config file to %s" %  outfile
+        return outfile
+
+    def createFile(self, input, output):
+        resolvedInputName = EnvString.resolve(input)
         template = TemplateWriter()
         substitutes = self.defaults.copy()
         for key in self.commandLineDefaults:
             val = self.commandLineDefaults[key]
             if val is not None:
                 substitutes[key] = self.commandLineDefaults[key]
-        
-        if self.opts.verbose == True:
-            print "writing new %s file to %s" % (fileType, output)
         template.rewrite(resolvedInputName, output, substitutes)
         return output
 

@@ -104,7 +104,6 @@ class Configurator(object):
         if self.commandLineDefaults["INPUT_DATA_FILE"] is not None:
             self.commandLineDefaults["COMMAND"] = self.commandLineDefaults["COMMAND"]+" ${id_option}"
 
-        self.outputFileName = "/tmp/%s_config.py" % (self.runid)
         
     def getGenericConfigFileName(self):
         executePkgDir = eups.productDir("ctrl_execute")
@@ -186,6 +185,10 @@ class Configurator(object):
 
         substitutes["CTRL_EXECUTE_SETUP_PACKAGES"] = self.getSetupPackages()
         
+        configDir = os.path.join(substitutes["LOCAL_SCRATCH"], "configs")
+        if os.path.exists(configDir) == False:
+            os.mkdir(configDir)
+        self.outputFileName = os.path.join(configDir, "%s_config.py" % (self.runid))
         if self.opts.verbose == True:
             print "writing new configuration to ",self.outputFileName
         template.rewrite(resolvedInputName, self.outputFileName, substitutes)
