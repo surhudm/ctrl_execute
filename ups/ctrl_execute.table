@@ -1,6 +1,6 @@
 setupRequired(datarel)
 setupRequired(ctrl_orca)
-setupRequired(pex_config)
+setupRequired(pex_config >= 5.1.1.0+1)
 
 envPrepend(PYTHONPATH, ${PRODUCT_DIR}/python)
 envPrepend(PATH, ${PRODUCT_DIR}/bin)

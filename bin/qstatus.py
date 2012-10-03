@@ -24,7 +24,7 @@
 
 
 from __future__ import with_statement
-import sys, os, os.path, shutil, subprocess
+import sys, os, os.path, shutil, subprocess, string
 import lsst.pex.config as pexConfig
 from lsst.ctrl.execute.EnvString import EnvString
 from lsst.ctrl.execute.AllocationConfig import AllocationConfig
@@ -60,7 +60,11 @@ if __name__ == "__main__":
     hostName = allocationConfig.platform.loginHostName
     utilityPath = allocationConfig.platform.utilityPath
     userName = condorInfoConfig.platform[platform].user.name
-    cmd = "gsissh %s %s/qstat -u%s" % (hostName, utilityPath, userName)
+    # default to doing a status for the user, otherwise, pass the args to qstat
+    if len(sys.argv) == 2:
+        cmd = "gsissh %s %s/qstat -u%s" % (hostName, utilityPath, userName)
+    else:
+        cmd = "gsissh %s %s/qstat %s" % (hostName, utilityPath, string.join(sys.argv[2:]))
     exitCode = runCommand(cmd)
     if exitCode != 0:
         sys.exit(exitCode)
