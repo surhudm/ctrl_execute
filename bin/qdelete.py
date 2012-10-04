@@ -62,7 +62,7 @@ if __name__ == "__main__":
     hostName = allocationConfig.platform.loginHostName
     utilityPath = allocationConfig.platform.utilityPath
     userName = condorInfoConfig.platform[platform].user.name
-    cmd = "gsissh %s %s/qdel %s" % (hostName, utilityPath, jobId)
+    cmd = "ssh %s %s/qdel %s" % (hostName, utilityPath, jobId)
     exitCode = runCommand(cmd)
     if exitCode != 0:
         sys.exit(exitCode)

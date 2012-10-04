@@ -65,28 +65,28 @@ def main():
 
     utilityPath = creator.getUtilityPath()
 
-    cmd = "gsiscp %s %s:%s/%s" % (generatedPBSFile, hostName, scratchDir, os.path.basename(generatedPBSFile))
+    cmd = "scp %s %s:%s/%s" % (generatedPBSFile, hostName, scratchDir, os.path.basename(generatedPBSFile))
     if verbose:
         print cmd
     exitCode = runCommand(cmd)
     if exitCode != 0:
-        print "error running gsiscp to %s.  Did you run grid-proxy-init?" % hostName
+        print "error running scp to %s." % hostName
         sys.exit(exitCode)
 
-    cmd = "gsiscp %s %s:%s/%s" % (generatedCondorConfigFile, hostName, scratchDir, os.path.basename(generatedCondorConfigFile))
+    cmd = "scp %s %s:%s/%s" % (generatedCondorConfigFile, hostName, scratchDir, os.path.basename(generatedCondorConfigFile))
     if verbose:
         print cmd
     exitCode = runCommand(cmd)
     if exitCode != 0:
-        print "error running gsiscp to %s.  Did you run grid-proxy-init?" % hostName
+        print "error running scp to %s." % hostName
         sys.exit(exitCode)
 
-    cmd = "gsissh %s %s/qsub %s/%s" % (hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
+    cmd = "ssh %s %s/qsub %s/%s" % (hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
     if verbose:
         print cmd
     exitCode = runCommand(cmd)
     if exitCode != 0:
-        print "error running gsissh to %s.  Did you run grid-proxy-init?" % hostName
+        print "error running ssh to %s." % hostName
         sys.exit(exitCode)
 
     nodes = creator.getNodes()
