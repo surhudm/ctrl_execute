@@ -147,35 +147,8 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
         # Searching for a space detects 
         # extended input like :  visit=887136081 raft=2,2 sensor=0,1
         # If there is no space, the dataid is something simple like a skytile id  
-        if " " in myData:
-            # Change space to : 
-            myList  = myData.split(' ');
-            new1Data = '%s:%s:%s:%s' % tuple(myList)
-            # Change = to - 
-            myList2  = new1Data.split('=');
-            new2Data = '%s-%s-%s-%s-%s' % tuple(myList2)
-            # Change , to _ 
-            # myList3  = new2Data.split(',');
-            # new3Data = '%s_%s_%s_%s' % tuple(myList3)
-
-            # Change filter to f
-            myList3  = new2Data.split("filter");
-            new3Data = '%sf%s' % tuple(myList3)
-            # Change run to r
-            myList4  = new3Data.split("run");
-            new4Data = '%sr%s' % tuple(myList4)
-            # Change camcol to c
-            myList5  = new4Data.split("camcol");
-            new5Data = '%sc%s' % tuple(myList5)
-            # Change field to fd
-            myList6  = new5Data.split("field");
-            new6Data = '%sfd%s' % tuple(myList6)
-
-            newData=new6Data
-            visit = myList[0].split('=')[1]
-        else:
-            newData=myData
-            visit = myData
+        newData=myData
+        visit = str(int(acount / 100))
 
         myDataList.append(myData)
         newDataList.append(newData)

@@ -83,7 +83,10 @@ class Configurator(object):
             self.commandLineDefaults["NODE_SET"] = ""
         else:
             self.commandLineDefaults["NODE_SET"] = self.opts.nodeSet
-        self.commandLineDefaults["INPUT_DATA_FILE"] = self.opts.inputDataFile
+        if self.opts.inputDataFile is None:
+            self.commandLineDefaults["INPUT_DATA_FILE"] = None
+        else:
+            self.commandLineDefaults["INPUT_DATA_FILE"] = os.path.abspath(self.opts.inputDataFile)
         self.commandLineDefaults["FILE_SYSTEM_DOMAIN"] = self.opts.fileSystemDomain
         self.commandLineDefaults["EUPS_PATH"] = self.opts.eupsPath
 
