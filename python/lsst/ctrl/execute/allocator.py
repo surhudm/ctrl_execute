@@ -22,23 +22,28 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from __future__ import with_statement
-import re, sys, os, os.path, shutil, subprocess
-import optparse, traceback, time
+import os, os.path
+import optparse
 import lsst.pex.config as pexConfig
 import eups
 from datetime import datetime
 from string import Template
-from EnvString import EnvString
-from AllocationConfig import AllocationConfig
-from CondorConfig import CondorConfig
-from CondorInfoConfig import CondorInfoConfig
-from TemplateWriter import TemplateWriter
-from SeqFile import SeqFile
+from envString import EnvString
+from allocationConfig import AllocationConfig
+from condorInfoConfig import CondorInfoConfig
+from templateWriter import TemplateWriter
+from seqFile import SeqFile
 
 class Allocator(object):
+    """A class which consolidates allocation pex_config information with override
+    information (obtained from the command line) and produces a PBS file using
+    these values.
+    """
     def __init__(self, platform, opts):
-
+        """Constructor
+        @param platform: target platform for PBS submission
+        @param opts: options to override
+        """
         self.opts = opts
         self.defaults = {}
 
@@ -86,17 +91,28 @@ class Allocator(object):
             self.commandLineDefaults["EMAIL_NOTIFICATION"] = "#"
 
     def createNodeSetName(self):
+        """Creates the next "node_set" name, using the remote user name and
+        a stored sequence number.
+        """
         s = SeqFile("$HOME/.lsst/node-set.seq")
         n = s.nextSeq()
         nodeSetName = "%s_%d" % (self.defaults["USER_NAME"], n)
         return nodeSetName
         
     def createUniqueFileName(self):
+        """Creates a unique file name, based on the user's name and the time
+        at which this method is invoked.
+        """
         now = datetime.now()
         fileName = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
         return fileName
 
     def load(self, name):
+        """Loads all values from configuration and command line overrides into
+        data structures suitable for use by the TemplateWriter object.
+        @return True on success, False if the platform to allocate can not be
+        found.
+        """
         resolvedName = EnvString.resolve(name)
         configuration = CondorConfig()
         configuration.load(resolvedName)

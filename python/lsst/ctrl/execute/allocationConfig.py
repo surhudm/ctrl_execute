@@ -1,0 +1,45 @@
+# 
+# LSST Data Management System
+# Copyright 2008-2012 LSST Corporation.
+# 
+# This product includes software developed by the
+# LSST Project (http://www.lsst.org/).
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the LSST License Statement and 
+# the GNU General Public License along with this program.  If not, 
+# see <http://www.lsstcorp.org/LegalNotices/>.
+#
+
+import lsst.pex.config as pexConfig
+
+class AllocatedPlatformConfig(pexConfig.Config):
+    """Platform specific information
+    queue - the PBS queue to submit to
+    email - line to add to the PBS file to get email notification
+    scratchDirectory - directory on the remote system where the pbs file is sent
+    loginHostName - the host to gsissh and gsiscp files to
+    utilityPath - the directory containing the PBS commands
+    """
+    queue = pexConfig.Field("pbs queue",str, default=None)
+    email = pexConfig.Field("notify by e-mail pbs string", str, default=None)
+
+    scratchDirectory  = pexConfig.Field("scratch directory",str, default=None)
+    loginHostName  = pexConfig.Field("host name",str, default=None)
+    utilityPath = pexConfig.Field("utility path", str, default=None)
+
+class AllocationConfig(pexConfig.Config):
+    """A pex_config file describing the platform specific information required
+    to fill out a PBS file which will be used to submit a PBS request.
+    """
+    platform = pexConfig.ConfigField("platform allocation", AllocatedPlatformConfig)
+

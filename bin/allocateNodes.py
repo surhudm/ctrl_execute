@@ -23,14 +23,13 @@
 #
 
 
-from __future__ import with_statement
-import re, sys, os, os.path, shutil, subprocess
-import optparse, traceback, time
-import lsst.pex.config as pexConfig
-from lsst.ctrl.execute.Allocator import Allocator
-from lsst.ctrl.execute.AllocatorParser import AllocatorParser
-from string import Template
+import sys, os, os.path
+import optparse
 import eups
+import lsst.pex.config as pexConfig
+from lsst.ctrl.execute.allocator import Allocator
+from lsst.ctrl.execute.allocatorParser import AllocatorParser
+from string import Template
 
 def main():
     p = AllocatorParser(sys.argv)
@@ -42,7 +41,8 @@ def main():
     if platformPkgDir is not None:
         configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
     else:
-        raise RuntimeError("ctrl_platform_%s was not found.  Is it setup?" % platform)
+        print "ctrl_platform_%s was not found." % platform
+        sys.exit(10)
     
     execConfigName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
 
@@ -96,7 +96,12 @@ def main():
     nodes = creator.getNodes()
     slots = creator.getSlots()
     wallClock = creator.getWallClock()
-    print "%s nodes will be allocated on %s with %s slots per node and maximum time limit of %s" % (nodes, platform, slots, wallClock)
+    nodeString = ""
+    if int(nodes) > 1:
+        nodeString = "s"
+    print "nodes ",nodes
+    print "nodeString ",nodeString
+    print "%s node%s will be allocated on %s with %s slots per node and maximum time limit of %s" % (nodes, nodeString, platform, slots, wallClock)
     print "Node set name:"
     print creator.getNodeSetName()
     sys.exit(0)

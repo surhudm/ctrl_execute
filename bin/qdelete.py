@@ -23,13 +23,12 @@
 #
 
 
-from __future__ import with_statement
-import sys, os, os.path, shutil, subprocess
+import sys, os, os.path
 import lsst.pex.config as pexConfig
-from lsst.ctrl.execute.EnvString import EnvString
-from lsst.ctrl.execute.AllocationConfig import AllocationConfig
-from lsst.ctrl.execute.CondorInfoConfig import CondorInfoConfig
 import eups
+from lsst.ctrl.execute.envString import EnvString
+from lsst.ctrl.execute.allocationConfig import AllocationConfig
+from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
 
 def runCommand(cmd):
     cmd_split = cmd.split()

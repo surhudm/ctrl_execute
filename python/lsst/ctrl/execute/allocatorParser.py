@@ -22,12 +22,17 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from __future__ import with_statement
 import sys, os, os.path
-import optparse, traceback, time
+import optparse
 
 class AllocatorParser(object):
+    """An argument parser for node allocation requests.
+    """
     def __init__(self, argv):
+        """Construct an AllocatorParser
+        @param argv: list containing the command line arguments
+        @return: the parser options and remaining arguments
+        """
 
         self.defaults = {}
         
@@ -37,6 +42,10 @@ class AllocatorParser(object):
         self.opts, self.args = self.parseArgs(argv)
 
     def parseArgs(self, argv):
+        """Parse command line, and test for required arguments
+        @param argv: list containing the command line arguments
+        @return: the parser options and remaining arguments
+        """
         basename = os.path.basename(argv[0])
         self.usage = """usage: """+basename+""" platform -n node-count -s slots -m minutes [-N node-set]"""
         
@@ -75,12 +84,23 @@ class AllocatorParser(object):
         return opts, args
 
     def getOpts(self):
+        """Accessor method to get options set on initialization
+        @return opts: command line options
+        """
         return self.opts
 
     def getArgs(self):
+        """Accessor method to get arguments left after standard parsed options
+        are initialized.
+        @return args: remaining command line arguments
+        """
         return self.args
 
     def getPlatform(self):
+        """Accessor method to retrieve the "platform" that was specified on
+        the command line.
+        @return platform: the name of the "platform"
+        """
         return self.args[1]
 
 

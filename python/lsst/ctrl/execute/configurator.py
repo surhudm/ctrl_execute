@@ -21,17 +21,15 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from __future__ import with_statement
-import sys, os, os.path, shutil, subprocess
-import optparse, traceback, time
-from datetime import datetime
+import os, os.path
 import lsst.pex.config as pexConfig
-from string import Template
-from TemplateWriter import TemplateWriter
-from CondorConfig import CondorConfig
-from CondorInfoConfig import CondorInfoConfig
 import eups
-from EnvString import EnvString
+from datetime import datetime
+from string import Template
+from templateWriter import TemplateWriter
+from condorConfig import CondorConfig
+from condorInfoConfig import CondorInfoConfig
+from envString import EnvString
 
 class Configurator(object):
     def __init__(self, opts):
