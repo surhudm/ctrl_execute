@@ -23,13 +23,12 @@
 #
 
 
-from __future__ import with_statement
-import re, sys, os, os.path, shutil, subprocess
-import optparse, traceback, time
-import lsst.pex.config as pexConfig
-from lsst.ctrl.execute.Configurator import Configurator
-from lsst.ctrl.execute.RunOrcaParser import RunOrcaParser
 import eups
+import re, sys, os, os.path
+import optparse
+import lsst.pex.config as pexConfig
+from lsst.ctrl.execute.configurator import Configurator
+from lsst.ctrl.execute.runOrcaParser import RunOrcaParser
 
 def main():
     p = RunOrcaParser(sys.argv)
@@ -47,14 +46,12 @@ def main():
 
     
     genericConfigName = creator.getGenericConfigFileName()
-    #genericConfigName = os.path.join(executePkgDir, "etc", "templates", "generic_config.py.template")
     generatedConfigFile = creator.createConfiguration(genericConfigName)
 
     runid = creator.getRunid()
 
     print "runid for this run is ",runid
 
-    # TODO: allow -L and -V on this command line
     cmd = "orca.py %s %s" % (generatedConfigFile, runid)
     cmd_split = cmd.split()
     pid = os.fork()

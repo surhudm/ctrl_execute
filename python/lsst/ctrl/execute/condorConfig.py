@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # 
 # LSST Data Management System
 # Copyright 2008, 2009, 2010 LSST Corporation.
@@ -22,14 +24,20 @@
 
 import lsst.pex.config as pexConfig
 
-class AllocatedPlatformConfig(pexConfig.Config):
-    queue = pexConfig.Field("default root working for directories",str, default=None)
-    email = pexConfig.Field("notify by e-mail pbs string", str, default=None)
+class PlatformConfig(pexConfig.Config):
+    defaultRoot = pexConfig.Field("default root working for directories",str, default=None) 
+    localScratch = pexConfig.Field("local scratch directory",str, default=None) 
+    idsPerJob = pexConfig.Field("ids per job",int, default=1)
+    dataDirectory = pexConfig.Field("data directory", str, default=None)
+    fileSystemDomain = pexConfig.Field("filesystem domain", str, default=None)
+    eupsPath = pexConfig.Field("eups path", str, default=None)
 
-    scratchDirectory  = pexConfig.Field("scratch directory",str, default=None)
-    loginHostName  = pexConfig.Field("host name",str, default=None)
-    utilityPath = pexConfig.Field("utility path", str, default=None)
+class CondorConfig(pexConfig.Config):
+    platform = pexConfig.ConfigField("platform configuration", PlatformConfig)
 
-class AllocationConfig(pexConfig.Config):
-    platform = pexConfig.ConfigField("platform allocation", AllocatedPlatformConfig)
+class FakeTypeMap(dict):
+   def __init__(self, configClass):
+       self.configClass = configClass
 
+   def __getitem__(self, k):
+       return self.setdefault(k, self.configClass)

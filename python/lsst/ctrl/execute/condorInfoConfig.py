@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 # 
 # LSST Data Management System
 # Copyright 2008, 2009, 2010 LSST Corporation.
@@ -21,35 +22,31 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from __future__ import with_statement
-from EnvString import EnvString
-import sys, os, os.path
+import lsst.pex.config as pexConfig
+from envString import EnvString
 
-class SeqFile(object):
-    def __init__(self, seqFileName):
-        self.fileName = EnvString.resolve(seqFileName)
+class FakeTypeMap(dict):
+   def __init__(self, configClass):
+       self.configClass = configClass
 
-    def nextSeq(self):
-        seq = 0
-        if os.path.exists(self.fileName) == False:
-            self.writeSeq(seq)
-        else:
-            seq = self.readSeq()
-            seq += 1
-            self.writeSeq(seq)
-        return seq
+   def __getitem__(self, k):
+       return self.setdefault(k, self.configClass)
 
-    def readSeq(self):
-        with open(self.fileName) as seqFile:
-            line = seqFile.read()
-            seq = int(line)
-        return seq
-        
-    def writeSeq(self, seq):
-        with open(self.fileName,'w') as seqFile:
-            print >>seqFile, seq
+class UserInfoConfig(pexConfig.Config):
+    name = pexConfig.Field("user name", str, default=None)
+    home = pexConfig.Field("user home", str, default=None)
+
+class UserConfig(pexConfig.Config):
+    user = pexConfig.ConfigField("user", UserInfoConfig)
+
+class CondorInfoConfig(pexConfig.Config):
+    platform = pexConfig.ConfigChoiceField("platform info", FakeTypeMap(UserConfig))
 
 if __name__ == "__main__":
-    s = SeqFile()
-    n = s.nextSeq()
-    print n
+    config = CondorInfoConfig()
+    filename = "$HOME/.lsst/condor-info.py"
+    filename = EnvString.resolve(filename)
+    config.load(filename)
+
+    for i in config.platform.keys():
+        print i

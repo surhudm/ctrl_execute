@@ -22,21 +22,15 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from __future__ import with_statement
-import re, sys, os, os.path, shutil, subprocess
-import optparse, traceback, time
-from datetime import datetime
+import os.path
+import optparse
 import lsst.pex.config as pexConfig
 
 class RunOrcaParser(object):
     def __init__(self, argv):
 
         self.defaults = {}
-        # TODO: remember to deal with this in the config code
-        #self.commandLineDefaults = {}
-        #self.commandLineDefaults["USER_NAME"] = os.getlogin()
-        #self.commandLineDefaults["USER_HOME"] = os.getenv('HOME')
-        
+
         self.opts = {}
         self.args = []
         
