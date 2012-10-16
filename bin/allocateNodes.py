@@ -44,9 +44,13 @@ def main():
     else:
         raise RuntimeError("ctrl_platform_%s was not found.  Is it setup?" % platform)
     
+    execConfigName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
 
-    if creator.load(configName) == False:
-        raise RuntimeError("Couldn't find pbs config file for platform: %s" % platform)
+    if creator.load(execConfigName) == False:
+        raise RuntimeError("Couldn't find execConfig.py file for platform: %s" % platform)
+
+    if creator.loadPBS(configName) == False:
+        raise RuntimeError("Couldn't find pbsConfig.py file for platform: %s" % platform)
 
     verbose = creator.isVerbose()
 
@@ -68,7 +72,7 @@ def main():
     cmd = "scp %s %s:%s/%s" % (generatedPBSFile, hostName, scratchDir, os.path.basename(generatedPBSFile))
     if verbose:
         print cmd
-    exitCode = runCommand(cmd)
+    exitCode = runCommand(cmd, verbose)
     if exitCode != 0:
         print "error running scp to %s." % hostName
         sys.exit(exitCode)
@@ -76,7 +80,7 @@ def main():
     cmd = "scp %s %s:%s/%s" % (generatedCondorConfigFile, hostName, scratchDir, os.path.basename(generatedCondorConfigFile))
     if verbose:
         print cmd
-    exitCode = runCommand(cmd)
+    exitCode = runCommand(cmd, verbose)
     if exitCode != 0:
         print "error running scp to %s." % hostName
         sys.exit(exitCode)
@@ -84,7 +88,7 @@ def main():
     cmd = "ssh %s %s/qsub %s/%s" % (hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
     if verbose:
         print cmd
-    exitCode = runCommand(cmd)
+    exitCode = runCommand(cmd, verbose)
     if exitCode != 0:
         print "error running ssh to %s." % hostName
         sys.exit(exitCode)
@@ -97,7 +101,7 @@ def main():
     print creator.getNodeSetName()
     sys.exit(0)
 
-def runCommand(cmd):
+def runCommand(cmd, verbose):
     cmd_split = cmd.split()
     pid = os.fork()
     if not pid:

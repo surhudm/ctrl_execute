@@ -31,6 +31,7 @@ from datetime import datetime
 from string import Template
 from EnvString import EnvString
 from AllocationConfig import AllocationConfig
+from CondorConfig import CondorConfig
 from CondorInfoConfig import CondorInfoConfig
 from TemplateWriter import TemplateWriter
 from SeqFile import SeqFile
@@ -95,8 +96,13 @@ class Allocator(object):
         fileName = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
         return fileName
 
-
     def load(self, name):
+        resolvedName = EnvString.resolve(name)
+        configuration = CondorConfig()
+        configuration.load(resolvedName)
+        self.defaults["LOCAL_SCRATCH"] = EnvString.resolve(configuration.platform.localScratch)
+
+    def loadPBS(self, name):
         resolvedName = EnvString.resolve(name)
         configuration = AllocationConfig()
         if os.path.exists(resolvedName) == False:
@@ -133,10 +139,11 @@ class Allocator(object):
 
         uniqueFileName = self.createUniqueFileName()
 
-        # write these pbs and config files to {SCRATCH_DIR}/configs
-        configDir = os.path.join(scratchDir, "configs")
+        # write these pbs and config files to {LOCAL_DIR}/configs
+        configDir = os.path.join(self.defaults["LOCAL_SCRATCH"], "configs")
         if os.path.exists(configDir) == False:
             os.mkdir(configDir)
+
         self.pbsFileName = os.path.join(configDir, "alloc_%s.pbs" % uniqueFileName)
 
         self.condorConfigFileName = os.path.join(configDir, "condor_%s.config" % uniqueFileName)
@@ -145,16 +152,12 @@ class Allocator(object):
         return True
 
     def createPBSFile(self, input):
-        if self.opts.verbose == True:
-            print "creating PBS file using %s" % resolvedInputName
         outfile = self.createFile(input, self.pbsFileName)
         if self.opts.verbose == True:
             print "wrote new PBS file to %s" %  outfile
         return outfile
 
     def createCondorConfigFile(self, input):
-        if self.opts.verbose == True:
-            print "creating condor_config file using %s" % resolvedInputName
         outfile = self.createFile(input, self.condorConfigFileName)
         if self.opts.verbose == True:
             print "wrote new condor_config file to %s" %  outfile
@@ -162,6 +165,8 @@ class Allocator(object):
 
     def createFile(self, input, output):
         resolvedInputName = EnvString.resolve(input)
+        if self.opts.verbose == True:
+            print "creating PBS file using %s" % resolvedInputName
         template = TemplateWriter()
         substitutes = self.defaults.copy()
         for key in self.commandLineDefaults:
