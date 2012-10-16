@@ -105,13 +105,12 @@ def runCommand(cmd, verbose):
     cmd_split = cmd.split()
     pid = os.fork()
     if not pid:
-        if verbose == False:
-            sys.stdin.close()
-            sys.stdout.close()
-            sys.stderr.close()
-            os.close(0)
-            os.close(1)
-            os.close(2)
+        sys.stdin.close()
+        sys.stdout.close()
+        sys.stderr.close()
+        os.close(0)
+        os.close(1)
+        os.close(2)
         os.execvp(cmd_split[0], cmd_split)
     pid, status = os.wait()
     exitCode = (status & 0xff00)  >> 8
