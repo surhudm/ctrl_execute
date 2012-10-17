@@ -2,7 +2,7 @@
 
 # 
 # LSST Data Management System
-# Copyright 2008, 2009, 2010 LSST Corporation.
+# Copyright 2008-2012 LSST Corporation.
 # 
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
@@ -27,8 +27,14 @@ import optparse
 import lsst.pex.config as pexConfig
 
 class RunOrcaParser(object):
+    """An argument parser for the orchestration config file generation 
+    and execution
+    """
     def __init__(self, argv):
-
+        """Construct a RunOrcaParser
+        @param argv: list containing the command line arguments
+        @return: the parser options and remaining arguments
+        """
         self.defaults = {}
 
         self.opts = {}
@@ -37,6 +43,10 @@ class RunOrcaParser(object):
         self.opts, self.args = self.parseArgs(argv)
 
     def parseArgs(self, argv):
+        """Parse command line, and test for required arguments
+        @param argv: list containing the command line arguments
+        @return: the parser options and remaining arguments
+        """
         basename = os.path.basename(argv[0])
         self.usage = """usage: """+basename+""" -e EUPS_PATH -p platform -c command -i id-file [-j ids-per-job] [-d data-directory] [-u user] [-H user-home] [-n node-set] [-r default-root] [-l local-scratch] [-D filesystem-domain]"""
         
@@ -73,4 +83,7 @@ class RunOrcaParser(object):
         return opts, args
 
     def getOpts(self):
+        """Accessor method to get options set on initialization
+        @return opts: command line options
+        """
         return self.opts

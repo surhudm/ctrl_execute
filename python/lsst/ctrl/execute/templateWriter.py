@@ -2,7 +2,7 @@
 
 # 
 # LSST Data Management System
-# Copyright 2008, 2009, 2010 LSST Corporation.
+# Copyright 2008-2012 LSST Corporation.
 # 
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
@@ -26,12 +26,16 @@
 # keys, writing a new file generated from the template.
 #
 class TemplateWriter:
-
-    #
-    # given a input template, take the keys from the key/values in the config
-    # object and substitute the values, and write those to the output file.
-    #
+    """Class to take a template file, substitute values through it, and
+    write a new file with those values.
+    """
     def rewrite(self, input, output, pairs):
+        """Given a input template, take the keys from the key/values in the config
+        object and substitute the values, and write those to the output file.
+        @param input - the input template name
+        @param output - the output file name
+        @param pairs of values to substitute in the template
+        """
         fpInput = open(input, 'r')
         fpOutput = open(output, 'w')
 

@@ -2,7 +2,7 @@
 
 # 
 # LSST Data Management System
-# Copyright 2008, 2009, 2010 LSST Corporation.
+# Copyright 2008-2012 LSST Corporation.
 # 
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
@@ -25,14 +25,11 @@
 import re, os
 
 class EnvString:
-
-    ##
-    # given a string, look for any $ prefixed word, attempt to subsitute
-    # an environment variable with that name.  
-    #
-    # @throw exception if the environment variable doesn't exist
-    #
-    # Return the resulting string
+    """Given a string, look for any $ prefixed word, attempt to substitute
+    an environment variable with that name.  
+    @throw exception if the environment variable doesn't exist
+    @return the resulting string
+    """
     def resolve(strVal):
         p = re.compile('\$[a-zA-Z0-9_]+')
         retVal = strVal

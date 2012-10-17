@@ -2,7 +2,7 @@
 
 # 
 # LSST Data Management System
-# Copyright 2008, 2009, 2010 LSST Corporation.
+# Copyright 2008-2012 LSST Corporation.
 # 
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
@@ -33,13 +33,21 @@ class FakeTypeMap(dict):
        return self.setdefault(k, self.configClass)
 
 class UserInfoConfig(pexConfig.Config):
+    """ name: remote user login name
+    home: remote user login home directory
+    """
     name = pexConfig.Field("user name", str, default=None)
     home = pexConfig.Field("user home", str, default=None)
 
 class UserConfig(pexConfig.Config):
+    """ User specific information
+    """
     user = pexConfig.ConfigField("user", UserInfoConfig)
 
 class CondorInfoConfig(pexConfig.Config):
+    """A pex_config file describing the platform specific information about
+    remote user logins.  
+    """
     platform = pexConfig.ConfigChoiceField("platform info", FakeTypeMap(UserConfig))
 
 if __name__ == "__main__":

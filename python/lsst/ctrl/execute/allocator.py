@@ -2,7 +2,7 @@
 
 # 
 # LSST Data Management System
-# Copyright 2008, 2009, 2010 LSST Corporation.
+# Copyright 2008-2012 LSST Corporation.
 # 
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
@@ -93,6 +93,7 @@ class Allocator(object):
     def createNodeSetName(self):
         """Creates the next "node_set" name, using the remote user name and
         a stored sequence number.
+        @return the new nod_eset name
         """
         s = SeqFile("$HOME/.lsst/node-set.seq")
         n = s.nextSeq()
@@ -102,6 +103,7 @@ class Allocator(object):
     def createUniqueFileName(self):
         """Creates a unique file name, based on the user's name and the time
         at which this method is invoked.
+        @return the new file name
         """
         now = datetime.now()
         fileName = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
@@ -168,22 +170,35 @@ class Allocator(object):
         return True
 
     def createPBSFile(self, input):
+        """Creates a PBS file using the file "input" as a Template
+        @return the newly created file
+        """
         outfile = self.createFile(input, self.pbsFileName)
         if self.opts.verbose == True:
             print "wrote new PBS file to %s" %  outfile
         return outfile
 
     def createCondorConfigFile(self, input):
+        """Creates a Condor config file using the file "input" as a Template
+        @return the newly created file
+        """
         outfile = self.createFile(input, self.condorConfigFileName)
         if self.opts.verbose == True:
             print "wrote new condor_config file to %s" %  outfile
         return outfile
 
     def createFile(self, input, output):
+        """Creates a new file, using "input" as a Template, and writes the
+        new file to output. 
+        @return the newly created file
+        """
         resolvedInputName = EnvString.resolve(input)
         if self.opts.verbose == True:
             print "creating PBS file using %s" % resolvedInputName
         template = TemplateWriter()
+        # Uses the associative arrays of "defaults" and "commandLineDefaults"
+        # to write out the new file from the template.  
+        # The commandLineDefaults override values in "defaults"
         substitutes = self.defaults.copy()
         for key in self.commandLineDefaults:
             val = self.commandLineDefaults[key]
@@ -195,37 +210,70 @@ class Allocator(object):
 
 
     def isVerbose(self):
+        """Status of the verbose flag
+        @return True if the flag was set, False otherwise
+        """
         return self.opts.verbose
 
     def getUserName(self):
+        """Accessor for USER_NAME
+        @return the value of USER_NAME
+        """
         return self.getParameter("USER_NAME")
 
     def getUserHome(self):
+        """Accessor for USER_HOME
+        @return the value of USER_HOME
+        """
         return self.getParameter("USER_HOME")
 
     def getHostName(self):
+        """Accessor for HOST_NAME
+        @return the value of HOST_NAME
+        """
         return self.getParameter("HOST_NAME")
 
     def getUtilityPath(self):
+        """Accessor for UTILITY_PATH
+        @return the value of UTILITY_PATH
+        """
         return self.getParameter("UTILITY_PATH")
 
     def getScratchDirectory(self):
+        """Accessor for SCRATCH_DIR
+        @return the value of SCRATCH_DIR
+        """
         return self.getParameter("SCRATCH_DIR")
 
     def getNodeSetName(self):
+        """Accessor for NODE_SET
+        @return the value of NODE_SET
+        """
         return self.getParameter("NODE_SET")
 
     def getNodes(self):
+        """Accessor for NODE_COUNT
+        @return the value of NODE_COUNT
+        """
         return self.getParameter("NODE_COUNT")
 
     def getSlots(self):
+        """Accessor for SLOTS
+        @return the value of SLOTS
+        """
         return self.getParameter("SLOTS")
 
     def getWallClock(self):
+        """Accessor for WALL_CLOCK
+        @return the value of WALL_CLOCK
+        """
         return self.getParameter("WALL_CLOCK")
 
 
     def getParameter(self,value):
+        """Accessor for generic value
+        @return None if value is not set.  Otherwise, use the command line override (if set), or the default Config value
+        """
         if value in self.commandLineDefaults:
             return self.commandLineDefaults[value]
         if value in self.defaults:

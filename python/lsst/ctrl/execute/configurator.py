@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # 
 # LSST Data Management System
-# Copyright 2008, 2009, 2010 LSST Corporation.
+# Copyright 2008-2012 LSST Corporation.
 # 
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
@@ -32,7 +32,14 @@ from condorInfoConfig import CondorInfoConfig
 from envString import EnvString
 
 class Configurator(object):
+    """A class which consolidates Condor pex_config information with override
+    information (obtained from the command line) and produces Condor files
+    using these values.
+    """
     def __init__(self, opts):
+        """Constructor
+        @param opts: options to override
+        """
         self.opts = opts
 
         self.defaults = {}
@@ -107,8 +114,16 @@ class Configurator(object):
 
         
     def getGenericConfigFileName(self):
+        """Retrieve a ctrl_execute orca config template, depending
+        on which target environment jobs will be running on.
+        @return the name of the orca config template
+        """
         executePkgDir = eups.productDir("ctrl_execute")
         genericConfigName = None
+        # if no command line setups are done, and if you're targeting
+        # the LSST platform, use the template that allows usage of the
+        # Condor "getenv" method of environment setup.  Otherwise use
+        # template that uses LSST "setup" commands for each package.
         if (self.opts.setup == None) and (self.platform == "lsst"):
             genericConfigName = os.path.join(executePkgDir, "etc", "templates", "config_with_getenv.py.template")
         else:
@@ -116,11 +131,22 @@ class Configurator(object):
         return genericConfigName
 
     def createRunId(self):
+        """create a unique runid
+        @return runid
+        """
+        # runid is in the form of <login>_YYYY_MMDD_HHMMSS
         now = datetime.now()
         runid = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
         return runid
 
     def getSetupPackages(self):
+        """Create a string of all the currently setup LSST software packages,
+        excluding any locally setup packages (LOCAL:).  Also include any
+        packages specified on the comand line. This string will be
+        used to substitute within a preJob Template to create an LSST stack
+        environment that jobs will use.
+        @return string containing all setup commands, one per line.
+        """
         e = eups.Eups()
         setupProducts = e.getSetupProducts()
         a = ""
@@ -150,6 +176,9 @@ class Configurator(object):
         return a
 
     def load(self, name):
+        """Loads all values from configuration and command line overrides into
+        data structures suitable for use by the TemplateWriter object.
+        """
         resolvedName = EnvString.resolve(name)
         configuration = CondorConfig()
         configuration.load(resolvedName)
@@ -174,6 +203,10 @@ class Configurator(object):
         self.defaults["PLATFORM_DIR"] = platform_dir
 
     def createConfiguration(self, input):
+        """ creates a new Orca configuration file
+        @param input: template to use for value substitution
+        @return the newly created Orca configuration file
+        """
         resolvedInputName = EnvString.resolve(input)
         if self.opts.verbose == True:
             print "creating configuration using ",resolvedInputName
@@ -196,9 +229,15 @@ class Configurator(object):
         return self.outputFileName
 
     def isVerbose(self):
+        """Checks to see if verbose flag was set.
+        @return value of verbose flag if it was set on the command line
+        """
         return self.opts.verbose
 
     def getParameter(self,value):
+        """Accessor for generic value
+        @return None if value is not set.  Otherwise, use the comand line override (if set), or the default Config value
+        """
         if value in self.commandLineDefaults:
             return self.commandLineDefaults[value]
         if value in self.defaults:
@@ -206,4 +245,7 @@ class Configurator(object):
         return None
 
     def getRunid(self):
+        """Accessor for run id
+        @return the value of the run id
+        """
         return self.runid
