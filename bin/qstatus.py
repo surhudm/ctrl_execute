@@ -62,9 +62,9 @@ if __name__ == "__main__":
     userName = condorInfoConfig.platform[platform].user.name
     # default to doing a status for the user, otherwise, pass the args to qstat
     if len(sys.argv) == 2:
-        cmd = "ssh %s %s/qstat -u%s" % (hostName, utilityPath, userName)
+        cmd = "ssh %s@%s %s/qstat -u%s" % (userName, hostName, utilityPath, userName)
     else:
-        cmd = "ssh %s %s/qstat %s" % (hostName, utilityPath, string.join(sys.argv[2:]))
+        cmd = "ssh %s@%s %s/qstat %s" % (userName, hostName, utilityPath, string.join(sys.argv[2:]))
     exitCode = runCommand(cmd)
     if exitCode != 0:
         sys.exit(exitCode)

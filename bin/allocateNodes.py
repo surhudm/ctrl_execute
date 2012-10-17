@@ -53,7 +53,6 @@ def main():
         raise RuntimeError("Couldn't find pbsConfig.py file for platform: %s" % platform)
 
     verbose = creator.isVerbose()
-
     
     pbsName = os.path.join(platformPkgDir, "etc", "templates", "generic.pbs.template")
     generatedPBSFile = creator.createPBSFile(pbsName)
@@ -64,12 +63,13 @@ def main():
     scratchDirParam = creator.getScratchDirectory()
     template = Template(scratchDirParam)
     scratchDir = template.substitute(USER_HOME=creator.getUserHome())
+    userName = creator.getUserName()
     
     hostName = creator.getHostName()
 
     utilityPath = creator.getUtilityPath()
 
-    cmd = "scp %s %s:%s/%s" % (generatedPBSFile, hostName, scratchDir, os.path.basename(generatedPBSFile))
+    cmd = "scp %s %s@%s:%s/%s" % (generatedPBSFile, userName, hostName, scratchDir, os.path.basename(generatedPBSFile))
     if verbose:
         print cmd
     exitCode = runCommand(cmd, verbose)
@@ -77,7 +77,7 @@ def main():
         print "error running scp to %s." % hostName
         sys.exit(exitCode)
 
-    cmd = "scp %s %s:%s/%s" % (generatedCondorConfigFile, hostName, scratchDir, os.path.basename(generatedCondorConfigFile))
+    cmd = "scp %s %s@%s:%s/%s" % (generatedCondorConfigFile, userName, hostName, scratchDir, os.path.basename(generatedCondorConfigFile))
     if verbose:
         print cmd
     exitCode = runCommand(cmd, verbose)
@@ -85,7 +85,7 @@ def main():
         print "error running scp to %s." % hostName
         sys.exit(exitCode)
 
-    cmd = "ssh %s %s/qsub %s/%s" % (hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
+    cmd = "ssh %s@%s %s/qsub %s/%s" % (userName, hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
     if verbose:
         print cmd
     exitCode = runCommand(cmd, verbose)
