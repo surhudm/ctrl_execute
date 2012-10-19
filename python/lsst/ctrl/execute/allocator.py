@@ -39,7 +39,7 @@ class Allocator(object):
     information (obtained from the command line) and produces a PBS file using
     these values.
     """
-    def __init__(self, platform, opts):
+    def __init__(self, platform, opts, configFileName):
         """Constructor
         @param platform: target platform for PBS submission
         @param opts: options to override
@@ -47,7 +47,7 @@ class Allocator(object):
         self.opts = opts
         self.defaults = {}
 
-        configFileName = "$HOME/.lsst/condor-info.py"
+        #configFileName = "$HOME/.lsst/condor-info.py"
         fileName = EnvString.resolve(configFileName)
 
         condorInfoConfig = CondorInfoConfig()
@@ -194,7 +194,7 @@ class Allocator(object):
         """
         resolvedInputName = EnvString.resolve(input)
         if self.opts.verbose == True:
-            print "creating PBS file using %s" % resolvedInputName
+            print "creating file using %s" % resolvedInputName
         template = TemplateWriter()
         # Uses the associative arrays of "defaults" and "commandLineDefaults"
         # to write out the new file from the template.  

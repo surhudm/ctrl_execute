@@ -36,7 +36,7 @@ class Configurator(object):
     information (obtained from the command line) and produces Condor files
     using these values.
     """
-    def __init__(self, opts):
+    def __init__(self, opts, configFileName):
         """Constructor
         @param opts: options to override
         """
@@ -44,7 +44,7 @@ class Configurator(object):
 
         self.defaults = {}
 
-        configFileName = "$HOME/.lsst/condor-info.py"
+        #configFileName = "$HOME/.lsst/condor-info.py"
         fileName = EnvString.resolve(configFileName)
 
         condorInfoConfig = CondorInfoConfig()

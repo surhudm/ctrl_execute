@@ -35,7 +35,7 @@ def main():
     p = AllocatorParser(sys.argv)
     platform = p.getPlatform()
 
-    creator = Allocator(platform, p.getOpts())
+    creator = Allocator(platform, p.getOpts(), "$HOME/.lsst/condor-info.py")
 
     platformPkgDir = eups.productDir("ctrl_platform_"+platform)
     if platformPkgDir is not None:

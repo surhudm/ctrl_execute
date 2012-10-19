@@ -33,7 +33,7 @@ from lsst.ctrl.execute.runOrcaParser import RunOrcaParser
 def main():
     p = RunOrcaParser(sys.argv)
     opts = p.getOpts()
-    creator = Configurator(opts)
+    creator = Configurator(opts, "$HOME/.lsst/condor-info.py")
 
     platformPkgDir = eups.productDir("ctrl_platform_"+creator.platform)
     if platformPkgDir is not None:
