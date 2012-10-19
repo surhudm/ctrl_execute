@@ -32,6 +32,8 @@ from lsst.ctrl.execute.allocatorParser import AllocatorParser
 from string import Template
 
 def main():
+    remoteLoginCmd = "gsissh" # can handle both grid-proxy and ssh logins
+    remoteCopyCmd = "gsiscp" # can handle both grid-proxy and ssh copy
     p = AllocatorParser(sys.argv)
     platform = p.getPlatform()
 
@@ -69,7 +71,7 @@ def main():
 
     utilityPath = creator.getUtilityPath()
 
-    cmd = "scp %s %s:%s/%s" % (generatedPBSFile, hostName, scratchDir, os.path.basename(generatedPBSFile))
+    cmd = "%s %s %s:%s/%s" % (remoteCopyCmd, generatedPBSFile, hostName, scratchDir, os.path.basename(generatedPBSFile))
     if verbose:
         print cmd
     exitCode = runCommand(cmd, verbose)
@@ -77,7 +79,7 @@ def main():
         print "error running scp to %s." % hostName
         sys.exit(exitCode)
 
-    cmd = "scp %s %s:%s/%s" % (generatedCondorConfigFile, hostName, scratchDir, os.path.basename(generatedCondorConfigFile))
+    cmd = "%s %s %s:%s/%s" % (remoteCopyCmd, generatedCondorConfigFile, hostName, scratchDir, os.path.basename(generatedCondorConfigFile))
     if verbose:
         print cmd
     exitCode = runCommand(cmd, verbose)
@@ -85,12 +87,12 @@ def main():
         print "error running scp to %s." % hostName
         sys.exit(exitCode)
 
-    cmd = "ssh %s %s/qsub %s/%s" % (hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
+    cmd = "%s %s %s/qsub %s/%s" % (remoteLoginCmd, hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
     if verbose:
         print cmd
     exitCode = runCommand(cmd, verbose)
     if exitCode != 0:
-        print "error running ssh to %s." % hostName
+        print "error running %s to %s." % (remoteLoginCmd, hostName)
         sys.exit(exitCode)
 
     nodes = creator.getNodes()
