@@ -137,6 +137,7 @@ class Configurator(object):
         # runid is in the form of <login>_YYYY_MMDD_HHMMSS
         now = datetime.now()
         runid = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
+        self.runid = runid
         return runid
 
     def getSetupPackages(self):
@@ -244,7 +245,7 @@ class Configurator(object):
             return self.defaults[value]
         return None
 
-    def getRunid(self):
+    def getRunId(self):
         """Accessor for run id
         @return the value of the run id
         """

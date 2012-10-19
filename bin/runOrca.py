@@ -48,7 +48,7 @@ def main():
     genericConfigName = creator.getGenericConfigFileName()
     generatedConfigFile = creator.createConfiguration(genericConfigName)
 
-    runid = creator.getRunid()
+    runid = creator.getRunId()
 
     print "runid for this run is ",runid
 

@@ -30,6 +30,7 @@ from datetime import datetime
 from string import Template
 from envString import EnvString
 from allocationConfig import AllocationConfig
+from condorConfig import CondorConfig
 from condorInfoConfig import CondorInfoConfig
 from templateWriter import TemplateWriter
 from seqFile import SeqFile
@@ -112,8 +113,7 @@ class Allocator(object):
     def load(self, name):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
-        @return True on success, False if the platform to allocate can not be
-        found.
+        @return True on success, False if the platform to allocate can not be found.
         """
         resolvedName = EnvString.resolve(name)
         configuration = CondorConfig()
@@ -121,6 +121,10 @@ class Allocator(object):
         self.defaults["LOCAL_SCRATCH"] = EnvString.resolve(configuration.platform.localScratch)
 
     def loadPBS(self, name):
+        """Loads all values from configuration and command line overrides into
+        data structures suitable for use by the TemplateWriter object.
+        @return True on success, False if the platform to allocate can not be found.
+        """
         resolvedName = EnvString.resolve(name)
         configuration = AllocationConfig()
         if os.path.exists(resolvedName) == False:

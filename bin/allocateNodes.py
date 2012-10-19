@@ -78,7 +78,7 @@ def main():
         print cmd
     exitCode = runCommand(cmd, verbose)
     if exitCode != 0:
-        print "error running scp to %s." % hostName
+        print "error running %s to %s." % (remoteCopyCmd, hostName)
         sys.exit(exitCode)
 
     cmd = "%s %s %s:%s/%s" % (remoteCopyCmd, generatedCondorConfigFile, hostName, scratchDir, os.path.basename(generatedCondorConfigFile))
@@ -86,7 +86,7 @@ def main():
         print cmd
     exitCode = runCommand(cmd, verbose)
     if exitCode != 0:
-        print "error running scp to %s." % hostName
+        print "error running %s to %s." % (remoteCopyCmd, hostName)
         sys.exit(exitCode)
 
     cmd = "%s %s %s/qsub %s/%s" % (remoteLoginCmd, hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
