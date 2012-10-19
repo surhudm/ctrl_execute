@@ -93,7 +93,7 @@ class Allocator(object):
     def createNodeSetName(self):
         """Creates the next "node_set" name, using the remote user name and
         a stored sequence number.
-        @return the new nod_eset name
+        @return the new node_set name
         """
         s = SeqFile("$HOME/.lsst/node-set.seq")
         n = s.nextSeq()

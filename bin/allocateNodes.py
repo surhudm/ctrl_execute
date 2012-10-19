@@ -49,10 +49,12 @@ def main():
     execConfigName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
 
     if creator.load(execConfigName) == False:
-        raise RuntimeError("Couldn't find execConfig.py file for platform: %s" % platform)
+        print "Couldn't find execConfig.py file for platform: %s" % platform
+        sys.exit(10)
 
     if creator.loadPBS(configName) == False:
-        raise RuntimeError("Couldn't find pbsConfig.py file for platform: %s" % platform)
+        print "Couldn't find pbsConfig.py file for platform: %s" % platform
+        sys.exit(20)
 
     verbose = creator.isVerbose()
 
