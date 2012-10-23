@@ -22,49 +22,17 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
+import sys
+from lsst.ctrl.execute.qCommand import QCommand
 
-import sys, os, os.path
-import lsst.pex.config as pexConfig
-import eups
-from lsst.ctrl.execute.envString import EnvString
-from lsst.ctrl.execute.allocationConfig import AllocationConfig
-from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
-
-def runCommand(cmd):
-    cmd_split = cmd.split()
-    pid = os.fork()
-    if not pid:
-        os.execvp(cmd_split[0], cmd_split)
-    pid, status = os.wait()
-    exitCode = (status & 0xff00)  >> 8
-    return exitCode
-
-if __name__ == "__main__":  
+if __name__ == "__main__":
     platform = sys.argv[1]
     jobId = sys.argv[2]
 
-    remoteLoginCmd = "/usr/bin/gsissh" # can handle both grid-proxy and ssh logins
+    cmd = QCommand(platform)
 
-    configFileName = "$HOME/.lsst/condor-info.py"
-    fileName = EnvString.resolve(configFileName)
-
-    condorInfoConfig = CondorInfoConfig()
-    condorInfoConfig.load(fileName)
-
-    platformPkgDir = eups.productDir("ctrl_platform_"+platform)
-    if platformPkgDir is not None:
-        configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
-    else:
-        raise RuntimeError("ctrl_platform_%s was not found.  Is it setup?" % platform)
-
-    allocationConfig = AllocationConfig()
-    allocationConfig.load(configName)
-
-    hostName = allocationConfig.platform.loginHostName
-    utilityPath = allocationConfig.platform.utilityPath
-    userName = condorInfoConfig.platform[platform].user.name
-    cmd = "%s %s@%s %s/qdel %s" % (remoteLoginCmd, userName, hostName, utilityPath, jobId)
-    exitCode = runCommand(cmd)
+    command = "%s %s@%s %s/qdel %s" % (cmd.remoteLoginCmd, cmd.userName, cmd.hostName, cmd.utilityPath, jobId)
+    exitCode = cmd.runCommand(command)
     if exitCode != 0:
         sys.exit(exitCode)
     sys.exit(0)
