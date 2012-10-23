@@ -39,7 +39,8 @@ def main():
     if platformPkgDir is not None:
         configName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
     else:
-        raise RuntimeError("Can't find platform specific config for %s" % creator.platform)
+        print "Can't find platform specific config for %s" % creator.platform
+        sys.exit(10)
     
 
     creator.load(configName)
