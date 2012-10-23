@@ -38,7 +38,4 @@ if __name__ == "__main__":
         command = "%s %s@%s %s/qstat %s" % (cmd.remoteLoginCmd, cmd.userName, cmd.hostName, cmd.utilityPath, string.join(sys.argv[2:]))
 
     exitCode = cmd.runCommand(command)
-
-    if exitCode != 0:
-        sys.exit(exitCode)
-    sys.exit(0)
+    sys.exit(exitCode)

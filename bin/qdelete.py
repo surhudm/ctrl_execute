@@ -33,6 +33,4 @@ if __name__ == "__main__":
 
     command = "%s %s@%s %s/qdel %s" % (cmd.remoteLoginCmd, cmd.userName, cmd.hostName, cmd.utilityPath, jobId)
     exitCode = cmd.runCommand(command)
-    if exitCode != 0:
-        sys.exit(exitCode)
-    sys.exit(0)
+    sys.exit(exitCode)

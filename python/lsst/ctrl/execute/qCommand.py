@@ -65,5 +65,7 @@ class QCommand(object):
         if not pid:
             os.execvp(cmd_split[0], cmd_split)
         pid, status = os.wait()
+        # low order bits of status contain the signal that killed the process
+        # high order bits of status contain the exit code
         exitCode = (status & 0xff00)  >> 8
         return exitCode
