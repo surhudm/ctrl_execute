@@ -63,6 +63,10 @@ class Configurator(object):
                 user_name = condorInfoConfig.platform[name].user.name
                 user_home = condorInfoConfig.platform[name].user.home
 
+        # If we're on the lsst platform and the condorInfoConfig didn't
+        # have an entry for lsst user name and home, set to reasonable values
+        # These really do need to be set for all the other platforms, since
+        # while the user name may be the same, it's unlikely the home directory will be.
         if self.platform == "lsst":
             if user_name is None:
                 user_name = os.getlogin()
@@ -70,9 +74,11 @@ class Configurator(object):
                 user_home = os.getenv('HOME')
 
         if user_name is None:
-            raise RuntimeError("error: %s does not specify user name for platform %s" % (configFileName, self.platform))
+            raise RuntimeError("error: %s does not specify user name for platform %s" % 
+                                (configFileName, self.platform))
         if user_home is None:
-            raise RuntimeError("error: %s does not specify user home for platform %s" % (configFileName, self.platform))
+            raise RuntimeError("error: %s does not specify user home for platform %s" % 
+                                (configFileName, self.platform))
         
             
 
@@ -125,9 +131,11 @@ class Configurator(object):
         # Condor "getenv" method of environment setup.  Otherwise use
         # template that uses LSST "setup" commands for each package.
         if (self.opts.setup == None) and (self.platform == "lsst"):
-            genericConfigName = os.path.join(executePkgDir, "etc", "templates", "config_with_getenv.py.template")
+            genericConfigName = os.path.join(executePkgDir, 
+                            "etc", "templates", "config_with_getenv.py.template")
         else:
-            genericConfigName = os.path.join(executePkgDir, "etc", "templates", "config_with_setups.py.template")
+            genericConfigName = os.path.join(executePkgDir, 
+                            "etc", "templates", "config_with_setups.py.template")
         return genericConfigName
 
     def createRunId(self):
@@ -136,7 +144,8 @@ class Configurator(object):
         """
         # runid is in the form of <login>_YYYY_MMDD_HHMMSS
         now = datetime.now()
-        runid = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
+        runid = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, 
+                                now.day, now.hour, now.minute, now.second)
         self.runid = runid
         return runid
 
@@ -186,20 +195,15 @@ class Configurator(object):
         self.defaults = {}
         
         tempDefaultRoot = Template(configuration.platform.defaultRoot)
-        self.defaults["DEFAULT_ROOT"] = tempDefaultRoot.substitute(USER_NAME=self.commandLineDefaults["USER_NAME"])
-        #self.defaults["DEFAULT_ROOT"] = EnvString.resolve(configuration.platform.defaultRoot)
-        #tempLocalScratch = Template(configuration.platform.localScratch)
-        #self.defaults["LOCAL_SCRATCH"] = tempLocalScratch.substitute(USER_HOME=self.commandLineDefaults["USER_HOME"])
+        self.defaults["DEFAULT_ROOT"] = tempDefaultRoot.substitute(
+                            USER_NAME=self.commandLineDefaults["USER_NAME"])
         
         self.defaults["LOCAL_SCRATCH"] = EnvString.resolve(configuration.platform.localScratch)
         self.defaults["IDS_PER_JOB"] = configuration.platform.idsPerJob
         self.defaults["DATA_DIRECTORY"] = EnvString.resolve(configuration.platform.dataDirectory)
         self.defaults["FILE_SYSTEM_DOMAIN"] = configuration.platform.fileSystemDomain
         self.defaults["EUPS_PATH"] = configuration.platform.eupsPath
-        # TODO:  Change this to do it the eups way when the new package
-        # issue is resolved.
-        #platform_dir = "$CTRL_PLATFORM_"+self.opts.platform.upper()+"_DIR"
-        #platform_dir = EnvString.resolve(platform_dir)
+
         platform_dir = eups.productDir("ctrl_platform_"+self.opts.platform)
         self.defaults["PLATFORM_DIR"] = platform_dir
 
@@ -237,7 +241,8 @@ class Configurator(object):
 
     def getParameter(self,value):
         """Accessor for generic value
-        @return None if value is not set.  Otherwise, use the comand line override (if set), or the default Config value
+        @return None if value is not set.  Otherwise, use the comand line override 
+        (if set), or the default Config value
         """
         if value in self.commandLineDefaults:
             return self.commandLineDefaults[value]

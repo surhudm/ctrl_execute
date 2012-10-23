@@ -57,7 +57,7 @@ class SeqFile(object):
         return seq
         
     def writeSeq(self, seq):
-        """Writer a sequence number
+        """Write a sequence number
         """
         with open(self.fileName,'w') as seqFile:
             print >>seqFile, seq
