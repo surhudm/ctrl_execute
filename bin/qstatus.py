@@ -42,7 +42,7 @@ def runCommand(cmd):
 if __name__ == "__main__":  
     platform = sys.argv[1]
 
-    remoteLoginCmd = "gsissh" # can handle both grid-proxy and ssh logins
+    remoteLoginCmd = "/usr/bin/gsissh" # can handle both grid-proxy and ssh logins
 
     configFileName = "$HOME/.lsst/condor-info.py"
     fileName = EnvString.resolve(configFileName)
@@ -64,9 +64,9 @@ if __name__ == "__main__":
     userName = condorInfoConfig.platform[platform].user.name
     # default to doing a status for the user, otherwise, pass the args to qstat
     if len(sys.argv) == 2:
-        cmd = "%s %s %s/qstat -u%s" % (remoteLoginCmd, hostName, utilityPath, userName)
+        cmd = "%s %s@%s %s/qstat -u%s" % (remoteLoginCmd, userName, hostName, utilityPath, userName)
     else:
-        cmd = "%s %s %s/qstat %s" % (remoteLoginCmd, hostName, utilityPath, string.join(sys.argv[2:]))
+        cmd = "%s %s@%s %s/qstat %s" % (remoteLoginCmd, userName, hostName, utilityPath, string.join(sys.argv[2:]))
     exitCode = runCommand(cmd)
     if exitCode != 0:
         sys.exit(exitCode)

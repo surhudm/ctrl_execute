@@ -43,7 +43,7 @@ if __name__ == "__main__":
     platform = sys.argv[1]
     jobId = sys.argv[2]
 
-    remoteLoginCmd = "gsissh" # can handle both grid-proxy and ssh logins
+    remoteLoginCmd = "/usr/bin/gsissh" # can handle both grid-proxy and ssh logins
 
     configFileName = "$HOME/.lsst/condor-info.py"
     fileName = EnvString.resolve(configFileName)
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     hostName = allocationConfig.platform.loginHostName
     utilityPath = allocationConfig.platform.utilityPath
     userName = condorInfoConfig.platform[platform].user.name
-    cmd = "%s %s %s/qdel %s" % (remoteLoginCmd, hostName, utilityPath, jobId)
+    cmd = "%s %s@%s %s/qdel %s" % (remoteLoginCmd, userName, hostName, utilityPath, jobId)
     exitCode = runCommand(cmd)
     if exitCode != 0:
         sys.exit(exitCode)

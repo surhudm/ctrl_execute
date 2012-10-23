@@ -32,8 +32,8 @@ from lsst.ctrl.execute.allocatorParser import AllocatorParser
 from string import Template
 
 def main():
-    remoteLoginCmd = "gsissh" # can handle both grid-proxy and ssh logins
-    remoteCopyCmd = "gsiscp" # can handle both grid-proxy and ssh copy
+    remoteLoginCmd = "/usr/bin/gsissh" # can handle both grid-proxy and ssh logins
+    remoteCopyCmd = "/usr/bin/gsiscp" # can handle both grid-proxy and ssh copy
     p = AllocatorParser(sys.argv)
     platform = p.getPlatform()
 
@@ -57,7 +57,6 @@ def main():
         sys.exit(20)
 
     verbose = creator.isVerbose()
-
     
     pbsName = os.path.join(platformPkgDir, "etc", "templates", "generic.pbs.template")
     generatedPBSFile = creator.createPBSFile(pbsName)
@@ -68,12 +67,13 @@ def main():
     scratchDirParam = creator.getScratchDirectory()
     template = Template(scratchDirParam)
     scratchDir = template.substitute(USER_HOME=creator.getUserHome())
+    userName = creator.getUserName()
     
     hostName = creator.getHostName()
 
     utilityPath = creator.getUtilityPath()
 
-    cmd = "%s %s %s:%s/%s" % (remoteCopyCmd, generatedPBSFile, hostName, scratchDir, os.path.basename(generatedPBSFile))
+    cmd = "%s %s %s@%s:%s/%s" % (remoteCopyCmd, generatedPBSFile, userName, hostName, scratchDir, os.path.basename(generatedPBSFile))
     if verbose:
         print cmd
     exitCode = runCommand(cmd, verbose)
@@ -81,7 +81,7 @@ def main():
         print "error running %s to %s." % (remoteCopyCmd, hostName)
         sys.exit(exitCode)
 
-    cmd = "%s %s %s:%s/%s" % (remoteCopyCmd, generatedCondorConfigFile, hostName, scratchDir, os.path.basename(generatedCondorConfigFile))
+    cmd = "%s %s %s@%s:%s/%s" % (remoteCopyCmd, generatedCondorConfigFile, userName, hostName, scratchDir, os.path.basename(generatedCondorConfigFile))
     if verbose:
         print cmd
     exitCode = runCommand(cmd, verbose)
@@ -89,7 +89,7 @@ def main():
         print "error running %s to %s." % (remoteCopyCmd, hostName)
         sys.exit(exitCode)
 
-    cmd = "%s %s %s/qsub %s/%s" % (remoteLoginCmd, hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
+    cmd = "%s %s@%s %s/qsub %s/%s" % (remoteLoginCmd, userName, hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
     if verbose:
         print cmd
     exitCode = runCommand(cmd, verbose)
