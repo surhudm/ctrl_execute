@@ -28,7 +28,7 @@ import lsst.pex.config as pexConfig
 import eups
 from datetime import datetime
 from string import Template
-from envString import EnvString
+from lsst.ctrl.execute import envString
 from allocationConfig import AllocationConfig
 from condorConfig import CondorConfig
 from condorInfoConfig import CondorInfoConfig
@@ -49,7 +49,7 @@ class Allocator(object):
         self.defaults = {}
 
         #configFileName = "$HOME/.lsst/condor-info.py"
-        fileName = EnvString.resolve(configFileName)
+        fileName = envString.resolve(configFileName)
 
         condorInfoConfig = CondorInfoConfig()
         condorInfoConfig.load(fileName)
@@ -115,17 +115,17 @@ class Allocator(object):
         data structures suitable for use by the TemplateWriter object.
         @return True on success, False if the platform to allocate can not be found.
         """
-        resolvedName = EnvString.resolve(name)
+        resolvedName = envString.resolve(name)
         configuration = CondorConfig()
         configuration.load(resolvedName)
-        self.defaults["LOCAL_SCRATCH"] = EnvString.resolve(configuration.platform.localScratch)
+        self.defaults["LOCAL_SCRATCH"] = envString.resolve(configuration.platform.localScratch)
 
     def loadPBS(self, name):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
         @return True on success, False if the platform to allocate can not be found.
         """
-        resolvedName = EnvString.resolve(name)
+        resolvedName = envString.resolve(name)
         configuration = AllocationConfig()
         if os.path.exists(resolvedName) == False:
             print "%s was not found." % resolvedName
@@ -196,7 +196,7 @@ class Allocator(object):
         new file to output. 
         @return the newly created file
         """
-        resolvedInputName = EnvString.resolve(input)
+        resolvedInputName = envString.resolve(input)
         if self.opts.verbose == True:
             print "creating file using %s" % resolvedInputName
         template = TemplateWriter()

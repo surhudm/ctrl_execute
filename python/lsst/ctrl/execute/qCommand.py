@@ -23,7 +23,7 @@
 import eups
 import sys, os, os.path, string
 import lsst.pex.config as pexConfig
-from lsst.ctrl.execute.envString import EnvString
+from lsst.ctrl.execute import envString
 from lsst.ctrl.execute.allocationConfig import AllocationConfig
 from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
 
@@ -37,7 +37,7 @@ class QCommand(object):
         self.remoteCopyCmd = "/usr/bin/gsiscp" # can handle both grid-proxy and ssh copies
     
         configFileName = "$HOME/.lsst/condor-info.py"
-        fileName = EnvString.resolve(configFileName)
+        fileName = envString.resolve(configFileName)
     
         condorInfoConfig = CondorInfoConfig()
         condorInfoConfig.load(fileName)

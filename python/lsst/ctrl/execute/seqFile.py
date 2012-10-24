@@ -21,7 +21,7 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from envString import EnvString
+from lsst.ctrl.execute import envString
 import os.path
 
 class SeqFile(object):
@@ -31,7 +31,7 @@ class SeqFile(object):
         """Constructor 
         @param seqFileName file name to operate on
         """
-        self.fileName = EnvString.resolve(seqFileName)
+        self.fileName = envString.resolve(seqFileName)
 
     def nextSeq(self):
         """Produce the next sequence number.

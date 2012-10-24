@@ -29,7 +29,7 @@ from string import Template
 from templateWriter import TemplateWriter
 from condorConfig import CondorConfig
 from condorInfoConfig import CondorInfoConfig
-from envString import EnvString
+from lsst.ctrl.execute import envString
 
 class Configurator(object):
     """A class which consolidates Condor pex_config information with override
@@ -45,7 +45,7 @@ class Configurator(object):
         self.defaults = {}
 
         #configFileName = "$HOME/.lsst/condor-info.py"
-        fileName = EnvString.resolve(configFileName)
+        fileName = envString.resolve(configFileName)
 
         condorInfoConfig = CondorInfoConfig()
         condorInfoConfig.load(fileName)
@@ -189,7 +189,7 @@ class Configurator(object):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
         """
-        resolvedName = EnvString.resolve(name)
+        resolvedName = envString.resolve(name)
         configuration = CondorConfig()
         configuration.load(resolvedName)
         self.defaults = {}
@@ -198,9 +198,9 @@ class Configurator(object):
         self.defaults["DEFAULT_ROOT"] = tempDefaultRoot.substitute(
                             USER_NAME=self.commandLineDefaults["USER_NAME"])
         
-        self.defaults["LOCAL_SCRATCH"] = EnvString.resolve(configuration.platform.localScratch)
+        self.defaults["LOCAL_SCRATCH"] = envString.resolve(configuration.platform.localScratch)
         self.defaults["IDS_PER_JOB"] = configuration.platform.idsPerJob
-        self.defaults["DATA_DIRECTORY"] = EnvString.resolve(configuration.platform.dataDirectory)
+        self.defaults["DATA_DIRECTORY"] = envString.resolve(configuration.platform.dataDirectory)
         self.defaults["FILE_SYSTEM_DOMAIN"] = configuration.platform.fileSystemDomain
         self.defaults["EUPS_PATH"] = configuration.platform.eupsPath
 
@@ -212,7 +212,7 @@ class Configurator(object):
         @param input: template to use for value substitution
         @return the newly created Orca configuration file
         """
-        resolvedInputName = EnvString.resolve(input)
+        resolvedInputName = envString.resolve(input)
         if self.opts.verbose == True:
             print "creating configuration using ",resolvedInputName
         template = TemplateWriter()

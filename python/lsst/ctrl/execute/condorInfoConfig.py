@@ -23,7 +23,7 @@
 #
 
 import lsst.pex.config as pexConfig
-from envString import EnvString
+from lsst.ctrl.execute import envString
 
 class FakeTypeMap(dict):
    def __init__(self, configClass):
@@ -33,16 +33,15 @@ class FakeTypeMap(dict):
        return self.setdefault(k, self.configClass)
 
 class UserInfoConfig(pexConfig.Config):
-    """ name: remote user login name
-    home: remote user login home directory
+    """ User information
     """
-    name = pexConfig.Field("user name", str, default=None)
-    home = pexConfig.Field("user home", str, default=None)
+    name = pexConfig.Field(doc="user login name", dtype=str, default=None)
+    home = pexConfig.Field(doc="user home directory", dtype=str, default=None)
 
 class UserConfig(pexConfig.Config):
     """ User specific information
     """
-    user = pexConfig.ConfigField("user", UserInfoConfig)
+    user = pexConfig.ConfigField(doc="user", dtype=UserInfoConfig)
 
 class CondorInfoConfig(pexConfig.Config):
     """A pex_config file describing the platform specific information about
@@ -53,7 +52,7 @@ class CondorInfoConfig(pexConfig.Config):
 if __name__ == "__main__":
     config = CondorInfoConfig()
     filename = "$HOME/.lsst/condor-info.py"
-    filename = EnvString.resolve(filename)
+    filename = envString.resolve(filename)
     config.load(filename)
 
     for i in config.platform.keys():

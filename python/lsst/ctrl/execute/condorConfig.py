@@ -26,19 +26,13 @@ import lsst.pex.config as pexConfig
 
 class PlatformConfig(pexConfig.Config):
     """Platform specific information
-    defaultRoot - the remote directory where orca jobs are executed.
-    localScratch - local directory where Condor stores files
-    idsPerJob - the number of ids to execute, per job. 
-    dataDirectory - remote directory where data that jobs will use is kept.
-    fileSystemDomain - network domain name of remote system.
-    eupsPath - location of remote EUPS stack.
     """
-    defaultRoot = pexConfig.Field("default root working for directories",str, default=None) 
-    localScratch = pexConfig.Field("local scratch directory",str, default=None) 
-    idsPerJob = pexConfig.Field("ids per job",int, default=1)
-    dataDirectory = pexConfig.Field("data directory", str, default=None)
-    fileSystemDomain = pexConfig.Field("filesystem domain", str, default=None)
-    eupsPath = pexConfig.Field("eups path", str, default=None)
+    defaultRoot = pexConfig.Field(doc="remote root for working directories",dtype=str, default=None) 
+    localScratch = pexConfig.Field(doc="local Condor scratch directory",dtype=str, default=None) 
+    idsPerJob = pexConfig.Field(doc="number of ids to work on per job",dtype=int, default=1)
+    dataDirectory = pexConfig.Field(doc="remote directory where date that jobs will use is kept", dtype=str, default=None)
+    fileSystemDomain = pexConfig.Field(doc="network domain name of remote system", dtype=str, default=None)
+    eupsPath = pexConfig.Field(doc="location of remote EUPS stack", dtype=str, default=None)
 
 class CondorConfig(pexConfig.Config):
     """A pex_config file describing the platform specific information required
