@@ -23,7 +23,7 @@
 #
 
 
-import sys, os, os.path
+import sys, os
 import optparse
 import eups
 import lsst.pex.config as pexConfig
@@ -32,34 +32,34 @@ from lsst.ctrl.execute.allocatorParser import AllocatorParser
 from string import Template
 
 def main():
+    """Allocates Condor glide-in nodes through PBS scheduler on a remote Node.
+    """
     remoteLoginCmd = "/usr/bin/gsissh" # can handle both grid-proxy and ssh logins
     remoteCopyCmd = "/usr/bin/gsiscp" # can handle both grid-proxy and ssh copy
-    p = AllocatorParser(sys.argv)
+    p = AllocatorParser(sys.argv[0])
     platform = p.getPlatform()
 
-    creator = Allocator(platform, p.getOpts(), "$HOME/.lsst/condor-info.py")
+    creator = Allocator(platform, p.getArgs(), "$HOME/.lsst/condor-info.py")
 
     platformPkgDir = eups.productDir("ctrl_platform_"+platform)
     if platformPkgDir is not None:
         configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
     else:
-        print "ctrl_platform_%s was not found." % platform
+        print "ctrl_platform_%s was not found. Has it been set up?" % platform
         sys.exit(10)
     
     execConfigName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
 
-    if creator.load(execConfigName) == False:
-        print "Couldn't find execConfig.py file for platform: %s" % platform
-        sys.exit(10)
+    creator.load(execConfigName)
 
-    if creator.loadPBS(configName) == False:
+    if creator.loadPbs(configName) == False:
         print "Couldn't find pbsConfig.py file for platform: %s" % platform
         sys.exit(20)
 
     verbose = creator.isVerbose()
     
     pbsName = os.path.join(platformPkgDir, "etc", "templates", "generic.pbs.template")
-    generatedPBSFile = creator.createPBSFile(pbsName)
+    generatedPbsFile = creator.createPbsFile(pbsName)
 
     condorFile = os.path.join(platformPkgDir, "etc", "templates", "glidein_condor_config.template")
     generatedCondorConfigFile = creator.createCondorConfigFile(condorFile)
@@ -73,7 +73,10 @@ def main():
 
     utilityPath = creator.getUtilityPath()
 
-    cmd = "%s %s %s@%s:%s/%s" % (remoteCopyCmd, generatedPBSFile, userName, hostName, scratchDir, os.path.basename(generatedPBSFile))
+    #
+    # execute copy of PBS file to XSEDE node
+    #
+    cmd = "%s %s %s@%s:%s/%s" % (remoteCopyCmd, generatedPbsFile, userName, hostName, scratchDir, os.path.basename(generatedPbsFile))
     if verbose:
         print cmd
     exitCode = runCommand(cmd, verbose)
@@ -81,6 +84,9 @@ def main():
         print "error running %s to %s." % (remoteCopyCmd, hostName)
         sys.exit(exitCode)
 
+    #
+    # execute copy of Condor config file to XSEDE node
+    #
     cmd = "%s %s %s@%s:%s/%s" % (remoteCopyCmd, generatedCondorConfigFile, userName, hostName, scratchDir, os.path.basename(generatedCondorConfigFile))
     if verbose:
         print cmd
@@ -89,7 +95,10 @@ def main():
         print "error running %s to %s." % (remoteCopyCmd, hostName)
         sys.exit(exitCode)
 
-    cmd = "%s %s@%s %s/qsub %s/%s" % (remoteLoginCmd, userName, hostName, utilityPath, scratchDir, os.path.basename(generatedPBSFile))
+    #
+    # execute qsub command on XSEDE node to perform Condor glide-in
+    #
+    cmd = "%s %s@%s %s/qsub %s/%s" % (remoteLoginCmd, userName, hostName, utilityPath, scratchDir, os.path.basename(generatedPbsFile))
     if verbose:
         print cmd
     exitCode = runCommand(cmd, verbose)
@@ -103,8 +112,6 @@ def main():
     nodeString = ""
     if int(nodes) > 1:
         nodeString = "s"
-    print "nodes ",nodes
-    print "nodeString ",nodeString
     print "%s node%s will be allocated on %s with %s slots per node and maximum time limit of %s" % (nodes, nodeString, platform, slots, wallClock)
     print "Node set name:"
     print creator.getNodeSetName()
@@ -114,14 +121,33 @@ def runCommand(cmd, verbose):
     cmd_split = cmd.split()
     pid = os.fork()
     if not pid:
-        sys.stdin.close()
-        sys.stdout.close()
-        sys.stderr.close()
-        os.close(0)
-        os.close(1)
-        os.close(2)
+        # Methods of file transfer and login may
+        # produce different output, depending on how
+        # the "gsi" utilities are used.  The user can
+        # either use grid proxies or ssh, and gsiscp/gsissh
+        # does the right thing.  Since the output will be
+        # different in either case anything potentially parsing this
+        # output (like drpRun), would have to go through extra
+        # steps to deal with this output, and which ultimately
+        # end up not being useful.  So we optinally close the i/o output
+        # of the executing command down.
+        #
+        # stdin/stdio/stderr is treated specially 
+        # by python, so we have to close down
+        # both the python objects and the
+        # underlying c implementations
+        if not verbose:
+            # close python i/o
+            sys.stdin.close()
+            sys.stdout.close()
+            sys.stderr.close()
+            # close C's i/o
+            os.close(0)
+            os.close(1)
+            os.close(2)
         os.execvp(cmd_split[0], cmd_split)
     pid, status = os.wait()
+    # high order bits are status, low order bits are signal.
     exitCode = (status & 0xff00)  >> 8
     return exitCode
 

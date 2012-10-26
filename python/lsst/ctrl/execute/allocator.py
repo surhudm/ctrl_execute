@@ -120,7 +120,7 @@ class Allocator(object):
         configuration.load(resolvedName)
         self.defaults["LOCAL_SCRATCH"] = envString.resolve(configuration.platform.localScratch)
 
-    def loadPBS(self, name):
+    def loadPbs(self, name):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
         @return True on success, False if the platform to allocate can not be found.
@@ -173,7 +173,7 @@ class Allocator(object):
         self.defaults["GENERATED_CONFIG"] = os.path.basename(self.condorConfigFileName)
         return True
 
-    def createPBSFile(self, input):
+    def createPbsFile(self, input):
         """Creates a PBS file using the file "input" as a Template
         @return the newly created file
         """

@@ -23,12 +23,12 @@
 #
 
 import sys, os, os.path
-import optparse
+import argparse
 
 class AllocatorParser(object):
     """An argument parser for node allocation requests.
     """
-    def __init__(self, argv):
+    def __init__(self, basename):
         """Construct an AllocatorParser
         @param argv: list containing the command line arguments
         @return: the parser options and remaining arguments
@@ -36,58 +36,34 @@ class AllocatorParser(object):
 
         self.defaults = {}
         
-        self.opts = {}
         self.args = []
         
-        self.opts, self.args = self.parseArgs(argv)
+        self.args = self.parseArgs(basename)
 
-    def parseArgs(self, argv):
+    def parseArgs(self, basename):
         """Parse command line, and test for required arguments
         @param argv: list containing the command line arguments
         @return: the parser options and remaining arguments
         """
-        basename = os.path.basename(argv[0])
-        self.usage = """usage: """+basename+""" platform -n node-count -s slots -m minutes [-N node-set]"""
+        #basename = os.path.basename(argv[0])
+
+        parser = argparse.ArgumentParser(prog=basename)
+        parser.add_argument("platform", help="node allocation platform")
+        parser.add_argument("-n", "--node-count", action="store", default=None, dest="nodeCount", help="number of nodes to use", type=int, required=True)
+        parser.add_argument("-s", "--slots", action="store", default=None, dest="slots", help="slots per node", type=int, required=True)
+
+        parser.add_argument("-m", "--maximum-wall-clock", action="store", dest="maximumWallClock", default=None, help="maximum wall clock time", type=str, required=True)
+        parser.add_argument("-N", "--node-set", action="store", dest="nodeSet", default=None, help="node set name")
+        parser.add_argument("-q", "--queue", action="store", dest="queue", default=None, help="pbs queue name")
+        parser.add_argument("-e", "--email", action="store_true", dest="email", default=None, help="email notification flag")
+        parser.add_argument("-O", "--output-log", action="store", dest="outputLog", default=None, help="Output log filename")
+        parser.add_argument("-E", "--error-log", action="store", dest="errorLog", default=None, help="Error log filename")
+        parser.add_argument("-v", "--verbose", action="store_true", dest="verbose",help="verbose")
+
         
-        parser = optparse.OptionParser(self.usage)
-        parser.add_option("-n", "--node-count", action="store", default=None, dest="nodeCount", help="number of nodes to use")
-        parser.add_option("-s", "--slots", action="store", default=None, dest="slots", help="slots per node")
-        parser.add_option("-m", "--maximum-wall-clock", action="store", dest="maximumWallClock", default=None, help="maximum wall clock time")
-        parser.add_option("-N", "--node-set", action="store", dest="nodeSet", default=None, help="node set name")
-        parser.add_option("-q", "--queue", action="store", dest="queue", default=None, help="pbs queue name")
-        parser.add_option("-e", "--email", action="store", dest="email", default=None, help="email notification flag")
-        parser.add_option("-O", "--output-log", action="store", dest="outputLog", default=None, help="Output log filename")
-        parser.add_option("-E", "--error-log", action="store", dest="errorLog", default=None, help="Error log filename")
-        parser.add_option("-v", "--verbose", action="store_true", dest="verbose",help="verbose")
-        
-        opts, args = parser.parse_args(argv)
+        self.args = parser.parse_args()
 
-        if opts.nodeCount is None:
-            print "error: required argument --node-count is not specified"
-            print self.usage
-            sys.exit(10)
-        if opts.slots is None:
-            print "error: required argument --slots is not specified"
-            print self.usage
-            sys.exit(10)
-        if opts.maximumWallClock is None:
-            print "error: required argument --maximum-wall-clock is not specified"
-            print self.usage
-            sys.exit(10)
-        
-        if len(args) != 2:
-            print "error: required argument 'platform' is not specified"
-            print self.usage
-            sys.exit(10)
-
-
-        return opts, args
-
-    def getOpts(self):
-        """Accessor method to get options set on initialization
-        @return opts: command line options
-        """
-        return self.opts
+        return self.args
 
     def getArgs(self):
         """Accessor method to get arguments left after standard parsed options
@@ -101,13 +77,4 @@ class AllocatorParser(object):
         the command line.
         @return platform: the name of the "platform"
         """
-        return self.args[1]
-
-
-if __name__ == "__main__":
-    al = AllocatorParser(sys.argv)
-    opts = al.getOpts()
-    args = al.getArgs()
-
-    print "opts = ", opts
-    print "args = ", args
+        return self.args.platform

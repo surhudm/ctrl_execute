@@ -24,22 +24,24 @@ import lsst.pex.config as pexConfig
 
 class AllocatedPlatformConfig(pexConfig.Config):
     """Platform specific information
-    queue - the PBS queue to submit to
-    email - line to add to the PBS file to get email notification
-    scratchDirectory - directory on the remote system where the pbs file is sent
-    loginHostName - the host to gsissh and gsiscp files to
-    utilityPath - the directory containing the PBS commands
     """
-    queue = pexConfig.Field("pbs queue",str, default=None)
-    email = pexConfig.Field("notify by e-mail pbs string", str, default=None)
+    queue = pexConfig.Field(doc="the PBS queue to submit to",
+                        dtype=str, default=None)
+    email = pexConfig.Field(doc="line to add to the PBS file to get email notification", 
+                        dtype=str, default=None)
 
-    scratchDirectory  = pexConfig.Field("scratch directory",str, default=None)
-    loginHostName  = pexConfig.Field("host name",str, default=None)
-    utilityPath = pexConfig.Field("utility path", str, default=None)
+    scratchDirectory  = pexConfig.Field(doc="directory on the remote system where the PBS file is sent",
+                        dtype=str, default=None)
+    loginHostName  = pexConfig.Field(doc="the host to login and copy files to",
+                        dtype=str, default=None)
+    utilityPath = pexConfig.Field(doc="the directory containing the PBS commands",
+                        dtype=str, default=None)
 
 class AllocationConfig(pexConfig.Config):
     """A pex_config file describing the platform specific information required
     to fill out a PBS file which will be used to submit a PBS request.
     """
-    platform = pexConfig.ConfigField("platform allocation", AllocatedPlatformConfig)
+    # this is done on two levels instead of one for future expansion of this
+    # config class, which may require local attributes to be specified.
+    platform = pexConfig.ConfigField("platform allocation information", AllocatedPlatformConfig)
 
