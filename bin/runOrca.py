@@ -23,38 +23,36 @@
 #
 
 
-from __future__ import with_statement
-import re, sys, os, os.path, shutil, subprocess
-import optparse, traceback, time
-import lsst.pex.config as pexConfig
-from lsst.ctrl.execute.Configurator import Configurator
-from lsst.ctrl.execute.RunOrcaParser import RunOrcaParser
 import eups
+import re, sys, os, os.path
+import optparse
+import lsst.pex.config as pexConfig
+from lsst.ctrl.execute.configurator import Configurator
+from lsst.ctrl.execute.runOrcaParser import RunOrcaParser
 
 def main():
-    p = RunOrcaParser(sys.argv)
-    opts = p.getOpts()
-    creator = Configurator(opts)
+    p = RunOrcaParser(sys.argv[0])
+    args = p.getArgs()
+    creator = Configurator(args, "$HOME/.lsst/condor-info.py")
 
     platformPkgDir = eups.productDir("ctrl_platform_"+creator.platform)
     if platformPkgDir is not None:
         configName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
     else:
-        raise RuntimeError("Can't find platform specific config for %s" % creator.platform)
+        print "Can't find platform specific config for %s" % creator.platform
+        sys.exit(10)
     
 
     creator.load(configName)
 
     
     genericConfigName = creator.getGenericConfigFileName()
-    #genericConfigName = os.path.join(executePkgDir, "etc", "templates", "generic_config.py.template")
     generatedConfigFile = creator.createConfiguration(genericConfigName)
 
-    runid = creator.getRunid()
+    runid = creator.getRunId()
 
     print "runid for this run is ",runid
 
-    # TODO: allow -L and -V on this command line
     cmd = "orca.py %s %s" % (generatedConfigFile, runid)
     cmd_split = cmd.split()
     pid = os.fork()

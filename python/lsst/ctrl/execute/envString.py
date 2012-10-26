@@ -1,6 +1,8 @@
+#!/usr/bin/env python
+
 # 
 # LSST Data Management System
-# Copyright 2008, 2009, 2010 LSST Corporation.
+# Copyright 2008-2012 LSST Corporation.
 # 
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
@@ -20,16 +22,21 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import lsst.pex.config as pexConfig
+import re, os
 
-class AllocatedPlatformConfig(pexConfig.Config):
-    queue = pexConfig.Field("default root working for directories",str, default=None)
-    email = pexConfig.Field("notify by e-mail pbs string", str, default=None)
-
-    scratchDirectory  = pexConfig.Field("scratch directory",str, default=None)
-    loginHostName  = pexConfig.Field("host name",str, default=None)
-    utilityPath = pexConfig.Field("utility path", str, default=None)
-
-class AllocationConfig(pexConfig.Config):
-    platform = pexConfig.ConfigField("platform allocation", AllocatedPlatformConfig)
-
+# Given a string, look for any $ prefixed word, attempt to substitute
+# an environment variable with that name.  
+# @throw exception if the environment variable doesn't exist
+# @return the resulting string
+def resolve(strVal):
+    p = re.compile('\$[a-zA-Z0-9_]+')
+    retVal = strVal
+    exprs = p.findall(retVal)
+    for i in exprs:
+        var = i[1:]
+        val = os.getenv(var, None)
+        if val == None:
+            raise RuntimeError("couldn't find environment variable "+i)
+            sys.exit(120)
+        retVal = p.sub(val,retVal,1)
+    return retVal

@@ -2,7 +2,7 @@
 
 # 
 # LSST Data Management System
-# Copyright 2008, 2009, 2010 LSST Corporation.
+# Copyright 2008-2012 LSST Corporation.
 # 
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
@@ -22,28 +22,31 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from __future__ import with_statement
-import re, sys, os, os.path, shutil, subprocess
-import optparse, traceback, time
+import os
 import lsst.pex.config as pexConfig
-import eups
 from datetime import datetime
 from string import Template
-from EnvString import EnvString
-from AllocationConfig import AllocationConfig
-from CondorConfig import CondorConfig
-from CondorInfoConfig import CondorInfoConfig
-from TemplateWriter import TemplateWriter
-from SeqFile import SeqFile
+from lsst.ctrl.execute import envString
+from lsst.ctrl.execute.allocationConfig import AllocationConfig
+from lsst.ctrl.execute.condorConfig import CondorConfig
+from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
+from lsst.ctrl.execute.templateWriter import TemplateWriter
+from lsst.ctrl.execute.seqFile import SeqFile
 
 class Allocator(object):
-    def __init__(self, platform, opts):
-
+    """A class which consolidates allocation pex_config information with override
+    information (obtained from the command line) and produces a PBS file using
+    these values.
+    """
+    def __init__(self, platform, opts, configFileName):
+        """Constructor
+        @param platform: target platform for PBS submission
+        @param opts: options to override
+        """
         self.opts = opts
         self.defaults = {}
 
-        configFileName = "$HOME/.lsst/condor-info.py"
-        fileName = EnvString.resolve(configFileName)
+        fileName = envString.resolve(configFileName)
 
         condorInfoConfig = CondorInfoConfig()
         condorInfoConfig.load(fileName)
@@ -51,9 +54,11 @@ class Allocator(object):
         self.platform = platform
 
 
-        # Look up the user's name and home directory in the $HOME//.lsst/condor-info.py file
-        # If the platform is lsst, and the user_name or user_home is not in there, then default to
-        # user running this command and the value of $HOME, respectively.
+        # Look up the user's name and home directory in the 
+        # $HOME/.lsst/condor-info.py file
+        # If the platform is lsst, and the user_name or user_home 
+        # is not in there, then default to user running this 
+        # command and the value of $HOME, respectively.
         user_name = None
         user_home = None
         for name in condorInfoConfig.platform.keys():
@@ -86,28 +91,48 @@ class Allocator(object):
             self.commandLineDefaults["EMAIL_NOTIFICATION"] = "#"
 
     def createNodeSetName(self):
+        """Creates the next "node_set" name, using the remote user name and
+        a stored sequence number.
+        @return the new node_set name
+        """
         s = SeqFile("$HOME/.lsst/node-set.seq")
         n = s.nextSeq()
         nodeSetName = "%s_%d" % (self.defaults["USER_NAME"], n)
         return nodeSetName
         
-    def createUniqueFileName(self):
+    def createUniqueIdentifier(self):
+        """Creates a unique file identifier, based on the user's name 
+        and the time at which this method is invoked.
+        @return the new identifier
+        """
+        # This naming scheme follows the conventions used for creating 
+        # RUNID names.  We've found this allows these files to be more
+        # easily located and shared with other users when debugging
+        # The tempfile.mkstemp method restricts the file to only the user,
+        # and does not guarantee a file name can that easily be identified.
         now = datetime.now()
         fileName = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
         return fileName
 
     def load(self, name):
-        resolvedName = EnvString.resolve(name)
+        """Loads all values from configuration and command line overrides into
+        data structures suitable for use by the TemplateWriter object.
+        @return True on success, False if the platform to allocate can not be found.
+        """
+        resolvedName = envString.resolve(name)
         configuration = CondorConfig()
         configuration.load(resolvedName)
-        self.defaults["LOCAL_SCRATCH"] = EnvString.resolve(configuration.platform.localScratch)
+        self.defaults["LOCAL_SCRATCH"] = envString.resolve(configuration.platform.localScratch)
 
-    def loadPBS(self, name):
-        resolvedName = EnvString.resolve(name)
+    def loadPbs(self, name):
+        """Loads all values from configuration and command line overrides into
+        data structures suitable for use by the TemplateWriter object.
+        @return True on success, False if the platform to allocate can not be found.
+        """
+        resolvedName = envString.resolve(name)
         configuration = AllocationConfig()
-        if os.path.exists(resolvedName) == False:
-            print "%s was not found." % resolvedName
-            return False
+        if not os.path.exists(resolvedName):
+            raise RuntimeError("%s was not found." % resolvedName)
         configuration.load(resolvedName)
 
         self.defaults["QUEUE"] = configuration.platform.queue
@@ -137,37 +162,49 @@ class Allocator(object):
         else:
             self.defaults["ERROR_LOG"] = "%s.err" % nodeSetName
 
-        uniqueFileName = self.createUniqueFileName()
+        uniqueIdentifier = self.createUniqueIdentifier()
 
         # write these pbs and config files to {LOCAL_DIR}/configs
         configDir = os.path.join(self.defaults["LOCAL_SCRATCH"], "configs")
-        if os.path.exists(configDir) == False:
-            os.mkdir(configDir)
+        if not os.path.exists(configDir):
+            os.mkdirs(configDir)
 
-        self.pbsFileName = os.path.join(configDir, "alloc_%s.pbs" % uniqueFileName)
+        self.pbsFileName = os.path.join(configDir, "alloc_%s.pbs" % uniqueIdentifier)
 
-        self.condorConfigFileName = os.path.join(configDir, "condor_%s.config" % uniqueFileName)
+        self.condorConfigFileName = os.path.join(configDir, "condor_%s.config" % uniqueIdentifier)
 
         self.defaults["GENERATED_CONFIG"] = os.path.basename(self.condorConfigFileName)
-        return True
 
-    def createPBSFile(self, input):
+    def createPbsFile(self, input):
+        """Creates a PBS file using the file "input" as a Template
+        @return the newly created file
+        """
         outfile = self.createFile(input, self.pbsFileName)
-        if self.opts.verbose == True:
+        if self.opts.verbose:
             print "wrote new PBS file to %s" %  outfile
         return outfile
 
     def createCondorConfigFile(self, input):
+        """Creates a Condor config file using the file "input" as a Template
+        @return the newly created file
+        """
         outfile = self.createFile(input, self.condorConfigFileName)
-        if self.opts.verbose == True:
+        if self.opts.verbose:
             print "wrote new condor_config file to %s" %  outfile
         return outfile
 
     def createFile(self, input, output):
-        resolvedInputName = EnvString.resolve(input)
-        if self.opts.verbose == True:
-            print "creating PBS file using %s" % resolvedInputName
+        """Creates a new file, using "input" as a Template, and writes the
+        new file to output. 
+        @return the newly created file
+        """
+        resolvedInputName = envString.resolve(input)
+        if self.opts.verbose:
+            print "creating file using %s" % resolvedInputName
         template = TemplateWriter()
+        # Uses the associative arrays of "defaults" and "commandLineDefaults"
+        # to write out the new file from the template.  
+        # The commandLineDefaults override values in "defaults"
         substitutes = self.defaults.copy()
         for key in self.commandLineDefaults:
             val = self.commandLineDefaults[key]
@@ -177,39 +214,71 @@ class Allocator(object):
         return output
 
 
-
     def isVerbose(self):
+        """Status of the verbose flag
+        @return True if the flag was set, False otherwise
+        """
         return self.opts.verbose
 
     def getUserName(self):
+        """Accessor for USER_NAME
+        @return the value of USER_NAME
+        """
         return self.getParameter("USER_NAME")
 
     def getUserHome(self):
+        """Accessor for USER_HOME
+        @return the value of USER_HOME
+        """
         return self.getParameter("USER_HOME")
 
     def getHostName(self):
+        """Accessor for HOST_NAME
+        @return the value of HOST_NAME
+        """
         return self.getParameter("HOST_NAME")
 
     def getUtilityPath(self):
+        """Accessor for UTILITY_PATH
+        @return the value of UTILITY_PATH
+        """
         return self.getParameter("UTILITY_PATH")
 
     def getScratchDirectory(self):
+        """Accessor for SCRATCH_DIR
+        @return the value of SCRATCH_DIR
+        """
         return self.getParameter("SCRATCH_DIR")
 
     def getNodeSetName(self):
+        """Accessor for NODE_SET
+        @return the value of NODE_SET
+        """
         return self.getParameter("NODE_SET")
 
     def getNodes(self):
+        """Accessor for NODE_COUNT
+        @return the value of NODE_COUNT
+        """
         return self.getParameter("NODE_COUNT")
 
     def getSlots(self):
+        """Accessor for SLOTS
+        @return the value of SLOTS
+        """
         return self.getParameter("SLOTS")
 
     def getWallClock(self):
+        """Accessor for WALL_CLOCK
+        @return the value of WALL_CLOCK
+        """
         return self.getParameter("WALL_CLOCK")
 
 
     def getParameter(self,value):
+        """Accessor for generic value
+        @return None if value is not set.  Otherwise, use the command line override (if set), or the default Config value
+        """
         if value in self.commandLineDefaults:
             return self.commandLineDefaults[value]
         if value in self.defaults:

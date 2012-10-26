@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # 
 # LSST Data Management System
-# Copyright 2008, 2009, 2010 LSST Corporation.
+# Copyright 2008-2012 LSST Corporation.
 # 
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
@@ -20,36 +20,24 @@
 # the GNU General Public License along with this program.  If not, 
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
+import unittest
+import os, os.path, filecmp
+from lsst.ctrl.execute.templateWriter import TemplateWriter
 
-from __future__ import with_statement
-from EnvString import EnvString
-import sys, os, os.path
-
-class SeqFile(object):
-    def __init__(self, seqFileName):
-        self.fileName = EnvString.resolve(seqFileName)
-
-    def nextSeq(self):
-        seq = 0
-        if os.path.exists(self.fileName) == False:
-            self.writeSeq(seq)
-        else:
-            seq = self.readSeq()
-            seq += 1
-            self.writeSeq(seq)
-        return seq
-
-    def readSeq(self):
-        with open(self.fileName) as seqFile:
-            line = seqFile.read()
-            seq = int(line)
-        return seq
-        
-    def writeSeq(self, seq):
-        with open(self.fileName,'w') as seqFile:
-            print >>seqFile, seq
+class TestTemplateWriter(unittest.TestCase):
+    def test1(self):
+        pairs = {}
+        pairs["TEST1"] = "Hello"
+        pairs["TEST2"] = "Goodbye"
+        infile = os.path.join("tests", "testfiles", "templateWriter.template")
+        compare = os.path.join("tests", "testfiles", "templateWriter.txt")
+        outfile = os.path.join("/tmp",os.getlogin()+"_"+str(os.getpid())+"_template.txt")
+        temp = TemplateWriter()
+        temp.rewrite(infile, outfile, pairs)
+        self.assertTrue(filecmp.cmp(compare,outfile))
+        os.remove(outfile)
+    
 
 if __name__ == "__main__":
-    s = SeqFile()
-    n = s.nextSeq()
-    print n
+    unittest.main()
+

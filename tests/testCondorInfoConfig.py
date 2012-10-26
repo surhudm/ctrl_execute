@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-
 # 
 # LSST Data Management System
-# Copyright 2008, 2009, 2010 LSST Corporation.
+# Copyright 2008-2012 LSST Corporation.
 # 
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
@@ -21,16 +20,22 @@
 # the GNU General Public License along with this program.  If not, 
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
+import unittest
+import os.path
+from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
 
-import sys
-from lsst.ctrl.execute.qCommand import QCommand
+class TestCondorInfoConfig(unittest.TestCase):
+
+    def test1(self):
+        path = os.path.join("tests", "testfiles", "config_condorInfo.cfg")
+        config = CondorInfoConfig()
+    
+        config.load(path)
+    
+        self.assertTrue(config.platform["test1"].user.name == "test1")
+        self.assertTrue(config.platform["test1"].user.home == "/home/test1")
+        self.assertTrue(config.platform["test2"].user.name == "test2")
+        self.assertTrue(config.platform["test2"].user.home == "/home/test2")
 
 if __name__ == "__main__":
-    platform = sys.argv[1]
-    jobId = sys.argv[2]
-
-    cmd = QCommand(platform)
-
-    command = "%s %s@%s %s/qdel %s" % (cmd.remoteLoginCmd, cmd.userName, cmd.hostName, cmd.utilityPath, jobId)
-    exitCode = cmd.runCommand(command)
-    sys.exit(exitCode)
+    unittest.main()

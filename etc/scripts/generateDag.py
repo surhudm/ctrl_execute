@@ -209,20 +209,7 @@ def main():
     print ns
     print ns.idsPerJob
 
-    # SA 
-    # templateFile = "SourceAssoc-template.condor"
-    # pipeline = "SourceAssoc"
-    # infile   = "sky-tiles"
-
-    # Pipeqa  
-    # templateFile = "pipeqa-template.template"
-    # pipeline = "pipeqa"
-    # infile   = "visits-449"
-
-    #   processCcdLsstSim
     pipeline = "S2012Pipe"
-    #templateFile = "W2012Pipe-template.condor"
-    #infile   = "9429-CCDs.input"
 
     writeDagFile(pipeline, ns.template, ns.source, ns.workerdir, ns.prescript, ns.runid, int(ns.idsPerJob))
 

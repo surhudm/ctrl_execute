@@ -23,49 +23,19 @@
 #
 
 
-from __future__ import with_statement
-import sys, os, os.path, shutil, subprocess, string
-import lsst.pex.config as pexConfig
-from lsst.ctrl.execute.EnvString import EnvString
-from lsst.ctrl.execute.AllocationConfig import AllocationConfig
-from lsst.ctrl.execute.CondorInfoConfig import CondorInfoConfig
-import eups
-
-def runCommand(cmd):
-    cmd_split = cmd.split()
-    pid = os.fork()
-    if not pid:
-        os.execvp(cmd_split[0], cmd_split)
-    pid, status = os.wait()
-    exitCode = (status & 0xff00)  >> 8
-    return exitCode
+import sys
+from lsst.ctrl.execute.qCommand import QCommand
 
 if __name__ == "__main__":  
     platform = sys.argv[1]
-    configFileName = "$HOME/.lsst/condor-info.py"
-    fileName = EnvString.resolve(configFileName)
 
-    condorInfoConfig = CondorInfoConfig()
-    condorInfoConfig.load(fileName)
+    cmd = QCommand(platform)
 
-    platformPkgDir = eups.productDir("ctrl_platform_"+platform)
-    if platformPkgDir is not None:
-        configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
-    else:
-        raise RuntimeError("ctrl_platform_%s was not found.  Is it setup?" % platform)
-
-    allocationConfig = AllocationConfig()
-    allocationConfig.load(configName)
-
-    hostName = allocationConfig.platform.loginHostName
-    utilityPath = allocationConfig.platform.utilityPath
-    userName = condorInfoConfig.platform[platform].user.name
     # default to doing a status for the user, otherwise, pass the args to qstat
     if len(sys.argv) == 2:
-        cmd = "ssh %s %s/qstat -u%s" % (hostName, utilityPath, userName)
+        command = "%s %s@%s %s/qstat -u%s" % (cmd.remoteLoginCmd, cmd.userName, cmd.hostName, cmd.utilityPath, cmd.userName)
     else:
-        cmd = "ssh %s %s/qstat %s" % (hostName, utilityPath, string.join(sys.argv[2:]))
-    exitCode = runCommand(cmd)
-    if exitCode != 0:
-        sys.exit(exitCode)
-    sys.exit(0)
+        command = "%s %s@%s %s/qstat %s" % (cmd.remoteLoginCmd, cmd.userName, cmd.hostName, cmd.utilityPath, string.join(sys.argv[2:]))
+
+    exitCode = cmd.runCommand(command)
+    sys.exit(exitCode)

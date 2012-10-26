@@ -2,7 +2,7 @@
 
 # 
 # LSST Data Management System
-# Copyright 2008, 2009, 2010 LSST Corporation.
+# Copyright 2008-2012 LSST Corporation.
 # 
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
@@ -22,25 +22,8 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from __future__ import with_statement
-import re, sys, os, os.path, shutil, subprocess
-import optparse, traceback, time
-from datetime import datetime
 import lsst.pex.config as pexConfig
-from string import Template
-from TemplateWriter import TemplateWriter
-import eups
-
-class PlatformConfig(pexConfig.Config):
-    defaultRoot = pexConfig.Field("default root working for directories",str, default=None) 
-    localScratch = pexConfig.Field("local scratch directory",str, default=None) 
-    idsPerJob = pexConfig.Field("ids per job",int, default=1)
-    dataDirectory = pexConfig.Field("data directory", str, default=None)
-    fileSystemDomain = pexConfig.Field("filesystem domain", str, default=None)
-    eupsPath = pexConfig.Field("eups path", str, default=None)
-
-class CondorConfig(pexConfig.Config):
-    platform = pexConfig.ConfigField("platform configuration", PlatformConfig)
+from lsst.ctrl.execute import envString
 
 class FakeTypeMap(dict):
    def __init__(self, configClass):
@@ -48,3 +31,29 @@ class FakeTypeMap(dict):
 
    def __getitem__(self, k):
        return self.setdefault(k, self.configClass)
+
+class UserInfoConfig(pexConfig.Config):
+    """ User information
+    """
+    name = pexConfig.Field(doc="user login name", dtype=str, default=None)
+    home = pexConfig.Field(doc="user home directory", dtype=str, default=None)
+
+class UserConfig(pexConfig.Config):
+    """ User specific information
+    """
+    user = pexConfig.ConfigField(doc="user", dtype=UserInfoConfig)
+
+class CondorInfoConfig(pexConfig.Config):
+    """A pex_config file describing the platform specific information about
+    remote user logins.  
+    """
+    platform = pexConfig.ConfigChoiceField("platform info", FakeTypeMap(UserConfig))
+
+if __name__ == "__main__":
+    config = CondorInfoConfig()
+    filename = "$HOME/.lsst/condor-info.py"
+    filename = envString.resolve(filename)
+    config.load(filename)
+
+    for i in config.platform.keys():
+        print i

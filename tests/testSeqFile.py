@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-
 # 
 # LSST Data Management System
-# Copyright 2008, 2009, 2010 LSST Corporation.
+# Copyright 2008-2012 LSST Corporation.
 # 
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
@@ -22,27 +21,21 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import re, os
+import unittest
+import os, os.path
+from lsst.ctrl.execute.seqFile import SeqFile
 
-class EnvString:
+class TestSeqFile(unittest.TestCase):
+    def test1(self):
+        filename = os.path.join("/tmp",os.getlogin()+"_"+str(os.getpid())+".seq")
+        if os.path.exists(filename) == True:
+            os.remove(filename)
+        sf = SeqFile(filename)
+        a = sf.nextSeq()
+        self.assertTrue(a == 0)
+        a = sf.nextSeq()
+        self.assertTrue(a == 1)
+        os.remove(filename)
 
-    ##
-    # given a string, look for any $ prefixed word, attempt to subsitute
-    # an environment variable with that name.  
-    #
-    # @throw exception if the environment variable doesn't exist
-    #
-    # Return the resulting string
-    def resolve(strVal):
-        p = re.compile('\$[a-zA-Z0-9_]+')
-        retVal = strVal
-        exprs = p.findall(retVal)
-        for i in exprs:
-            var = i[1:]
-            val = os.getenv(var, None)
-            if val == None:
-                raise RuntimeError("couldn't find environment variable "+i)
-                sys.exit(120)
-            retVal = p.sub(val,retVal,1)
-        return retVal
-    resolve = staticmethod(resolve)
+if __name__ == "__main__":
+    unittest.main()
