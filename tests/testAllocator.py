@@ -20,69 +20,70 @@
 # the GNU General Public License along with this program.  If not, 
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
-import eups
+import sys
 import os.path
 import time
+import unittest
 from lsst.ctrl.execute.allocator import Allocator
 from lsst.ctrl.execute.allocatorParser import AllocatorParser
 
-def setup():
-    test1_args = ["allocator_test",
-            "test_platform",
-            "-n","64",
-            "-s","12",
-            "-m","00:30:00",
-            "-N","test_set",
-            "-q","normal",
-            "-e","yes",
-            "-O","outlog",
-            "-E","errlog",
-            "-v",
-            ]
-    executePkgDir = eups.productDir("ctrl_execute")
-    fileName = os.path.join(executePkgDir, "tests", "testfiles", "allocator-info1.cfg")
-    alp = AllocatorParser(test1_args)
-    opts = alp.getOpts()
-    al = Allocator("lsst", opts, fileName)
-    return al
+class TestAllocator(unittest.TestCase):
 
-def test1(al):
-
-    filename1 = al.createUniqueFileName()
-    time.sleep(1)
-    filename2 = al.createUniqueFileName()
-    assert filename1 != filename2
-
-def test2(al):
-    executePkgDir = eups.productDir("ctrl_execute")
-    path = os.path.join(executePkgDir, "tests","testfiles", "config_condor.cfg")
-    al.load(path)
-
-    fileName = os.path.join(executePkgDir, "tests", "testfiles", "config_allocation.cfg")
-
-    nodeSetName1 = al.loadPBS(fileName)
-
-def test3(al):
-    assert al.isVerbose()
-
-def test4(al):
-    executePkgDir = eups.productDir("ctrl_execute")
-    path = os.path.join(executePkgDir, "tests","testfiles", "config_condor.cfg")
-    al.load(path)
-    fileName = os.path.join(executePkgDir, "tests", "testfiles", "config_allocation.cfg")
-    nodeSetName1 = al.loadPBS(fileName)
-    assert al.getHostName() == "bighost.lsstcorp.org"
-    assert al.getUtilityPath() == "/bin"
-    assert al.getScratchDirectory() == "/tmp"
-    assert al.getNodeSetName() == "test_set"
-    assert al.getNodes() == "64"
-    assert al.getSlots() == "12"
-    assert al.getWallClock() == "00:30:00"
-    assert al.getParameter("NODE_COUNT") == "64"
-    assert al.getParameter("KAZOO") == None
+    def setUp(self):
+        sys.argv = ["allocator_test",
+                "test_platform",
+                "-n","64",
+                "-s","12",
+                "-m","00:30:00",
+                "-N","test_set",
+                "-q","normal",
+                "-e",
+                "-O","outlog",
+                "-E","errlog",
+                "-v",
+                ]
+        fileName = os.path.join("tests", "testfiles", "allocator-info1.cfg")
+        alp = AllocatorParser(sys.argv[0])
+        args = alp.getArgs()
+        self.al = Allocator("lsst", args, fileName)
+    
+    def test1(self):
+    
+        al = self.al
+    
+        filename1 = al.createUniqueFileName()
+        time.sleep(1)
+        filename2 = self.al.createUniqueFileName()
+        self.assertTrue(filename1 != filename2)
+    
+    def test2(self):
+        al = self.al
+        path = os.path.join("tests","testfiles", "config_condor.cfg")
+        al.load(path)
+    
+        fileName = os.path.join("tests", "testfiles", "config_allocation.cfg")
+    
+        nodeSetName1 = al.loadPbs(fileName)
+    
+    def test3(self):
+        al = self.al
+        self.assertTrue(al.isVerbose())
+    
+    def test4(self):
+        al = self.al
+        path = os.path.join("tests","testfiles", "config_condor.cfg")
+        al.load(path)
+        fileName = os.path.join("tests", "testfiles", "config_allocation.cfg")
+        nodeSetName1 = al.loadPbs(fileName)
+        self.assertTrue(al.getHostName() == "bighost.lsstcorp.org")
+        self.assertTrue(al.getUtilityPath() == "/bin")
+        self.assertTrue(al.getScratchDirectory() == "/tmp")
+        self.assertTrue(al.getNodeSetName() == "test_set")
+        self.assertTrue(al.getNodes() == 64)
+        self.assertTrue(al.getSlots() == 12)
+        self.assertTrue(al.getWallClock() == "00:30:00")
+        self.assertTrue(al.getParameter("NODE_COUNT") == 64)
+        self.assertTrue(al.getParameter("KAZOO") == None)
 
 if __name__ == "__main__":
-    test1(setup())
-    test2(setup())
-    test3(setup())
-    test4(setup())
+    unittest.main()

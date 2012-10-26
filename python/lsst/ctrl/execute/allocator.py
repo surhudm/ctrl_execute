@@ -22,18 +22,16 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import os, os.path
-import optparse
+import os
 import lsst.pex.config as pexConfig
-import eups
 from datetime import datetime
 from string import Template
 from lsst.ctrl.execute import envString
-from allocationConfig import AllocationConfig
-from condorConfig import CondorConfig
-from condorInfoConfig import CondorInfoConfig
-from templateWriter import TemplateWriter
-from seqFile import SeqFile
+from lsst.ctrl.execute.allocationConfig import AllocationConfig
+from lsst.ctrl.execute.condorConfig import CondorConfig
+from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
+from lsst.ctrl.execute.templateWriter import TemplateWriter
+from lsst.ctrl.execute.seqFile import SeqFile
 
 class Allocator(object):
     """A class which consolidates allocation pex_config information with override
@@ -48,7 +46,6 @@ class Allocator(object):
         self.opts = opts
         self.defaults = {}
 
-        #configFileName = "$HOME/.lsst/condor-info.py"
         fileName = envString.resolve(configFileName)
 
         condorInfoConfig = CondorInfoConfig()
@@ -57,9 +54,11 @@ class Allocator(object):
         self.platform = platform
 
 
-        # Look up the user's name and home directory in the $HOME//.lsst/condor-info.py file
-        # If the platform is lsst, and the user_name or user_home is not in there, then default to
-        # user running this command and the value of $HOME, respectively.
+        # Look up the user's name and home directory in the 
+        # $HOME/.lsst/condor-info.py file
+        # If the platform is lsst, and the user_name or user_home 
+        # is not in there, then default to user running this 
+        # command and the value of $HOME, respectively.
         user_name = None
         user_home = None
         for name in condorInfoConfig.platform.keys():
@@ -107,6 +106,8 @@ class Allocator(object):
         @return the new file name
         """
         now = datetime.now()
+        # This naming scheme follows the conventions used for creating RUNID
+        # names.
         fileName = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
         return fileName
 
@@ -127,7 +128,7 @@ class Allocator(object):
         """
         resolvedName = envString.resolve(name)
         configuration = AllocationConfig()
-        if os.path.exists(resolvedName) == False:
+        if not os.path.exists(resolvedName):
             print "%s was not found." % resolvedName
             return False
         configuration.load(resolvedName)
@@ -163,8 +164,8 @@ class Allocator(object):
 
         # write these pbs and config files to {LOCAL_DIR}/configs
         configDir = os.path.join(self.defaults["LOCAL_SCRATCH"], "configs")
-        if os.path.exists(configDir) == False:
-            os.mkdir(configDir)
+        if not os.path.exists(configDir):
+            os.mkdirs(configDir)
 
         self.pbsFileName = os.path.join(configDir, "alloc_%s.pbs" % uniqueFileName)
 
@@ -178,7 +179,7 @@ class Allocator(object):
         @return the newly created file
         """
         outfile = self.createFile(input, self.pbsFileName)
-        if self.opts.verbose == True:
+        if self.opts.verbose:
             print "wrote new PBS file to %s" %  outfile
         return outfile
 
@@ -187,7 +188,7 @@ class Allocator(object):
         @return the newly created file
         """
         outfile = self.createFile(input, self.condorConfigFileName)
-        if self.opts.verbose == True:
+        if self.opts.verbose:
             print "wrote new condor_config file to %s" %  outfile
         return outfile
 
@@ -197,7 +198,7 @@ class Allocator(object):
         @return the newly created file
         """
         resolvedInputName = envString.resolve(input)
-        if self.opts.verbose == True:
+        if self.opts.verbose:
             print "creating file using %s" % resolvedInputName
         template = TemplateWriter()
         # Uses the associative arrays of "defaults" and "commandLineDefaults"
@@ -210,7 +211,6 @@ class Allocator(object):
                 substitutes[key] = self.commandLineDefaults[key]
         template.rewrite(resolvedInputName, output, substitutes)
         return output
-
 
 
     def isVerbose(self):

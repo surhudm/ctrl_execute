@@ -20,23 +20,23 @@
 # the GNU General Public License along with this program.  If not, 
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
-import eups
+import unittest
 import os, os.path, filecmp
 from lsst.ctrl.execute.templateWriter import TemplateWriter
 
-def test1():
-    pairs = {}
-    pairs["TEST1"] = "Hello"
-    pairs["TEST2"] = "Goodbye"
-    executePkgDir = eups.productDir("ctrl_execute")
-    infile = os.path.join(executePkgDir, "tests", "testfiles", "templateWriter.template")
-    compare = os.path.join(executePkgDir, "tests", "testfiles", "templateWriter.txt")
-    outfile = os.path.join("/tmp",os.getlogin()+"_"+str(os.getpid())+"_template.txt")
-    temp = TemplateWriter()
-    temp.rewrite(infile, outfile, pairs)
-    assert filecmp.cmp(compare,outfile) == True
+class TestTemplateWriter(unittest.TestCase):
+    def test1(self):
+        pairs = {}
+        pairs["TEST1"] = "Hello"
+        pairs["TEST2"] = "Goodbye"
+        infile = os.path.join("tests", "testfiles", "templateWriter.template")
+        compare = os.path.join("tests", "testfiles", "templateWriter.txt")
+        outfile = os.path.join("/tmp",os.getlogin()+"_"+str(os.getpid())+"_template.txt")
+        temp = TemplateWriter()
+        temp.rewrite(infile, outfile, pairs)
+        self.assertTrue(filecmp.cmp(compare,outfile))
     
 
 if __name__ == "__main__":
-    test1()
+    unittest.main()
 

@@ -20,28 +20,32 @@
 # the GNU General Public License along with this program.  If not, 
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
-import eups
+import unittest
 import os.path
 from lsst.ctrl.execute.allocationConfig import AllocationConfig
 
-def test1():
-    executePkgDir = eups.productDir("ctrl_execute")
-    path = os.path.join(executePkgDir, "tests", "testfiles", "config_allocation.cfg")
-    config = AllocationConfig()
+class test1(unittest.TestCase):
 
-    assert config.platform.queue == None
-    assert config.platform.email == None
-    assert config.platform.scratchDirectory == None
-    assert config.platform.loginHostName == None
-    assert config.platform.utilityPath == None
+    def setUp(self):
+        self.config = AllocationConfig()
 
-    config.load(path)
+    def test_config1(self):
 
-    assert config.platform.queue == "normal"
-    assert config.platform.email == "#PBS mail -be"
-    assert config.platform.scratchDirectory == "/tmp"
-    assert config.platform.loginHostName == "bighost.lsstcorp.org"
-    assert config.platform.utilityPath == "/bin"
+        self.assertTrue(self.config.platform.queue == None)
+        self.assertTrue(self.config.platform.email == None)
+        self.assertTrue(self.config.platform.scratchDirectory == None)
+        self.assertTrue(self.config.platform.loginHostName == None)
+        self.assertTrue(self.config.platform.utilityPath == None)
+
+    def test_config2(self):
+        path = os.path.join("tests", "testfiles", "config_allocation.cfg")
+        self.config.load(path)
+
+        self.assertTrue(self.config.platform.queue == "normal")
+        self.assertTrue(self.config.platform.email == "#PBS mail -be")
+        self.assertTrue(self.config.platform.scratchDirectory == "/tmp")
+        self.assertTrue(self.config.platform.loginHostName == "bighost.lsstcorp.org")
+        self.assertTrue(self.config.platform.utilityPath == "/bin")
 
 if __name__ == "__main__":
-    test1()
+    unittest.main()

@@ -21,38 +21,38 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import eups
+import sys
+import unittest
 import os.path
 from lsst.ctrl.execute.allocatorParser import AllocatorParser
 
-def test1():
-    test1_args = ["allocatorParser_test",
-            "test_platform",
-            "-n","64",
-            "-s","12",
-            "-m","00:30:00",
-            "-N","test_set",
-            "-q","normal",
-            "-e","yes",
-            "-O","outlog",
-            "-E","errlog",
-            "-v",
-            ]
-
-    al = AllocatorParser(test1_args)
-    opts = al.getOpts()
-    args = al.getArgs()
-
-    assert opts.nodeCount == "64"
-    assert opts.slots == "12"
-    assert opts.maximumWallClock == "00:30:00"
-    assert opts.nodeSet == "test_set"
-    assert opts.queue == "normal"
-    assert opts.email == "yes"
-    assert opts.outputLog == "outlog"
-    assert opts.errorLog == "errlog"
-    assert opts.verbose == True
-
+class TestAllocatorParser(unittest.TestCase):
+    def test1(self):
+        sys.argv = ["test1",
+                "test_platform",
+                "-n","64",
+                "-s","12",
+                "-m","00:30:00",
+                "-N","test_set",
+                "-q","normal",
+                "-e",
+                "-O","outlog",
+                "-E","errlog",
+                "-v",
+                ]
+    
+        al = AllocatorParser(sys.argv[0])
+        args = al.getArgs()
+    
+        self.assertTrue(args.nodeCount == 64)
+        self.assertTrue(args.slots == 12)
+        self.assertTrue(args.maximumWallClock == "00:30:00")
+        self.assertTrue(args.nodeSet == "test_set")
+        self.assertTrue(args.queue == "normal")
+        self.assertTrue(args.email)
+        self.assertTrue(args.outputLog == "outlog")
+        self.assertTrue(args.errorLog == "errlog")
+        self.assertTrue(args.verbose)
 
 if __name__ == "__main__":
-    test1()
+    unittest.main()

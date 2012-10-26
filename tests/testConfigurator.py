@@ -20,108 +20,101 @@
 # the GNU General Public License along with this program.  If not, 
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
-import eups
+import unittest
+import sys
 import os.path
 import time
 from lsst.ctrl.execute.configurator import Configurator
 from lsst.ctrl.execute.runOrcaParser import RunOrcaParser
 
-def getRemoteArgs():
-    args = ["configurator_test",
-            "-p", "bigboxes",
-            "-c","echo hello",
-            "-i","$CTRL_EXECUTE/tests/testfiles/inputfile",
-            "-e","/tmp",
-            "-n","test_set",
-            "-j","16",
-            "-v",
-            ]
-    return args
-
-def getLocalArgs():
-    args = ["configurator_test",
-            "-p", "lsst",
-            "-c","echo hello",
-            "-i","$CTRL_EXECUTE/tests/testfiles/inputfile",
-            "-e","/tmp2",
-            "-n","test_set2",
-            "-j","12",
-            ]
-    return args
-
-def getLocalWithSetupArgs():
-    args = ["configurator_test",
-            "-p", "lsst",
-            "-c","echo hello",
-            "-i","$CTRL_EXECUTE/tests/testfiles/inputfile",
-            "-e","/tmp2",
-            "-n","test_set2",
-            "-j","12",
-            "--setup","fake_package", "1.0",
-            ]
-    return args
-
-
-def setup(args):
-    executePkgDir = eups.productDir("ctrl_execute")
-    fileName = os.path.join(executePkgDir, "tests", "testfiles", "allocator-info1.cfg")
-    rop = RunOrcaParser(args)
-    opts = rop.getOpts()
-    configurator = Configurator(opts, fileName)
-    return configurator
-
-def test1():
-    configurator = setup(getRemoteArgs())
-    assert configurator.isVerbose()
-    assert configurator.getParameter("EUPS_PATH") == "/tmp"
-    assert configurator.getParameter("USER_NAME") == "thx1138"
-    assert configurator.getParameter("USER_HOME") == "/home/thx1138"
-
-def test2():
-    configurator = setup(getLocalArgs())
-    assert configurator.isVerbose() == False
-    assert configurator.getParameter("EUPS_PATH") == "/tmp2"
-    assert configurator.getParameter("USER_NAME") == "c3po"
-    assert configurator.getParameter("USER_HOME") == "/lsst/home/c3po"
-    assert configurator.getParameter("NODE_SET") == "test_set2"
-    assert configurator.getParameter("KAZOO") == None
-
-def test3():
-    configurator = setup(getRemoteArgs())
-    executePkgDir = eups.productDir("ctrl_execute")
-    testname = os.path.join(executePkgDir,"etc","templates","config_with_setups.py.template")
-    assert configurator.getGenericConfigFileName() == testname
-
-def test4():
-    configurator = setup(getLocalArgs())
-    executePkgDir = eups.productDir("ctrl_execute")
-    testname = os.path.join(executePkgDir,"etc","templates","config_with_getenv.py.template")
-    assert configurator.getGenericConfigFileName() == testname
-
-def test5():
-    configurator = setup(getLocalWithSetupArgs())
-    executePkgDir = eups.productDir("ctrl_execute")
-    testname = os.path.join(executePkgDir,"etc","templates","config_with_setups.py.template")
-    assert configurator.getGenericConfigFileName() == testname
-
-def test6():
-    configurator = setup(getRemoteArgs())
-    runId1 = configurator.createRunId()
-    time.sleep(1)
-    runId2 = configurator.createRunId()
-    assert runId1 != runId2
-    assert runId2 == configurator.getRunId()
-
-def test7():
-    configurator = setup(getRemoteArgs())
-    assert configurator.getSetupPackages() != None
+class TestConfigurator(unittest.TestCase):
+    def getRemoteArgs(self):
+        args = ["configurator_test",
+                "-p", "bigboxes",
+                "-c","echo hello",
+                "-i","$CTRL_EXECUTE/tests/testfiles/inputfile",
+                "-e","/tmp",
+                "-n","test_set",
+                "-j","16",
+                "-v",
+                ]
+        return args
+    
+    def getLocalArgs(self):
+        args = ["configurator_test",
+                "-p", "lsst",
+                "-c","echo hello",
+                "-i","$CTRL_EXECUTE/tests/testfiles/inputfile",
+                "-e","/tmp2",
+                "-n","test_set2",
+                "-j","12",
+                ]
+        return args
+    
+    def getLocalWithSetupArgs(self):
+        args = ["configurator_test",
+                "-p", "lsst",
+                "-c","echo hello",
+                "-i","$CTRL_EXECUTE/tests/testfiles/inputfile",
+                "-e","/tmp2",
+                "-n","test_set2",
+                "-j","12",
+                "--setup","fake_package", "1.0",
+                ]
+        return args
+    
+    
+    def setup(self,args):
+        fileName = os.path.join("tests", "testfiles", "allocator-info1.cfg")
+        rop = RunOrcaParser(args)
+        args = rop.getOpts()
+        configurator = Configurator(args, fileName)
+        return configurator
+    
+    def test1(self):
+        configurator = self.setup(self.getRemoteArgs())
+        self.assertTrue(configurator.isVerbose())
+        self.assertTrue(configurator.getParameter("EUPS_PATH") == "/tmp")
+        self.assertTrue(configurator.getParameter("USER_NAME") == "thx1138")
+        self.assertTrue(configurator.getParameter("USER_HOME") == "/home/thx1138")
+    
+    def test2(self):
+        configurator = self.setup(self.getLocalArgs())
+        self.assertTrue(configurator.isVerbose() == False)
+        self.assertTrue(configurator.getParameter("EUPS_PATH") == "/tmp2")
+        self.assertTrue(configurator.getParameter("USER_NAME") == "c3po")
+        self.assertTrue(configurator.getParameter("USER_HOME") == "/lsst/home/c3po")
+        self.assertTrue(configurator.getParameter("NODE_SET") == "test_set2")
+        self.assertTrue(configurator.getParameter("KAZOO") == None)
+    
+    def test3(self):
+        configurator = self.setup(self.getRemoteArgs())
+        testname = "config_with_setups.py.template"
+        print configurator.getGenericConfigFileName()
+        self.assertTrue(os.path.basename(configurator.getGenericConfigFileName()) == testname)
+    
+    def test4(self):
+        configurator = self.setup(self.getLocalArgs())
+        testname = "config_with_getenv.py.template"
+        self.assertTrue(os.path.basename(configurator.getGenericConfigFileName()) == testname)
+    
+    def test5(self):
+        configurator = self.setup(self.getLocalWithSetupArgs())
+        testname = "config_with_setups.py.template"
+        self.assertTrue(os.path.basename(configurator.getGenericConfigFileName()) == testname)
+    
+    def test6(self):
+        configurator = self.setup(self.getRemoteArgs())
+        runId1 = configurator.createRunId()
+        time.sleep(1)
+        runId2 = configurator.createRunId()
+        self.assertTrue(runId1 != runId2)
+        self.assertTrue(runId2 == configurator.getRunId())
+    
+    def test7(self):
+        configurator = self.setup(self.getRemoteArgs())
+        self.assertTrue(configurator.getSetupPackages() != None)
     
 
 if __name__ == "__main__":
-    test1()
-    test2()
-    test3()
-    test4()
-    test5()
-    test6()
-    test7()
+    unittest.main()

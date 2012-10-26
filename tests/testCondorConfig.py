@@ -20,28 +20,32 @@
 # the GNU General Public License along with this program.  If not, 
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
-import eups
+import unittest
 import os.path
 from lsst.ctrl.execute.condorConfig import CondorConfig
 
-def test1():
-    executePkgDir = eups.productDir("ctrl_execute")
-    path = os.path.join(executePkgDir, "tests","testfiles", "config_condor.cfg")
-    config = CondorConfig()
 
-    assert config.platform.defaultRoot == None
-    assert config.platform.localScratch == None
-    assert config.platform.dataDirectory == None
-    assert config.platform.fileSystemDomain == None
-    assert config.platform.eupsPath == None
-
-    config.load(path)
-
-    assert config.platform.defaultRoot == "/usr"
-    assert config.platform.localScratch == "/tmp"
-    assert config.platform.dataDirectory == "/tmp/data"
-    assert config.platform.fileSystemDomain == "lsstcorp.org"
-    assert config.platform.eupsPath == "/var/tmp"
-
+class TestCondorConfig(unittest.TestCase):
+    def setUp(self):
+        self.config = CondorConfig()
+    
+    def test1(self):
+        assert self.config.platform.defaultRoot == None
+        assert self.config.platform.localScratch == None
+        assert self.config.platform.dataDirectory == None
+        assert self.config.platform.fileSystemDomain == None
+        assert self.config.platform.eupsPath == None
+        assert self.config.platform.defaultRoot == None
+    
+    def test2(self):
+        path = os.path.join("tests","testfiles", "config_condor.cfg")
+        self.config.load(path)
+    
+        assert self.config.platform.defaultRoot == "/usr"
+        assert self.config.platform.localScratch == "/tmp"
+        assert self.config.platform.dataDirectory == "/tmp/data"
+        assert self.config.platform.fileSystemDomain == "lsstcorp.org"
+        assert self.config.platform.eupsPath == "/var/tmp"
+    
 if __name__ == "__main__":
-    test1()
+    unittest.main()
