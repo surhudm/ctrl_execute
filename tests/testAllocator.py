@@ -23,14 +23,15 @@
 import sys
 import os.path
 import time
+import filecmp
 import unittest
 from lsst.ctrl.execute.allocator import Allocator
 from lsst.ctrl.execute.allocatorParser import AllocatorParser
 
 class TestAllocator(unittest.TestCase):
 
-    def setUp(self):
-        sys.argv = ["allocator_test",
+    def verboseArgs(self):
+        argv = ["allocator_test",
                 "test_platform",
                 "-n","64",
                 "-s","12",
@@ -42,39 +43,47 @@ class TestAllocator(unittest.TestCase):
                 "-E","errlog",
                 "-v",
                 ]
+        return argv
+    
+    def regularArgs(self):
+        argv = ["allocator_test",
+                "test_platform",
+                "-n","64",
+                "-s","12",
+                "-m","00:30:00",
+                "-N","test_set",
+                "-q","normal",
+                "-e",
+                "-O","outlog",
+                "-E","errlog",
+                ]
+        return argv
+
+    def subSetup(self):
         fileName = os.path.join("tests", "testfiles", "allocator-info1.cfg")
         alp = AllocatorParser(sys.argv[0])
         args = alp.getArgs()
-        self.al = Allocator("lsst", args, fileName)
-    
+        al = Allocator("lsst", args, fileName)
+        return al
+
     def test1(self):
+        sys.argv = self.verboseArgs()
+        al = self.subSetup()
     
-        al = self.al
-    
-        filename1 = al.createUniqueFileName()
+        identifier1 = al.createUniqueIdentifier()
         time.sleep(1)
-        filename2 = self.al.createUniqueFileName()
-        self.assertTrue(filename1 != filename2)
+        identifier2 = al.createUniqueIdentifier()
+        self.assertTrue(identifier1 != identifier2)
+    
     
     def test2(self):
-        al = self.al
-        path = os.path.join("tests","testfiles", "config_condor.cfg")
-        al.load(path)
-    
-        fileName = os.path.join("tests", "testfiles", "config_allocation.cfg")
-    
-        nodeSetName1 = al.loadPbs(fileName)
-    
-    def test3(self):
-        al = self.al
-        self.assertTrue(al.isVerbose())
-    
-    def test4(self):
-        al = self.al
+        sys.argv = self.verboseArgs()
+        al = self.subSetup()   
+        
         path = os.path.join("tests","testfiles", "config_condor.cfg")
         al.load(path)
         fileName = os.path.join("tests", "testfiles", "config_allocation.cfg")
-        nodeSetName1 = al.loadPbs(fileName)
+        al.loadPbs(fileName)
         self.assertTrue(al.getHostName() == "bighost.lsstcorp.org")
         self.assertTrue(al.getUtilityPath() == "/bin")
         self.assertTrue(al.getScratchDirectory() == "/tmp")
@@ -84,6 +93,28 @@ class TestAllocator(unittest.TestCase):
         self.assertTrue(al.getWallClock() == "00:30:00")
         self.assertTrue(al.getParameter("NODE_COUNT") == 64)
         self.assertTrue(al.getParameter("KAZOO") == None)
+        self.assertTrue(al.isVerbose())
+
+    def test3(self):
+        sys.argv = self.regularArgs()
+        al = self.subSetup()   
+
+        path = os.path.join("tests","testfiles", "config_condor.cfg")
+        al.load(path)
+        fileName = os.path.join("tests", "testfiles", "config_allocation.cfg")
+        al.loadPbs(fileName)
+        pbsName = os.path.join("tests", "testfiles", "generic.pbs.template")
+        compare = os.path.join("tests", "testfiles", "generic.pbs.txt")
+        generatedPbsFile = al.createPbsFile(pbsName)
+
+        self.assertTrue(filecmp.cmp(compare,generatedPbsFile))
+        condorFile = os.path.join("tests", "testfiles", "glidein_condor_config.template")
+        compare = os.path.join("tests", "testfiles", "glidein_condor_config.txt")
+        generatedCondorConfigFile = al.createCondorConfigFile(condorFile)
+        self.assertTrue(filecmp.cmp(compare,generatedCondorConfigFile))
+        os.remove(generatedCondorConfigFile)
+        os.remove(generatedPbsFile)
+
 
 if __name__ == "__main__":
     unittest.main()

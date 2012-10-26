@@ -29,45 +29,45 @@ from lsst.ctrl.execute.runOrcaParser import RunOrcaParser
 
 class TestConfigurator(unittest.TestCase):
     def getRemoteArgs(self):
-        args = ["configurator_test",
+        sys.argv = ["configurator_test",
                 "-p", "bigboxes",
-                "-c","echo hello",
-                "-i","$CTRL_EXECUTE/tests/testfiles/inputfile",
+                "-c",'"echo hello"',
+                "-i","$CTRL_EXECUTE_DIR/tests/testfiles/inputfile",
                 "-e","/tmp",
                 "-n","test_set",
                 "-j","16",
                 "-v",
                 ]
-        return args
+        return sys.argv
     
     def getLocalArgs(self):
-        args = ["configurator_test",
+        sys.argv = ["configurator_test",
                 "-p", "lsst",
-                "-c","echo hello",
-                "-i","$CTRL_EXECUTE/tests/testfiles/inputfile",
+                "-c",'"echo hello"',
+                "-i","$CTRL_EXECUTE_DIR/tests/testfiles/inputfile",
                 "-e","/tmp2",
                 "-n","test_set2",
                 "-j","12",
                 ]
-        return args
+        return sys.argv
     
     def getLocalWithSetupArgs(self):
-        args = ["configurator_test",
+        sys.argv = ["configurator_test",
                 "-p", "lsst",
-                "-c","echo hello",
-                "-i","$CTRL_EXECUTE/tests/testfiles/inputfile",
+                "-c",'"echo hello"',
+                "-i","$CTRL_EXECUTE_DIR/tests/testfiles/inputfile",
                 "-e","/tmp2",
                 "-n","test_set2",
                 "-j","12",
                 "--setup","fake_package", "1.0",
                 ]
-        return args
+        return sys.argv
     
     
     def setup(self,args):
         fileName = os.path.join("tests", "testfiles", "allocator-info1.cfg")
-        rop = RunOrcaParser(args)
-        args = rop.getOpts()
+        rop = RunOrcaParser(args[0])
+        args = rop.getArgs()
         configurator = Configurator(args, fileName)
         return configurator
     

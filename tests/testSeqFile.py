@@ -35,6 +35,7 @@ class TestSeqFile(unittest.TestCase):
         self.assertTrue(a == 0)
         a = sf.nextSeq()
         self.assertTrue(a == 1)
+        os.remove(filename)
 
 if __name__ == "__main__":
     unittest.main()

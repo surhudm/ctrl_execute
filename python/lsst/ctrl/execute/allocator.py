@@ -100,14 +100,17 @@ class Allocator(object):
         nodeSetName = "%s_%d" % (self.defaults["USER_NAME"], n)
         return nodeSetName
         
-    def createUniqueFileName(self):
-        """Creates a unique file name, based on the user's name and the time
-        at which this method is invoked.
-        @return the new file name
+    def createUniqueIdentifier(self):
+        """Creates a unique file identifier, based on the user's name 
+        and the time at which this method is invoked.
+        @return the new identifier
         """
+        # This naming scheme follows the conventions used for creating 
+        # RUNID names.  We've found this allows these files to be more
+        # easily located and shared with other users when debugging
+        # The tempfile.mkstemp method restricts the file to only the user,
+        # and does not guarantee a file name can that easily be identified.
         now = datetime.now()
-        # This naming scheme follows the conventions used for creating RUNID
-        # names.
         fileName = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
         return fileName
 
@@ -129,8 +132,7 @@ class Allocator(object):
         resolvedName = envString.resolve(name)
         configuration = AllocationConfig()
         if not os.path.exists(resolvedName):
-            print "%s was not found." % resolvedName
-            return False
+            raise RuntimeError("%s was not found." % resolvedName)
         configuration.load(resolvedName)
 
         self.defaults["QUEUE"] = configuration.platform.queue
@@ -160,19 +162,18 @@ class Allocator(object):
         else:
             self.defaults["ERROR_LOG"] = "%s.err" % nodeSetName
 
-        uniqueFileName = self.createUniqueFileName()
+        uniqueIdentifier = self.createUniqueIdentifier()
 
         # write these pbs and config files to {LOCAL_DIR}/configs
         configDir = os.path.join(self.defaults["LOCAL_SCRATCH"], "configs")
         if not os.path.exists(configDir):
             os.mkdirs(configDir)
 
-        self.pbsFileName = os.path.join(configDir, "alloc_%s.pbs" % uniqueFileName)
+        self.pbsFileName = os.path.join(configDir, "alloc_%s.pbs" % uniqueIdentifier)
 
-        self.condorConfigFileName = os.path.join(configDir, "condor_%s.config" % uniqueFileName)
+        self.condorConfigFileName = os.path.join(configDir, "condor_%s.config" % uniqueIdentifier)
 
         self.defaults["GENERATED_CONFIG"] = os.path.basename(self.condorConfigFileName)
-        return True
 
     def createPbsFile(self, input):
         """Creates a PBS file using the file "input" as a Template

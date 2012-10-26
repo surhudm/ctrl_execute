@@ -35,6 +35,7 @@ class TestTemplateWriter(unittest.TestCase):
         temp = TemplateWriter()
         temp.rewrite(infile, outfile, pairs)
         self.assertTrue(filecmp.cmp(compare,outfile))
+        os.remove(outfile)
     
 
 if __name__ == "__main__":

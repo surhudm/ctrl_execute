@@ -23,76 +23,64 @@
 #
 
 import os.path
-import optparse
+import argparse
 import lsst.pex.config as pexConfig
 
 class RunOrcaParser(object):
     """An argument parser for the orchestration config file generation 
     and execution
     """
-    def __init__(self, argv):
+    def __init__(self, basename):
         """Construct a RunOrcaParser
         @param argv: list containing the command line arguments
         @return: the parser options and remaining arguments
         """
         self.defaults = {}
 
-        self.opts = {}
         self.args = []
         
-        self.opts, self.args = self.parseArgs(argv)
+        self.args = self.parseArgs(basename)
 
-    def parseArgs(self, argv):
+    def parseArgs(self, basename):
         """Parse command line, and test for required arguments
         @param argv: list containing the command line arguments
         @return: the parser options and remaining arguments
         """
-        basename = os.path.basename(argv[0])
-        self.usage = """usage: """+basename+""" -e EUPS_PATH -p platform -c command -i id-file [-j ids-per-job] [-d data-directory] [-u user] [-H user-home] [-n node-set] [-r default-root] [-l local-scratch] [-D filesystem-domain]"""
         
-        parser = optparse.OptionParser(self.usage)
-        parser.add_option("-n", "--node-set", action="store", 
-                    default=None, dest="nodeSet", help="name of collection of nodes to use")
-        parser.add_option("-j", "--ids-per-job", action="store",
+        parser = argparse.ArgumentParser(prog=basename)
+        parser.add_argument("-p", "--platform", action="store", dest="platform", default=None, help="platform", required=True)
+        parser.add_argument("-c", "--command", action="store", dest="command", default=None, help="command", required=True)
+        parser.add_argument("-i", "--id-file", action="store", dest="inputDataFile",
+                    default=None, help="list of ids", required=True)
+        parser.add_argument("-e", "--eups-path", action="store", dest="eupsPath",
+                    default=None, help="eups path", required=True)
+        parser.add_argument("-n", "--node-set", action="store", 
+                    default=None, dest="nodeSet", help="name of collection of nodes to use", required=True)
+        parser.add_argument("-j", "--ids-per-job", action="store",
                     default=None, dest="idsPerJob", help="ids per job")
-        parser.add_option("-r", "--default-root", action="store", dest="defaultRoot",
+        parser.add_argument("-r", "--default-root", action="store", dest="defaultRoot",
                     default=None, help="remote working directory for Condor")
-        parser.add_option("-l", "--local-scratch", action="store", dest="localScratch", 
+        parser.add_argument("-l", "--local-scratch", action="store", dest="localScratch", 
                     default=None, help="local staging directory for Condor")
-        parser.add_option("-d", "--data-directory", action="store", dest="dataDirectory",
+        parser.add_argument("-d", "--data-directory", action="store", dest="dataDirectory",
                     default=None, help="where the data is located")
         
         
-        parser.add_option("-F", "--file-system-domain", action="store", dest="fileSystemDomain",
+        parser.add_argument("-F", "--file-system-domain", action="store", dest="fileSystemDomain",
                     default=None, help="file system domain")
-        parser.add_option("-u", "--user-name", action="store", dest="user_name", default=None, help="user")
-        parser.add_option("-H", "--user-home", action="store", dest="user_home", default=None, help="home")
-        parser.add_option("-i", "--id-file", action="store", dest="inputDataFile",
-                    default=None, help="list of ids")
-        parser.add_option("-c", "--command", action="store", dest="command", default=None, help="command")
-        parser.add_option("-p", "--platform", action="store", dest="platform", default=None, help="platform")
-        parser.add_option("-e", "--eups-path", action="store", dest="eupsPath",
-                    default=None, help="eups path")
-        parser.add_option("-R", "--run-id", action="store", dest="runid", default=None, help="run id")
-        parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
+        parser.add_argument("-u", "--user-name", action="store", dest="user_name", default=None, help="user")
+        parser.add_argument("-H", "--user-home", action="store", dest="user_home", default=None, help="home")
+        parser.add_argument("-R", "--run-id", action="store", dest="runid", default=None, help="run id")
+        parser.add_argument("-v", "--verbose", action="store_true", dest="verbose",
                     default=False, help="verbose")
-        parser.add_option("-s", "--setup", action="append", nargs=2, help="setup")
+        parser.add_argument("-s", "--setup", action="append", nargs=2, help="setup")
         
-        opts, args = parser.parse_args(argv)
+        args = parser.parse_args()
 
-        if opts.eupsPath is None:
-            raise RuntimeError("error: required argument --eups-path is not specified")
-        if opts.platform is None:
-            raise RuntimeError("error: required argument --platform is not specified")
-        if opts.command is None:
-            raise RuntimeError("error: required argument --command is not specified")
-        if opts.inputDataFile is None:
-            raise RuntimeError("error: required argument --id-file is not specified")
+        return args
 
-        return opts, args
-
-    def getOpts(self):
+    def getArgs(self):
         """Accessor method to get options set on initialization
         @return opts: command line options
         """
-        return self.opts
+        return self.args

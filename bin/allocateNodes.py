@@ -34,8 +34,15 @@ from string import Template
 def main():
     """Allocates Condor glide-in nodes through PBS scheduler on a remote Node.
     """
-    remoteLoginCmd = "/usr/bin/gsissh" # can handle both grid-proxy and ssh logins
-    remoteCopyCmd = "/usr/bin/gsiscp" # can handle both grid-proxy and ssh copy
+    # This have specific paths to prevent abitrary binaries from being
+    # executed. The "gsi"* utilities are configured to use either grid proxies
+    # or ssh, automatically.
+    remoteLoginCmd = "/usr/bin/gsissh"
+    remoteCopyCmd = "/usr/bin/gsiscp"
+
+    UNKNOWN_PLATFORM_EXIT_CODE = 10
+    MISSING_PBS_CONFIG_EXIT_CODE = 20
+
     p = AllocatorParser(sys.argv[0])
     platform = p.getPlatform()
 
@@ -46,15 +53,13 @@ def main():
         configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
     else:
         print "ctrl_platform_%s was not found. Has it been set up?" % platform
-        sys.exit(10)
+        sys.exit(UNKNOWN_PLATFORM_EXIT_CODE)
     
     execConfigName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
 
     creator.load(execConfigName)
 
-    if creator.loadPbs(configName) == False:
-        print "Couldn't find pbsConfig.py file for platform: %s" % platform
-        sys.exit(20)
+    creator.loadPbs(configName)
 
     verbose = creator.isVerbose()
     
