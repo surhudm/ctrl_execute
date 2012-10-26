@@ -38,7 +38,7 @@ class TestCondorConfig(unittest.TestCase):
         assert self.config.platform.defaultRoot == None
     
     def test2(self):
-        path = os.path.join("tests","testfiles", "config_condor.cfg")
+        path = os.path.join("tests","testfiles", "config_condor.py")
         self.config.load(path)
     
         assert self.config.platform.defaultRoot == "/usr"

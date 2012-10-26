@@ -65,7 +65,7 @@ class TestConfigurator(unittest.TestCase):
     
     
     def setup(self,args):
-        fileName = os.path.join("tests", "testfiles", "allocator-info1.cfg")
+        fileName = os.path.join("tests", "testfiles", "allocator-info1.py")
         rop = RunOrcaParser(args[0])
         args = rop.getArgs()
         configurator = Configurator(args, fileName)

@@ -27,7 +27,7 @@ from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
 class TestCondorInfoConfig(unittest.TestCase):
 
     def test1(self):
-        path = os.path.join("tests", "testfiles", "config_condorInfo.cfg")
+        path = os.path.join("tests", "testfiles", "config_condorInfo.py")
         config = CondorInfoConfig()
     
         config.load(path)

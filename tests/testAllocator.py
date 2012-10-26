@@ -60,7 +60,7 @@ class TestAllocator(unittest.TestCase):
         return argv
 
     def subSetup(self):
-        fileName = os.path.join("tests", "testfiles", "allocator-info1.cfg")
+        fileName = os.path.join("tests", "testfiles", "allocator-info1.py")
         alp = AllocatorParser(sys.argv[0])
         args = alp.getArgs()
         al = Allocator("lsst", args, fileName)
@@ -80,9 +80,9 @@ class TestAllocator(unittest.TestCase):
         sys.argv = self.verboseArgs()
         al = self.subSetup()   
         
-        path = os.path.join("tests","testfiles", "config_condor.cfg")
+        path = os.path.join("tests","testfiles", "config_condor.py")
         al.load(path)
-        fileName = os.path.join("tests", "testfiles", "config_allocation.cfg")
+        fileName = os.path.join("tests", "testfiles", "config_allocation.py")
         al.loadPbs(fileName)
         self.assertTrue(al.getHostName() == "bighost.lsstcorp.org")
         self.assertTrue(al.getUtilityPath() == "/bin")
@@ -99,9 +99,9 @@ class TestAllocator(unittest.TestCase):
         sys.argv = self.regularArgs()
         al = self.subSetup()   
 
-        path = os.path.join("tests","testfiles", "config_condor.cfg")
+        path = os.path.join("tests","testfiles", "config_condor.py")
         al.load(path)
-        fileName = os.path.join("tests", "testfiles", "config_allocation.cfg")
+        fileName = os.path.join("tests", "testfiles", "config_allocation.py")
         al.loadPbs(fileName)
         pbsName = os.path.join("tests", "testfiles", "generic.pbs.template")
         compare = os.path.join("tests", "testfiles", "generic.pbs.txt")

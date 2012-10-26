@@ -38,7 +38,7 @@ class test1(unittest.TestCase):
         self.assertTrue(self.config.platform.utilityPath == None)
 
     def test_config2(self):
-        path = os.path.join("tests", "testfiles", "config_allocation.cfg")
+        path = os.path.join("tests", "testfiles", "config_allocation.py")
         self.config.load(path)
 
         self.assertTrue(self.config.platform.queue == "normal")
