@@ -167,7 +167,7 @@ class Allocator(object):
         # write these pbs and config files to {LOCAL_DIR}/configs
         configDir = os.path.join(self.defaults["LOCAL_SCRATCH"], "configs")
         if not os.path.exists(configDir):
-            os.mkdirs(configDir)
+            os.makedirs(configDir)
 
         self.pbsFileName = os.path.join(configDir, "alloc_%s.pbs" % uniqueIdentifier)
 
