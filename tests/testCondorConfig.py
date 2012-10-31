@@ -42,7 +42,7 @@ class TestCondorConfig(unittest.TestCase):
         self.config.load(path)
     
         assert self.config.platform.defaultRoot == "/usr"
-        assert self.config.platform.localScratch == "/tmp"
+        assert self.config.platform.localScratch == "./tests/condor_scratch"
         assert self.config.platform.dataDirectory == "/tmp/data"
         assert self.config.platform.fileSystemDomain == "lsstcorp.org"
         assert self.config.platform.eupsPath == "/var/tmp"

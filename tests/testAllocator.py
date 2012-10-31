@@ -114,6 +114,10 @@ class TestAllocator(unittest.TestCase):
         self.assertTrue(filecmp.cmp(compare,generatedCondorConfigFile))
         os.remove(generatedCondorConfigFile)
         os.remove(generatedPbsFile)
+        localScratch = "./tests/condor_scratch"
+        configPath = "./tests/condor_scratch/configs"
+        os.rmdir(configPath)
+        os.rmdir(localScratch)
 
 
 if __name__ == "__main__":
