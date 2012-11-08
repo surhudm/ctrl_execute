@@ -36,6 +36,8 @@ class AllocatedPlatformConfig(pexConfig.Config):
                         dtype=str, default=None)
     utilityPath = pexConfig.Field(doc="the directory containing the PBS commands",
                         dtype=str, default=None)
+    totalCoresPerNode = pexConfig.Field(doc="the TOTAL number of cores on each node",
+                        dtype=int, default=1)
 
 class AllocationConfig(pexConfig.Config):
     """A pex_config file describing the platform specific information required

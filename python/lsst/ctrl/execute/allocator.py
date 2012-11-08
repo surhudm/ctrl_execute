@@ -162,6 +162,11 @@ class Allocator(object):
         else:
             self.defaults["ERROR_LOG"] = "%s.err" % nodeSetName
 
+        # This is the TOTAL number of cores in the job, not just the total
+        # of the cores you intend to use.   In other words, the total available
+        # on a machine, times the number of machines.
+        self.commandLineDefaults["TOTAL_CORE_COUNT"] = int(self.opts.nodeCount) * configuration.platform.totalCoresPerNode
+
         uniqueIdentifier = self.createUniqueIdentifier()
 
         # write these pbs and config files to {LOCAL_DIR}/configs
