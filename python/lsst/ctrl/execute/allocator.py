@@ -145,6 +145,8 @@ class Allocator(object):
 
         self.defaults["UTILITY_PATH"] = configuration.platform.utilityPath
 
+        self.defaults["GLIDEIN_SHUTDOWN"] = configuration.platform.glideinShutdown
+
         if self.opts.nodeSet is None:
             self.defaults["NODE_SET"] = self.createNodeSetName()
         else:

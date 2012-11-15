@@ -36,6 +36,7 @@ class AllocatedPlatformConfig(pexConfig.Config):
                         dtype=str, default=None)
     utilityPath = pexConfig.Field(doc="the directory containing the PBS commands",
                         dtype=str, default=None)
+    glideinShutdown = pexConfig.Field(doc="the number of seconds of inactivity before the glideins are cancelled", dtype=int, default=3600)
 
 class AllocationConfig(pexConfig.Config):
     """A pex_config file describing the platform specific information required
