@@ -24,6 +24,7 @@
 
 
 import sys
+import string
 from lsst.ctrl.execute.qCommand import QCommand
 
 if __name__ == "__main__":  
