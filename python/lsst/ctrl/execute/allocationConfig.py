@@ -38,6 +38,7 @@ class AllocatedPlatformConfig(pexConfig.Config):
                         dtype=str, default=None)
     totalCoresPerNode = pexConfig.Field(doc="the TOTAL number of cores on each node",
                         dtype=int, default=1)
+    glideinShutdown = pexConfig.Field(doc="the number of seconds of inactivity before the glideins are cancelled", dtype=int, default=3600)
 
 class AllocationConfig(pexConfig.Config):
     """A pex_config file describing the platform specific information required

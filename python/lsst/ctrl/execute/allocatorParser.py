@@ -58,6 +58,7 @@ class AllocatorParser(object):
         parser.add_argument("-e", "--email", action="store_true", dest="email", default=None, help="email notification flag")
         parser.add_argument("-O", "--output-log", action="store", dest="outputLog", default=None, help="Output log filename")
         parser.add_argument("-E", "--error-log", action="store", dest="errorLog", default=None, help="Error log filename")
+        parser.add_argument("-g", "--glidein-shutdown", action="store", dest="glideinShutdown", type=int, default=None, help="glide-in inactivity shutdown time in seconds")
         parser.add_argument("-v", "--verbose", action="store_true", dest="verbose",help="verbose")
 
         
