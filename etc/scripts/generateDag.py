@@ -93,12 +93,17 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
 
     outname = pipeline + ".diamond.dag"
     mapname = pipeline + ".mapping"
+    configname = pipeline + ".config"
 
     print outname
 
     mapObj = open(mapname,"w")
     outObj = open(outname,"w")
+    configObj = open(configname,"w")
 
+    configObj.write("DAGMAN_MAX_SUBMITS_PER_INTERVAL=1000\n")
+
+    outObj.write("CONFIG %s\n" % configname)
     outObj.write("JOB A "+workerdir+"/" + pipeline + ".pre\n"); 
     outObj.write("JOB B "+workerdir+"/" +  pipeline + ".post\n"); 
     outObj.write(" \n"); 
@@ -148,7 +153,7 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
         # extended input like :  visit=887136081 raft=2,2 sensor=0,1
         # If there is no space, the dataid is something simple like a skytile id  
         newData=myData
-        visit = str(int(acount / 100))
+        visit = str(int(count / 100))
 
         myDataList.append(myData)
         newDataList.append(newData)
@@ -194,6 +199,7 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
             outObj.write("PARENT A" + str(count) + " CHILD B \n"); 
             acount=0
 
+    configObj.close()
     outObj.close()
     mapObj.close()
 
