@@ -1,5 +1,4 @@
-setupRequired(datarel)
-setupRequired(ctrl_orca)
+setupRequired(ctrl_orca >= 6.1.0.1+1)
 setupRequired(pex_config >= 5.1.1.0+1)
 
 envPrepend(PYTHONPATH, ${PRODUCT_DIR}/python)
