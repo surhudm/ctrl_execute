@@ -26,6 +26,8 @@ import argparse
 import errno
 from lsst.ctrl.execute.dagIdInfoExtractor import DagIdInfoExtractor
 
+# extracts a line from a DAG file to show which ids were processed for a
+# particular dag node
 def run():
     basename = os.path.basename(sys.argv[0]) 
     
