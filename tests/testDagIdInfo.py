@@ -22,8 +22,7 @@
 #
 
 import unittest
-import os, os.path
-from lsst.ctrl.execute.seqFile import SeqFile
+import os
 
 from lsst.ctrl.execute.dagIdInfoExtractor import DagIdInfoExtractor
 

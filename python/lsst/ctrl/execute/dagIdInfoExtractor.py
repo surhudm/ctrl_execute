@@ -21,29 +21,21 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import sys, os
+import re, sys, os
 
 class DagIdInfoExtractor(object):
     def extract(self, dagname, filename):
         file = open(filename)
         for line in file:
-            line = line.rstrip('\n')
-
+            line = line.rstrip(' \n')
             # look for the line with the dagnode name in it
-            if line.find("VARS %s var1=" % dagname) == -1:
+            #ex = r'VARS %s var1=(?P<idlist>.+?)($)' % dagname
+            ex = r'VARS %s var1=\"(?P<idlist>.+?)\"' % dagname
+            values = re.search(ex,line)
+            if values is None:
                 continue
-            #
-            # At this point, line looks something like this:
-            # VARS A1 var1="run=1033 filter=r camcol=2 field=229"
-
-            # split the string into a list
-            elements = line.split()
-
-            # recreate the string, without the first two elements
-            ids = ' '.join(elements[2:])
-
-            # remove the 'var1=" and the quotes, and return it
-            ids = ids[6:].strip('"')
+            ids = values.groupdict()['idlist']
             file.close()
             return ids
         file.close()
+        return None
