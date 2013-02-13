@@ -21,25 +21,31 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import unittest
-import os
-
-from lsst.ctrl.execute.dagIdInfoExtractor import DagIdInfoExtractor
+import os, unittest
+from subprocess import Popen, PIPE
 
 class TestDagIdInfo(unittest.TestCase):
 
+    def executeCommand(self, cmd):
+        p = Popen(cmd.split(), stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate()
+        return stdout
+
     def test1(self):
+        execPath = os.path.join("bin","dagIdInfo.py")
         filename = os.path.join("tests","testfiles", "test.diamond.dag")
-        extractor = DagIdInfoExtractor()
-        line = extractor.extract("A1", filename)
-        self.assertTrue(line == "run=1033 filter=r camcol=2 field=229")
-        line = extractor.extract("A3", filename)
-        self.assertTrue(line == "run=1033 filter=i camcol=2 field=47")
-        line = extractor.extract("A17", filename)
-        self.assertTrue(line == "run=1033 filter=r camcol=2 field=229 run=1033 filter=i camcol=2 field=47")
-        line = extractor.extract("B1", filename)
-        self.assertTrue(line == None)
-    
+
+        stdout = self.executeCommand("%s A1 %s" % (execPath, filename))
+        self.assertTrue(stdout == "run=1033 filter=r camcol=2 field=229\n")
+
+        stdout = self.executeCommand("%s A3 %s" % (execPath, filename))
+        self.assertTrue(stdout == "run=1033 filter=i camcol=2 field=47\n")
+
+        stdout = self.executeCommand("%s A17 %s" % (execPath, filename))
+        self.assertTrue(stdout == "run=1033 filter=r camcol=2 field=229 run=1033 filter=i camcol=2 field=47\n")
+
+        stdout = self.executeCommand("%s B1 %s" % (execPath, filename))
+        self.assertTrue(stdout == "")
 
 if __name__ == "__main__":
     unittest.main()

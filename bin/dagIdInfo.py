@@ -21,16 +21,11 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import sys, os
-import argparse
-import errno
-from lsst.ctrl.execute.dagIdInfoExtractor import DagIdInfoExtractor
+import sys, os, re, errno
 
 # extracts a line from a DAG file to show which ids were processed for a
 # particular dag node
-def run():
-    basename = os.path.basename(sys.argv[0]) 
-
+if __name__ == "__main__":
     dagNode = sys.argv[1]
     filename = sys.argv[2]
     
@@ -38,10 +33,19 @@ def run():
         print "file %s not found" % filename
         sys.exit(errno.ENOENT)
 
-    extractor = DagIdInfoExtractor()
-    line = extractor.extract(dagNode, filename)
-    if line is not None:
-        print line
+    file = open(filename)
+    for line in file:
+        line = line.rstrip(' \n')
 
-if __name__ == "__main__":
-    run()
+        # look for the line with the dagnode name in it
+        # and extract everything after "var1", but not the quotes
+        ex = r'VARS %s var1=\"(?P<idlist>.+?)\"' % dagNode
+        values = re.search(ex,line)
+        if values is None:
+            continue
+        ids = values.groupdict()['idlist']
+        file.close()
+        print ids
+        sys.exit(0)
+    file.close()
+    sys.exit(0)
