@@ -28,8 +28,9 @@ class DagIdInfoExtractor(object):
         file = open(filename)
         for line in file:
             line = line.rstrip(' \n')
+
             # look for the line with the dagnode name in it
-            #ex = r'VARS %s var1=(?P<idlist>.+?)($)' % dagname
+            # and extract everything after "var1", but not the quotes
             ex = r'VARS %s var1=\"(?P<idlist>.+?)\"' % dagname
             values = re.search(ex,line)
             if values is None:
