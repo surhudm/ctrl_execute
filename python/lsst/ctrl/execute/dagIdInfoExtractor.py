@@ -26,29 +26,24 @@ import sys, os
 class DagIdInfoExtractor(object):
     def extract(self, dagname, filename):
         file = open(filename)
-        while True:
-            # process 100000 lines at a time, looping if we need to
-            lines = file.readlines(100000)
-            if not lines:
-                break
-            for line in lines:
-                line = line.rstrip('\n')
+        for line in file:
+            line = line.rstrip('\n')
 
-                # look for the line with the dagnode name in it
-                if line.find("VARS %s var1=" % dagname) == -1:
-                    continue
-                #
-                # At this point, line looks something like this:
-                # VARS A1 var1="run=1033 filter=r camcol=2 field=229"
-    
-                # split the string into a list
-                elements = line.split()
-    
-                # recreate the string, without the first two elements
-                ids = ' '.join(elements[2:])
-    
-                # remove the 'var1=" and the quotes, and return it
-                ids = ids[6:].strip('"')
-                file.close()
-                return ids
+            # look for the line with the dagnode name in it
+            if line.find("VARS %s var1=" % dagname) == -1:
+                continue
+            #
+            # At this point, line looks something like this:
+            # VARS A1 var1="run=1033 filter=r camcol=2 field=229"
+
+            # split the string into a list
+            elements = line.split()
+
+            # recreate the string, without the first two elements
+            ids = ' '.join(elements[2:])
+
+            # remove the 'var1=" and the quotes, and return it
+            ids = ids[6:].strip('"')
+            file.close()
+            return ids
         file.close()

@@ -30,19 +30,16 @@ from lsst.ctrl.execute.dagIdInfoExtractor import DagIdInfoExtractor
 # particular dag node
 def run():
     basename = os.path.basename(sys.argv[0]) 
+
+    dagNode = sys.argv[1]
+    filename = sys.argv[2]
     
-    parser = argparse.ArgumentParser(prog=basename)
-    parser.add_argument("-d", "--dagNode", action="store", default=None, dest="dagNode", help="name of dag node to search for", type=str, required=True)
-    parser.add_argument("-f", "--filename", action="store", default=None, dest="filename", help="name of dag file to search in", type=str, required=True)
-
-    args = parser.parse_args()
-
-    if os.path.exists(args.filename) == False:
-        print "file %s not found" % args.filename
+    if os.path.exists(filename) == False:
+        print "file %s not found" % filename
         sys.exit(errno.ENOENT)
 
     extractor = DagIdInfoExtractor()
-    line = extractor.extract(args.dagNode, args.filename)
+    line = extractor.extract(dagNode, filename)
     if line is not None:
         print line
 
