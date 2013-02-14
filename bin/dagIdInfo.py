@@ -26,6 +26,11 @@ import sys, os, re, errno
 # extracts a line from a DAG file to show which ids were processed for a
 # particular dag node
 if __name__ == "__main__":
+
+    if len(sys.argv) != 3:
+        print "usage:  %s dagNodeName filename" % os.path.basename(sys.argv[0])
+        sys.exit(errno.EINVAL)
+
     dagNode = sys.argv[1]
     filename = sys.argv[2]
     
@@ -33,13 +38,13 @@ if __name__ == "__main__":
         print "file %s not found" % filename
         sys.exit(errno.ENOENT)
 
+    ex = r'VARS %s var1=\"(?P<idlist>.+?)\"' % dagNode
     file = open(filename)
     for line in file:
         line = line.rstrip(' \n')
 
         # look for the line with the dagnode name in it
         # and extract everything after "var1", but not the quotes
-        ex = r'VARS %s var1=\"(?P<idlist>.+?)\"' % dagNode
         values = re.search(ex,line)
         if values is None:
             continue
