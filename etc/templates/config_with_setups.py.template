@@ -58,12 +58,14 @@ root.workflow["workflow1"].task["task1"].preJob.script.keywords["USERNAME"] = "$
 root.workflow["workflow1"].task["task1"].preJob.script.keywords["DATADIR"] = "$DATA_DIRECTORY"
 root.workflow["workflow1"].task["task1"].preJob.script.keywords["EUPS_PATH"] = "$EUPS_PATH"
 root.workflow["workflow1"].task["task1"].preJob.script.keywords["CTRL_EXECUTE_SETUP_PACKAGES"] = "$CTRL_EXECUTE_SETUP_PACKAGES"
+root.workflow["workflow1"].task["task1"].preJob.script.keywords["JOB_ID"] = "$JOB_ID"
 
 root.workflow["workflow1"].task["task1"].workerJob.script.keywords["USERHOME"] = "$USER_HOME"
 root.workflow["workflow1"].task["task1"].workerJob.script.keywords["USERNAME"] = "$USER_NAME"
 root.workflow["workflow1"].task["task1"].workerJob.script.keywords["DATADIR"] = "$DATA_DIRECTORY"
 root.workflow["workflow1"].task["task1"].workerJob.script.keywords["EUPS_PATH"] = "$EUPS_PATH"
 root.workflow["workflow1"].task["task1"].workerJob.script.keywords["COMMAND"] = "$COMMAND"
+root.workflow["workflow1"].task["task1"].workerJob.script.keywords["JOB_ID"] = "$JOB_ID"
 
 
 root.workflow["workflow1"].task["task1"].dagGenerator.dagName = "S2012Pipe"

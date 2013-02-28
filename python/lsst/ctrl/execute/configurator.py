@@ -90,6 +90,8 @@ class Configurator(object):
         self.commandLineDefaults["LOCAL_SCRATCH"] = self.opts.localScratch
         self.commandLineDefaults["DATA_DIRECTORY"] = self.opts.dataDirectory
         self.commandLineDefaults["IDS_PER_JOB"] = self.opts.idsPerJob
+        self.commandLineDefaults["JOB_ID"] = self.opts.jobId
+        print "JOB_ID = %s" % self.commandLineDefaults["JOB_ID"]
         if self.opts.nodeSet is None:
             self.commandLineDefaults["NODE_SET"] = ""
         else:

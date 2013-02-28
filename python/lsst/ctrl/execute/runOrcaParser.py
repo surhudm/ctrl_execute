@@ -56,6 +56,10 @@ class RunOrcaParser(object):
                     default=None, help="eups path", required=True)
         parser.add_argument("-n", "--node-set", action="store", 
                     default=None, dest="nodeSet", help="name of collection of nodes to use", required=True)
+
+        parser.add_argument("-J", "--job-id", action="store",
+                    default=None, dest="jobId", help="job id from node allocation", required=True)
+
         parser.add_argument("-j", "--ids-per-job", action="store",
                     default=None, dest="idsPerJob", help="ids per job")
         parser.add_argument("-r", "--default-root", action="store", dest="defaultRoot",

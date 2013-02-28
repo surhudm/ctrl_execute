@@ -24,6 +24,7 @@
 
 
 import sys, os
+import subprocess
 import optparse
 import eups
 import lsst.pex.config as pexConfig
@@ -106,10 +107,16 @@ def main():
     cmd = "%s %s@%s %s/qsub %s/%s" % (remoteLoginCmd, userName, hostName, utilityPath, scratchDir, os.path.basename(generatedPbsFile))
     if verbose:
         print cmd
-    exitCode = runCommand(cmd, verbose)
-    if exitCode != 0:
+    
+    #exitCode = runCommand(cmd, verbose)
+    output = captureCommand(cmd)
+    if output[1] != '':
         print "error running %s to %s." % (remoteLoginCmd, hostName)
-        sys.exit(exitCode)
+        print output[1].strip()
+        sys.exit(1)
+    if verbose == True:
+        print output[0].strip()
+    jobId  = output[0].strip()
 
     nodes = creator.getNodes()
     slots = creator.getSlots()
@@ -117,10 +124,18 @@ def main():
     nodeString = ""
     if int(nodes) > 1:
         nodeString = "s"
-    print "%s node%s will be allocated on %s with %s slots per node and maximum time limit of %s" % (nodes, nodeString, platform, slots, wallClock)
+    print " %s node%s will be allocated on %s with %s slots per node and maximum time limit of %s" % (nodes, nodeString, platform, slots, wallClock)
+    print "JobId:"
+    print jobId
     print "Node set name:"
     print creator.getNodeSetName()
     sys.exit(0)
+
+def captureCommand(cmd):
+    child = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output = child.communicate()
+    return output
+
 
 def runCommand(cmd, verbose):
     cmd_split = cmd.split()
