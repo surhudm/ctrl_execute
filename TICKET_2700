@@ -1,0 +1,17 @@
+Work on this ticket is temporarily being suspended as the service unit for Gordon are going to be used by another group.
+
+What’s left to do:
+
+1) Verify the changes continue to work.
+
+Some of the changes here were done in another ticket, and then moved to this ticket to avoid mixing to unrelated changes.  I tested this last night, and it worked, but had been working in the master branch of ctrl_platform_gordon instead of tickets/2700.  I did a fresh checkout, moved the changes to tickets/2700, but haven’t had a chance to test them.
+
+2) Coordinate changes with ctrl_execute
+
+There are changes checked into tickets/2700 of ctrl_execute as well.
+
+3) Fix “-J” in ctrl_execute
+
+In tickets/2700 of ctrl_execute, the “-J” is required.  This should at the very least be optional.  The longer term change would be to have the job id from Gordon captured, placed into a file along with the node_set name. Then, when the node set is specified, that job id should be grabbed and used, rather than having the user specify this on the command line.
+
+We also might consider making these sort of specialized “only for this platform” parameters part of the ctrl_platform_* packages in a parsing object, rather than putting all of that logic in ctrl_execute.  In other words, have a core set of parameters that belong in ctrl_execute, and then check for additional parameters in a ctrl_platform_* object (if that object exists), and have to platform specific information kept there.   An additional object would likely be required to deal with how the command line default lists are handled within ctrl_execute, to add these additional new parameters (this would be in lsst.ctrl.execute.configurator.py). If we were to do this, we would also have to think about how this would be handled in the template files too, particularly in etc/templates/config_with_setups.py.template.
