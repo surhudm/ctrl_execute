@@ -21,7 +21,7 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import os, os.path
+import os, os.path, pwd
 import lsst.pex.config as pexConfig
 import eups
 from datetime import datetime
@@ -69,7 +69,7 @@ class Configurator(object):
         # while the user name may be the same, it's unlikely the home directory will be.
         if self.platform == "lsst":
             if user_name is None:
-                user_name = os.getlogin()
+                user_name = pwd.getpwuid(os.geteuid()).pw_name
             if user_home is None:
                 user_home = os.getenv('HOME')
 
@@ -144,7 +144,8 @@ class Configurator(object):
         """
         # runid is in the form of <login>_YYYY_MMDD_HHMMSS
         now = datetime.now()
-        runid = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, 
+        username = pwd.getpwuid(os.geteuid()).pw_name
+        runid = "%s_%02d_%02d%02d_%02d%02d%02d" % (username, now.year, now.month, 
                                 now.day, now.hour, now.minute, now.second)
         self.runid = runid
         return runid
