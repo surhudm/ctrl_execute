@@ -22,7 +22,7 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import os
+import os, pwd
 import lsst.pex.config as pexConfig
 from datetime import datetime
 from string import Template
@@ -68,7 +68,7 @@ class Allocator(object):
 
         if self.platform == "lsst":
             if user_name is None:
-                user_name = os.getlogin()
+                user_name = pwd.getpwuid(os.geteuid()).pw_name
             if user_home is None:
                 user_home = os.getenv('HOME')
 
@@ -111,7 +111,8 @@ class Allocator(object):
         # The tempfile.mkstemp method restricts the file to only the user,
         # and does not guarantee a file name can that easily be identified.
         now = datetime.now()
-        fileName = "%s_%02d_%02d%02d_%02d%02d%02d" % (os.getlogin(), now.year, now.month, now.day, now.hour, now.minute, now.second)
+        username = pwd.getpwuid(os.geteuid()).pw_name
+        fileName = "%s_%02d_%02d%02d_%02d%02d%02d" % (username, now.year, now.month, now.day, now.hour, now.minute, now.second)
         return fileName
 
     def load(self, name):

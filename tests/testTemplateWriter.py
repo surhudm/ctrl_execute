@@ -21,7 +21,7 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 import unittest
-import os, os.path, filecmp
+import os, os.path, filecmp, pwd
 from lsst.ctrl.execute.templateWriter import TemplateWriter
 
 class TestTemplateWriter(unittest.TestCase):
@@ -31,7 +31,8 @@ class TestTemplateWriter(unittest.TestCase):
         pairs["TEST2"] = "Goodbye"
         infile = os.path.join("tests", "testfiles", "templateWriter.template")
         compare = os.path.join("tests", "testfiles", "templateWriter.txt")
-        outfile = os.path.join("/tmp",os.getlogin()+"_"+str(os.getpid())+"_template.txt")
+        username = pwd.getpwuid(os.geteuid()).pw_name
+        outfile = os.path.join("/tmp",username+"_"+str(os.getpid())+"_template.txt")
         temp = TemplateWriter()
         temp.rewrite(infile, outfile, pairs)
         self.assertTrue(filecmp.cmp(compare,outfile))

@@ -22,12 +22,13 @@
 #
 
 import unittest
-import os, os.path
+import os, os.path, pwd
 from lsst.ctrl.execute.seqFile import SeqFile
 
 class TestSeqFile(unittest.TestCase):
     def test1(self):
-        filename = os.path.join("/tmp",os.getlogin()+"_"+str(os.getpid())+".seq")
+        username = pwd.getpwuid(os.geteuid()).pw_name
+        filename = os.path.join("/tmp",username+"_"+str(os.getpid())+".seq")
         if os.path.exists(filename) == True:
             os.remove(filename)
         sf = SeqFile(filename)
