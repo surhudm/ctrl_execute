@@ -55,6 +55,7 @@ root.workflow["workflow1"].task["task1"].preJob.script.keywords["USERHOME"] = "$
 root.workflow["workflow1"].task["task1"].preJob.script.keywords["USERNAME"] = "$USER_NAME"
 root.workflow["workflow1"].task["task1"].preJob.script.keywords["DATADIR"] = "$DATA_DIRECTORY"
 root.workflow["workflow1"].task["task1"].preJob.script.keywords["EUPS_PATH"] = "$EUPS_PATH"
+root.workflow["workflow1"].task["task1"].preJob.script.keywords["COMMAND"] = "$COMMAND"
 
 root.workflow["workflow1"].task["task1"].workerJob.script.keywords["USERHOME"] = "$USER_HOME"
 root.workflow["workflow1"].task["task1"].workerJob.script.keywords["USERNAME"] = "$USER_NAME"
