@@ -102,6 +102,8 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
     configObj = open(configname,"w")
 
     configObj.write("DAGMAN_MAX_SUBMITS_PER_INTERVAL=1000\n")
+    configObj.write("DAGMAN_SUBMIT_DELAY=0\n")
+    configObj.write("DAGMAN_USER_LOG_SCAN_INTERVAL=5\n")
 
     outObj.write("CONFIG %s\n" % configname)
     outObj.write("JOB A "+workerdir+"/" + pipeline + ".pre\n"); 
