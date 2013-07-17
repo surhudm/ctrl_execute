@@ -125,6 +125,11 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
             count+=1
             outObj.write("JOB A" + str(count) +" "+workerdir+"/" + templateFile + "\n"); 
             acount=0
+    # if acount != 0, then we have left over ids to deal with, and need
+    # to create one more worker to do so.
+    if acount != 0:
+        count += 1
+        outObj.write("JOB A" + str(count) +" "+workerdir+"/" + templateFile + "\n"); 
 
     outObj.write(" \n"); 
 
@@ -179,6 +184,19 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
             newDataTotal=""
             myDataList=[]
             newDataList=[]
+    # if acount != 0, we had leftover ids, and we need to create the info
+    # for those as well.
+    if acount != 0:
+        count += 1
+        myDataTotal  = " X ".join(myDataList)
+        newDataTotal = "_".join(newDataList)
+        outObj.write("VARS A" + str(count) + " var1=\"" + myDataTotal  + "\" \n")
+        outObj.write("VARS A" + str(count) + " var2=\"" + str(count) + "\" \n") 
+        outObj.write("VARS A" + str(count) + " visit=\"" + visit + "\" \n") 
+        outObj.write("VARS A" + str(count) + " runid=\"" + runid + "\" \n")
+        outObj.write("VARS A" + str(count) + " workerid=\"" + str(count) + "\" \n")
+        mapObj.write(str(count) + "  " + newDataTotal + "\n")
+        mapObj.write(str(count) + "  " + myDataTotal + "\n")
 
 
     #
@@ -198,6 +216,11 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
             outObj.write("PARENT A CHILD A" + str(count) + " \n"); 
             outObj.write("PARENT A" + str(count) + " CHILD B \n"); 
             acount=0
+    # if acount != 0, we have one more child to add to the parent heirarchy
+    if acount != 0:
+        count += 1
+        outObj.write("PARENT A CHILD A" + str(count) + " \n"); 
+        outObj.write("PARENT A" + str(count) + " CHILD B \n"); 
 
     configObj.close()
     outObj.close()
