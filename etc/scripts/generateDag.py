@@ -124,6 +124,12 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
     if prescriptFile is not None:
         outObj.write("SCRIPT PRE A "+prescriptFile+"\n")
 
+
+    #
+    # note: we make multiple passes through the input file because it could be
+    # quite large
+    #
+
     #
     # A first pass through the Input File to define the individual Jobs
     # Loop over input entries 
@@ -149,7 +155,8 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
     # A second pass through the Input File constructs variables to
     # be substituted into jobs
     #
-    fileObj = open(infile,"r")
+
+    fileObj.seek(0) # return to beginning of file
     count = 0
     acount = 0
     myDataTotal=""
@@ -205,7 +212,7 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
     # between the jobs, building a diamond DAG : 1 - N - 1
     #
 
-    fileObj = open(infile,"r")
+    fileObj.seek(0) # return to beginning of file
     count = 0
     acount = 0
     for aline in fileObj:
@@ -223,6 +230,7 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
         outObj.write("PARENT A CHILD A" + str(count) + " \n"); 
         outObj.write("PARENT A" + str(count) + " CHILD B \n"); 
 
+    fileObj.close()
     configObj.close()
     outObj.close()
     mapObj.close()
