@@ -79,6 +79,16 @@ def makeArgumentParser(description, inRootsRequired=True, addRegistryOption=True
     return parser
  
 
+def writeVarsInfo(output, count, myDataTotal, visit, runid):
+    output.write("VARS A" + count + " var1=\"" + myDataTotal  + "\" \n")
+    output.write("VARS A" + count + " var2=\"" + count + "\" \n") 
+    output.write("VARS A" + count + " visit=\"" + visit + "\" \n") 
+    output.write("VARS A" + count + " runid=\"" + runid + "\" \n")
+    output.write("VARS A" + count + " workerid=\"" + count + "\" \n")
+
+def writeMapInfo(output, count, newDataTotal, myDataTotal):
+    output.write(count + "  " + newDataTotal + "\n")
+    output.write(count + "  " + myDataTotal + "\n")
 
 def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid, idsPerJob):
     """
@@ -173,33 +183,22 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
             count+=1
             myDataTotal  = " X ".join(myDataList)
             newDataTotal = "_".join(newDataList)
-            outObj.write("VARS A" + str(count) + " var1=\"" + myDataTotal  + "\" \n")
-            # outObj.write("VARS A" + str(count) + " var2=\"" + newDataTotal + "\" \n") 
-            outObj.write("VARS A" + str(count) + " var2=\"" + str(count) + "\" \n") 
-            outObj.write("VARS A" + str(count) + " visit=\"" + visit + "\" \n") 
-            outObj.write("VARS A" + str(count) + " runid=\"" + runid + "\" \n")
-            outObj.write("VARS A" + str(count) + " workerid=\"" + str(count) + "\" \n")
-            mapObj.write(str(count) + "  " + newDataTotal + "\n")
-            mapObj.write(str(count) + "  " + myDataTotal + "\n")
+            writeVarsInfo(outObj, str(count), myDataTotal, visit, runid)
+            writeMapInfo(mapObj, str(count), newDataTotal, myDataTotal)
             acount=0
             myDataTotal=""
             newDataTotal=""
             myDataList=[]
             newDataList=[]
+
     # if acount != 0, we had leftover ids, and we need to create the info
     # for those as well.
     if acount != 0:
         count += 1
         myDataTotal  = " X ".join(myDataList)
         newDataTotal = "_".join(newDataList)
-        outObj.write("VARS A" + str(count) + " var1=\"" + myDataTotal  + "\" \n")
-        outObj.write("VARS A" + str(count) + " var2=\"" + str(count) + "\" \n") 
-        outObj.write("VARS A" + str(count) + " visit=\"" + visit + "\" \n") 
-        outObj.write("VARS A" + str(count) + " runid=\"" + runid + "\" \n")
-        outObj.write("VARS A" + str(count) + " workerid=\"" + str(count) + "\" \n")
-        mapObj.write(str(count) + "  " + newDataTotal + "\n")
-        mapObj.write(str(count) + "  " + myDataTotal + "\n")
-
+        writeVarsInfo(outObj, str(count), myDataTotal, visit, runid)
+        writeMapInfo(mapObj, str(count), newDataTotal, myDataTotal)
 
     #
     # A third pass through the Input File constructs relationships
@@ -227,6 +226,8 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
     configObj.close()
     outObj.close()
     mapObj.close()
+
+
 
 
 def main():
