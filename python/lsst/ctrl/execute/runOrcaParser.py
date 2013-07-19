@@ -22,7 +22,10 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
+import imp
 import os.path
+import sys
+import eups
 import argparse
 import lsst.pex.config as pexConfig
 
@@ -38,8 +41,10 @@ class RunOrcaParser(object):
         self.defaults = {}
 
         self.args = []
+        self.optionalArgsObject = None
         
         self.args = self.parseArgs(basename)
+
 
     def parseArgs(self, basename):
         """Parse command line, and test for required arguments
@@ -49,13 +54,18 @@ class RunOrcaParser(object):
         
         parser = argparse.ArgumentParser(prog=basename)
         parser.add_argument("-p", "--platform", action="store", dest="platform", default=None, help="platform", required=True)
+
+        knownArgs, unknownArgs = parser.parse_known_args()
+
+        self.optionalArgsObject = self.addOptionalArgs(parser, knownArgs.platform)
+        print "self.optionalArgsObject = ",self.optionalArgsObject
+
+
         parser.add_argument("-c", "--command", action="store", dest="command", default=None, help="command", required=True)
         parser.add_argument("-i", "--id-file", action="store", dest="inputDataFile",
                     default=None, help="list of ids", required=True)
         parser.add_argument("-e", "--eups-path", action="store", dest="eupsPath",
                     default=None, help="eups path", required=True)
-        parser.add_argument("-n", "--node-set", action="store", 
-                    default=None, dest="nodeSet", help="name of collection of nodes to use", required=True)
         parser.add_argument("-j", "--ids-per-job", action="store",
                     default=None, dest="idsPerJob", help="ids per job")
         parser.add_argument("-r", "--default-root", action="store", dest="defaultRoot",
@@ -79,8 +89,38 @@ class RunOrcaParser(object):
 
         return args
 
+    def addOptionalArgs(self, parser, platform):
+        platformDir = eups.productDir("ctrl_platform_"+platform)
+        if platformDir == None:
+            print "Error:  platform '%s' is not set up" % platform
+            sys.exit(10)
+        filePath =  os.path.join(platformDir,"python","lsst","ctrl","platform", platform, "optionalArgs.py")
+
+        modName, fileExt = os.path.splitext(os.path.split(filePath)[-1])
+        print "++++ %s %s" % (modName, filePath)
+        if os.path.exists(filePath) == False:
+            print "returning none"
+            return None
+        pyMod = imp.load_source(modName, filePath)
+        optionalArgsInst = None
+        if hasattr(pyMod,"OptionalArgs"):
+            optionalArgsInst = pyMod.OptionalArgs(parser)
+        if optionalArgsInst == None:
+            # TODO: throw an exception
+            print "throw exception here"
+            sys.exit(10)
+
+        return optionalArgsInst
+
     def getArgs(self):
         """Accessor method to get options set on initialization
         @return opts: command line options
         """
         return self.args
+
+    def getOptionalArgsObject(self):
+        """Accessor method for object which handles optional arguments
+        @return opts: command line options
+        """
+        print "return self.optionalArgsObject = ", self.optionalArgsObject
+        return self.optionalArgsObject

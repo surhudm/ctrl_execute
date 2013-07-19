@@ -36,7 +36,7 @@ class Configurator(object):
     information (obtained from the command line) and produces Condor files
     using these values.
     """
-    def __init__(self, opts, configFileName):
+    def __init__(self, opts, optionalArgsObject, configFileName):
         """Constructor
         @param opts: options to override
         """
@@ -90,10 +90,10 @@ class Configurator(object):
         self.commandLineDefaults["LOCAL_SCRATCH"] = self.opts.localScratch
         self.commandLineDefaults["DATA_DIRECTORY"] = self.opts.dataDirectory
         self.commandLineDefaults["IDS_PER_JOB"] = self.opts.idsPerJob
-        if self.opts.nodeSet is None:
-            self.commandLineDefaults["NODE_SET"] = ""
-        else:
-            self.commandLineDefaults["NODE_SET"] = self.opts.nodeSet
+        #if self.opts.nodeSet is None:
+        #    self.commandLineDefaults["NODE_SET"] = ""
+        #else:
+        #    self.commandLineDefaults["NODE_SET"] = self.opts.nodeSet
         if self.opts.inputDataFile is None:
             self.commandLineDefaults["INPUT_DATA_FILE"] = None
         else:
@@ -117,6 +117,8 @@ class Configurator(object):
         self.commandLineDefaults["COMMAND"] = self.opts.command
         if self.commandLineDefaults["INPUT_DATA_FILE"] is not None:
             self.commandLineDefaults["COMMAND"] = self.commandLineDefaults["COMMAND"]+" ${id_option}"
+
+        optionalArgsObject.addCommandLineInfo(self.opts, self.commandLineDefaults)
 
         
     def getGenericConfigFileName(self):
