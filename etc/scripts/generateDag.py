@@ -92,7 +92,7 @@ def writeMapInfo(output, count, newDataTotal, myDataTotal):
 
 def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid, idsPerJob):
     """
-    Write Condor Dag Submission files. 
+    Write Condor Dag Submission files.
     """
 
     print "Writing DAG file "
@@ -116,9 +116,9 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
     configObj.write("DAGMAN_USER_LOG_SCAN_INTERVAL=5\n")
 
     outObj.write("CONFIG %s\n" % configname)
-    outObj.write("JOB A "+workerdir+"/" + pipeline + ".pre\n"); 
-    outObj.write("JOB B "+workerdir+"/" +  pipeline + ".post\n"); 
-    outObj.write(" \n"); 
+    outObj.write("JOB A "+workerdir+"/" + pipeline + ".pre\n")
+    outObj.write("JOB B "+workerdir+"/" +  pipeline + ".post\n")
+    outObj.write(" \n")
 
     print "prescriptFile = ",prescriptFile
     if prescriptFile is not None:
@@ -141,15 +141,15 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
         acount+=1
         if acount == listSize:
             count+=1
-            outObj.write("JOB A" + str(count) +" "+workerdir+"/" + templateFile + "\n"); 
+            outObj.write("JOB A" + str(count) +" "+workerdir+"/" + templateFile + "\n")
             acount=0
     # if acount != 0, then we have left over ids to deal with, and need
     # to create one more worker to do so.
     if acount != 0:
         count += 1
-        outObj.write("JOB A" + str(count) +" "+workerdir+"/" + templateFile + "\n"); 
+        outObj.write("JOB A" + str(count) +" "+workerdir+"/" + templateFile + "\n")
 
-    outObj.write(" \n"); 
+    outObj.write(" \n")
 
     #
     # A second pass through the Input File constructs variables to
@@ -221,14 +221,14 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
             count+=1
             # PARENT A CHILD A1
             # PARENT A1 CHILD B
-            outObj.write("PARENT A CHILD A" + str(count) + " \n"); 
-            outObj.write("PARENT A" + str(count) + " CHILD B \n"); 
+            outObj.write("PARENT A CHILD A" + str(count) + " \n")
+            outObj.write("PARENT A" + str(count) + " CHILD B \n")
             acount=0
     # if acount != 0, we have one more child to add to the parent heirarchy
     if acount != 0:
         count += 1
-        outObj.write("PARENT A CHILD A" + str(count) + " \n"); 
-        outObj.write("PARENT A" + str(count) + " CHILD B \n"); 
+        outObj.write("PARENT A CHILD A" + str(count) + " \n")
+        outObj.write("PARENT A" + str(count) + " CHILD B \n")
 
     fileObj.close()
     configObj.close()
@@ -255,12 +255,6 @@ def main():
 
 
     sys.exit(0)
-
-
-
-
-
-
 
 if __name__ == '__main__':
     main()
