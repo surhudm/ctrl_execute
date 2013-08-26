@@ -137,38 +137,15 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
     fileObj = open(infile,"r")
     count = 0
     acount = 0
-    for aline in fileObj:
-        acount+=1
-        if acount == listSize:
-            count+=1
-            outObj.write("JOB A" + str(count) +" "+workerdir+"/" + templateFile + "\n")
-            acount=0
-    # if acount != 0, then we have left over ids to deal with, and need
-    # to create one more worker to do so.
-    if acount != 0:
-        count += 1
-        outObj.write("JOB A" + str(count) +" "+workerdir+"/" + templateFile + "\n")
-
-    outObj.write(" \n")
-
-    #
-    # A second pass through the Input File constructs variables to
-    # be substituted into jobs
-    #
-
-    fileObj.seek(0) # return to beginning of file
-    count = 0
-    acount = 0
     myDataTotal=""
     myDataList=[]
     newDataTotal=""
     newDataList=[]
     for aline in fileObj:
         acount+=1
-
- 
         myData = aline.rstrip()
 
+ 
         #
         # Construct a string without spaces from the dataids for a job
         # suitable for a unix file name
@@ -188,47 +165,35 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
 
         if acount == listSize:
             count+=1
+            outObj.write("JOB A" + str(count) +" "+workerdir+"/" + templateFile + "\n")
             myDataTotal  = " X ".join(myDataList)
             newDataTotal = "_".join(newDataList)
             writeVarsInfo(outObj, str(count), myDataTotal, visit, runid)
             writeMapInfo(mapObj, str(count), newDataTotal, myDataTotal)
+            # PARENT A CHILD A1
+            # PARENT A1 CHILD B
+            outObj.write("PARENT A CHILD A" + str(count) + " \n")
+            outObj.write("PARENT A" + str(count) + " CHILD B \n")
+
             acount=0
             myDataTotal=""
             newDataTotal=""
             myDataList=[]
             newDataList=[]
+            outObj.write("\n")
 
-    # if acount != 0, we had leftover ids, and we need to create the info
-    # for those as well.
+    # if acount != 0, then we have left over ids to deal with, and need
+    # to create one more worker to do so.
     if acount != 0:
         count += 1
+        outObj.write("JOB A" + str(count) +" "+workerdir+"/" + templateFile + "\n")
         myDataTotal  = " X ".join(myDataList)
         newDataTotal = "_".join(newDataList)
         writeVarsInfo(outObj, str(count), myDataTotal, visit, runid)
         writeMapInfo(mapObj, str(count), newDataTotal, myDataTotal)
-
-    #
-    # A third pass through the Input File constructs relationships
-    # between the jobs, building a diamond DAG : 1 - N - 1
-    #
-
-    fileObj.seek(0) # return to beginning of file
-    count = 0
-    acount = 0
-    for aline in fileObj:
-        acount+=1
-        if acount == listSize:
-            count+=1
-            # PARENT A CHILD A1
-            # PARENT A1 CHILD B
-            outObj.write("PARENT A CHILD A" + str(count) + " \n")
-            outObj.write("PARENT A" + str(count) + " CHILD B \n")
-            acount=0
-    # if acount != 0, we have one more child to add to the parent heirarchy
-    if acount != 0:
-        count += 1
         outObj.write("PARENT A CHILD A" + str(count) + " \n")
         outObj.write("PARENT A" + str(count) + " CHILD B \n")
+        outObj.write("\n")
 
     fileObj.close()
     configObj.close()
