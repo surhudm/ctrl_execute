@@ -54,9 +54,9 @@ class RunOrcaParser(object):
                     default=None, help="list of ids", required=True)
         parser.add_argument("-e", "--eups-path", action="store", dest="eupsPath",
                     default=None, help="eups path", required=True)
-        parser.add_argument("-n", "--node-set", action="store", 
+        parser.add_argument("-N", "--node-set", action="store", 
                     default=None, dest="nodeSet", help="name of collection of nodes to use", required=True)
-        parser.add_argument("-j", "--ids-per-job", action="store",
+        parser.add_argument("-n", "--ids-per-job", action="store",
                     default=None, dest="idsPerJob", help="ids per job")
         parser.add_argument("-r", "--default-root", action="store", dest="defaultRoot",
                     default=None, help="remote working directory for Condor")
