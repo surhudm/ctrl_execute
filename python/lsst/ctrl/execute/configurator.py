@@ -22,6 +22,7 @@
 #
 
 import os, os.path, pwd
+import sys
 import lsst.pex.config as pexConfig
 import eups
 from datetime import datetime
