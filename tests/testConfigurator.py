@@ -34,8 +34,8 @@ class TestConfigurator(unittest.TestCase):
                 "-c",'"echo hello"',
                 "-i","$CTRL_EXECUTE_DIR/tests/testfiles/inputfile",
                 "-e","/tmp",
-                "-n","test_set",
-                "-j","16",
+                "-N","test_set",
+                "-n","16",
                 "-v",
                 ]
         return sys.argv
@@ -46,8 +46,8 @@ class TestConfigurator(unittest.TestCase):
                 "-c",'"echo hello"',
                 "-i","$CTRL_EXECUTE_DIR/tests/testfiles/inputfile",
                 "-e","/tmp2",
-                "-n","test_set2",
-                "-j","12",
+                "-N","test_set2",
+                "-n","12",
                 ]
         return sys.argv
     
@@ -57,8 +57,8 @@ class TestConfigurator(unittest.TestCase):
                 "-c",'"echo hello"',
                 "-i","$CTRL_EXECUTE_DIR/tests/testfiles/inputfile",
                 "-e","/tmp2",
-                "-n","test_set2",
-                "-j","12",
+                "-N","test_set2",
+                "-n","12",
                 "--setup","fake_package", "1.0",
                 ]
         return sys.argv
