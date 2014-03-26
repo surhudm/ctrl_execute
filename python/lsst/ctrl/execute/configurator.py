@@ -22,6 +22,7 @@
 #
 
 import os, os.path, pwd
+import sys
 import lsst.pex.config as pexConfig
 import eups
 from datetime import datetime
@@ -194,6 +195,11 @@ class Configurator(object):
         configuration = CondorConfig()
         configuration.load(resolvedName)
         self.defaults = {}
+
+        if configuration.platform.nodeSetRequired is not None:
+            if self.opts.nodeSet is None and configuration.platform.nodeSetRequired:
+                print "error: nodeset parameter required by this platform"
+                sys.exit(10)
         
         tempDefaultRoot = Template(configuration.platform.defaultRoot)
         self.defaults["DEFAULT_ROOT"] = tempDefaultRoot.substitute(

@@ -33,6 +33,7 @@ class PlatformConfig(pexConfig.Config):
     dataDirectory = pexConfig.Field(doc="remote directory where date that jobs will use is kept", dtype=str, default=None)
     fileSystemDomain = pexConfig.Field(doc="network domain name of remote system", dtype=str, default=None)
     eupsPath = pexConfig.Field(doc="location of remote EUPS stack", dtype=str, default=None)
+    nodeSetRequired = pexConfig.Field(doc="is the nodeset required", dtype=bool, default=None)
 
 class CondorConfig(pexConfig.Config):
     """A pex_config file describing the platform specific information required
