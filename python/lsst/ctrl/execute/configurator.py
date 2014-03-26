@@ -196,8 +196,7 @@ class Configurator(object):
         configuration.load(resolvedName)
         self.defaults = {}
 
-        if configuration.platform.nodeSetRequired is not None:
-            if self.opts.nodeSet is None and configuration.platform.nodeSetRequired:
+        if configuration.platform.nodeSetRequired and self.opts.nodeSet is None :
                 print "error: nodeset parameter required by this platform"
                 sys.exit(10)
         
