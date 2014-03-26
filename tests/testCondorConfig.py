@@ -36,6 +36,7 @@ class TestCondorConfig(unittest.TestCase):
         assert self.config.platform.fileSystemDomain == None
         assert self.config.platform.eupsPath == None
         assert self.config.platform.defaultRoot == None
+        assert self.config.platform.nodeSetRequired == False
     
     def test2(self):
         path = os.path.join("tests","testfiles", "config_condor.py")
@@ -46,6 +47,7 @@ class TestCondorConfig(unittest.TestCase):
         assert self.config.platform.dataDirectory == "/tmp/data"
         assert self.config.platform.fileSystemDomain == "lsstcorp.org"
         assert self.config.platform.eupsPath == "/var/tmp"
+        assert self.config.platform.nodeSetRequired == True
     
 if __name__ == "__main__":
     unittest.main()
