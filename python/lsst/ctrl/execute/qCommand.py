@@ -20,7 +20,7 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import eups
+import lsst.utils
 import sys, os, os.path, string
 import lsst.pex.config as pexConfig
 from lsst.ctrl.execute import envString
@@ -42,12 +42,8 @@ class QCommand(object):
         condorInfoConfig = CondorInfoConfig()
         condorInfoConfig.load(fileName)
     
-        platformPkgDir = eups.productDir("ctrl_platform_"+platform)
-        if platformPkgDir is not None:
-            configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
-        else:
-            print "ctrl_platform_%s was not found.  Is it setup?" % platform
-            sys.exit(10)
+        platformPkgDir = lsst.utils.getPackageDir("ctrl_platform_"+platform)
+        configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
     
         allocationConfig = AllocationConfig()
         allocationConfig.load(configName)
