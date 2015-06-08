@@ -24,6 +24,7 @@
 import os, os.path, pwd
 import sys
 import lsst.pex.config as pexConfig
+import lsst.utils
 import eups
 from datetime import datetime
 from string import Template
@@ -125,7 +126,7 @@ class Configurator(object):
         on which target environment jobs will be running on.
         @return the name of the orca config template
         """
-        executePkgDir = eups.productDir("ctrl_execute")
+        executePkgDir = lsst.utils.getPackageDir('ctrl_execute')
         genericConfigName = None
         # if no command line setups are done, and if you're targeting
         # the LSST platform, use the template that allows usage of the
@@ -210,7 +211,7 @@ class Configurator(object):
         self.defaults["FILE_SYSTEM_DOMAIN"] = configuration.platform.fileSystemDomain
         self.defaults["EUPS_PATH"] = configuration.platform.eupsPath
 
-        platform_dir = eups.productDir("ctrl_platform_"+self.opts.platform)
+        platform_dir = lsst.utils.getPackageDir("ctrl_platform_"+self.opts.platform)
         self.defaults["PLATFORM_DIR"] = platform_dir
 
     def createConfiguration(self, input):

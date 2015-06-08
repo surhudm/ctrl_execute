@@ -25,7 +25,7 @@
 
 import sys, os
 import optparse
-import eups
+import lsst.utils
 import lsst.pex.config as pexConfig
 from lsst.ctrl.execute.allocator import Allocator
 from lsst.ctrl.execute.allocatorParser import AllocatorParser
@@ -48,13 +48,8 @@ def main():
 
     creator = Allocator(platform, p.getArgs(), "$HOME/.lsst/condor-info.py")
 
-    platformPkgDir = eups.productDir("ctrl_platform_"+platform)
-    if platformPkgDir is not None:
-        configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
-    else:
-        print "ctrl_platform_%s was not found. Has it been set up?" % platform
-        sys.exit(UNKNOWN_PLATFORM_EXIT_CODE)
-    
+    platformPkgDir = lsst.utils.getPackageDir("ctrl_platform_"+platform)
+    configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
     execConfigName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
 
     creator.load(execConfigName)

@@ -23,7 +23,7 @@
 #
 
 
-import eups
+import lsst.utils
 import re, sys, os, os.path
 import optparse
 import lsst.pex.config as pexConfig
@@ -35,13 +35,8 @@ def main():
     args = p.getArgs()
     creator = Configurator(args, "$HOME/.lsst/condor-info.py")
 
-    platformPkgDir = eups.productDir("ctrl_platform_"+creator.platform)
-    if platformPkgDir is not None:
-        configName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
-    else:
-        print "Can't find platform specific config for %s" % creator.platform
-        sys.exit(10)
-    
+    platformPkgDir = lsst.utils.getPackageDir("ctrl_platform_"+creator.platform)
+    configName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
 
     creator.load(configName)
 
