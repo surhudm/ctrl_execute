@@ -1,73 +1,73 @@
-root.production.shortName = "DataRelease"
-root.production.eventBrokerHost = "lsst8.ncsa.uiuc.edu"
-root.production.productionShutdownTopic = "productionShutdown2"
+config.production.shortName = "DataRelease"
+config.production.eventBrokerHost = "lsst8.ncsa.uiuc.edu"
+config.production.productionShutdownTopic = "productionShutdown2"
 
-root.database["db1"].name = "dc3bGlobal"
-root.database["db1"].system.authInfo.host = "lsst10.ncsa.illinois.edu"
-root.database["db1"].system.authInfo.port = 3306
-root.database["db1"].system.runCleanup.daysFirstNotice = 7
-root.database["db1"].system.runCleanup.daysFinalNotice = 1
+config.database["db1"].name = "dc3bGlobal"
+config.database["db1"].system.authInfo.host = "lsst10.ncsa.illinois.edu"
+config.database["db1"].system.authInfo.port = 3306
+config.database["db1"].system.runCleanup.daysFirstNotice = 7
+config.database["db1"].system.runCleanup.daysFinalNotice = 1
 
-root.database["db1"].configurationClass = "lsst.ctrl.orca.db.DC3Configurator"
-root.database["db1"].configuration["production"].globalDbName = "GlobalDB"
+config.database["db1"].configurationClass = "lsst.ctrl.orca.db.DC3Configurator"
+config.database["db1"].configuration["production"].globalDbName = "GlobalDB"
 
-root.database["db1"].configuration["production"].dcVersion = "S12_sdss"
-root.database["db1"].configuration["production"].dcDbName = "DC3b_DB"
-root.database["db1"].configuration["production"].minPercDiskSpaceReq = 10
-root.database["db1"].configuration["production"].userRunLife = 2
-root.database["db1"].logger.launch = True
+config.database["db1"].configuration["production"].dcVersion = "S12_sdss"
+config.database["db1"].configuration["production"].dcDbName = "DC3b_DB"
+config.database["db1"].configuration["production"].minPercDiskSpaceReq = 10
+config.database["db1"].configuration["production"].userRunLife = 2
+config.database["db1"].logger.launch = True
 
-root.workflow["workflow1"].platform.dir.defaultRoot = "$DEFAULT_ROOT"
+config.workflow["workflow1"].platform.dir.defaultRoot = "$DEFAULT_ROOT"
 
-root.workflow["workflow1"].platform.deploy.defaultDomain = "$FILE_SYSTEM_DOMAIN"
+config.workflow["workflow1"].platform.deploy.defaultDomain = "$FILE_SYSTEM_DOMAIN"
 
-root.workflow["workflow1"].shutdownTopic = "workflowShutdown2"
+config.workflow["workflow1"].shutdownTopic = "workflowShutdown2"
 
-root.workflow["workflow1"].configurationType = "condor"
-root.workflow["workflow1"].configurationClass = "lsst.ctrl.orca.CondorWorkflowConfigurator"
-root.workflow["workflow1"].configuration["condor"].condorData.localScratch = "$LOCAL_SCRATCH"
-
-
-root.workflow["workflow1"].task["task1"].scriptDir = "workers"
-
-root.workflow["workflow1"].task["task1"].preJob.script.inputFile = "$PLATFORM_DIR/etc/templates/setups/preJob.sh.template"
-root.workflow["workflow1"].task["task1"].preJob.script.outputFile = "preJob.sh"
-root.workflow["workflow1"].task["task1"].preJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/setups/preJob.condor.template"
-root.workflow["workflow1"].task["task1"].preJob.condor.keywords["NODE_SET"] = "$NODE_SET"
-root.workflow["workflow1"].task["task1"].preJob.condor.keywords["FILE_SYSTEM_DOMAIN"] = "$FILE_SYSTEM_DOMAIN"
-root.workflow["workflow1"].task["task1"].preJob.condor.outputFile = "S2012Pipe.pre"
-
-root.workflow["workflow1"].task["task1"].postJob.script.inputFile = "$PLATFORM_DIR/etc/templates/setups/postJob.sh.template"
-root.workflow["workflow1"].task["task1"].postJob.script.outputFile = "postJob.sh"
-root.workflow["workflow1"].task["task1"].postJob.condor.keywords["NODE_SET"] = "$NODE_SET"
-root.workflow["workflow1"].task["task1"].postJob.condor.keywords["FILE_SYSTEM_DOMAIN"] = "$FILE_SYSTEM_DOMAIN"
-root.workflow["workflow1"].task["task1"].postJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/setups/postJob.condor.template"
-root.workflow["workflow1"].task["task1"].postJob.condor.outputFile = "S2012Pipe.post"
-
-root.workflow["workflow1"].task["task1"].workerJob.script.inputFile = "$PLATFORM_DIR/etc/templates/setups/worker.sh.template"
-root.workflow["workflow1"].task["task1"].workerJob.script.outputFile = "worker.sh"
-root.workflow["workflow1"].task["task1"].workerJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/setups/workerJob.condor.template"
-root.workflow["workflow1"].task["task1"].workerJob.condor.keywords["NODE_SET"] = "$NODE_SET"
-root.workflow["workflow1"].task["task1"].workerJob.condor.keywords["FILE_SYSTEM_DOMAIN"] = "$FILE_SYSTEM_DOMAIN"
-root.workflow["workflow1"].task["task1"].workerJob.condor.outputFile = "S2012Pipeline-template.condor"
+config.workflow["workflow1"].configurationType = "condor"
+config.workflow["workflow1"].configurationClass = "lsst.ctrl.orca.CondorWorkflowConfigurator"
+config.workflow["workflow1"].configuration["condor"].condorData.localScratch = "$LOCAL_SCRATCH"
 
 
+config.workflow["workflow1"].task["task1"].scriptDir = "workers"
 
-root.workflow["workflow1"].task["task1"].preJob.script.keywords["USERHOME"] = "$USER_HOME"
-root.workflow["workflow1"].task["task1"].preJob.script.keywords["USERNAME"] = "$USER_NAME"
-root.workflow["workflow1"].task["task1"].preJob.script.keywords["DATADIR"] = "$DATA_DIRECTORY"
-root.workflow["workflow1"].task["task1"].preJob.script.keywords["EUPS_PATH"] = "$EUPS_PATH"
-root.workflow["workflow1"].task["task1"].preJob.script.keywords["CTRL_EXECUTE_SETUP_PACKAGES"] = "$CTRL_EXECUTE_SETUP_PACKAGES"
-root.workflow["workflow1"].task["task1"].preJob.script.keywords["COMMAND"] = "$COMMAND"
+config.workflow["workflow1"].task["task1"].preJob.script.inputFile = "$PLATFORM_DIR/etc/templates/setups/preJob.sh.template"
+config.workflow["workflow1"].task["task1"].preJob.script.outputFile = "preJob.sh"
+config.workflow["workflow1"].task["task1"].preJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/setups/preJob.condor.template"
+config.workflow["workflow1"].task["task1"].preJob.condor.keywords["NODE_SET"] = "$NODE_SET"
+config.workflow["workflow1"].task["task1"].preJob.condor.keywords["FILE_SYSTEM_DOMAIN"] = "$FILE_SYSTEM_DOMAIN"
+config.workflow["workflow1"].task["task1"].preJob.condor.outputFile = "S2012Pipe.pre"
 
-root.workflow["workflow1"].task["task1"].workerJob.script.keywords["USERHOME"] = "$USER_HOME"
-root.workflow["workflow1"].task["task1"].workerJob.script.keywords["USERNAME"] = "$USER_NAME"
-root.workflow["workflow1"].task["task1"].workerJob.script.keywords["DATADIR"] = "$DATA_DIRECTORY"
-root.workflow["workflow1"].task["task1"].workerJob.script.keywords["EUPS_PATH"] = "$EUPS_PATH"
-root.workflow["workflow1"].task["task1"].workerJob.script.keywords["COMMAND"] = "$COMMAND"
+config.workflow["workflow1"].task["task1"].postJob.script.inputFile = "$PLATFORM_DIR/etc/templates/setups/postJob.sh.template"
+config.workflow["workflow1"].task["task1"].postJob.script.outputFile = "postJob.sh"
+config.workflow["workflow1"].task["task1"].postJob.condor.keywords["NODE_SET"] = "$NODE_SET"
+config.workflow["workflow1"].task["task1"].postJob.condor.keywords["FILE_SYSTEM_DOMAIN"] = "$FILE_SYSTEM_DOMAIN"
+config.workflow["workflow1"].task["task1"].postJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/setups/postJob.condor.template"
+config.workflow["workflow1"].task["task1"].postJob.condor.outputFile = "S2012Pipe.post"
+
+config.workflow["workflow1"].task["task1"].workerJob.script.inputFile = "$PLATFORM_DIR/etc/templates/setups/worker.sh.template"
+config.workflow["workflow1"].task["task1"].workerJob.script.outputFile = "worker.sh"
+config.workflow["workflow1"].task["task1"].workerJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/setups/workerJob.condor.template"
+config.workflow["workflow1"].task["task1"].workerJob.condor.keywords["NODE_SET"] = "$NODE_SET"
+config.workflow["workflow1"].task["task1"].workerJob.condor.keywords["FILE_SYSTEM_DOMAIN"] = "$FILE_SYSTEM_DOMAIN"
+config.workflow["workflow1"].task["task1"].workerJob.condor.outputFile = "S2012Pipeline-template.condor"
 
 
-root.workflow["workflow1"].task["task1"].dagGenerator.dagName = "S2012Pipe"
-root.workflow["workflow1"].task["task1"].dagGenerator.script = "$CTRL_EXECUTE_DIR/etc/scripts/generateDag.py"
-root.workflow["workflow1"].task["task1"].dagGenerator.idsPerJob = $IDS_PER_JOB
-root.workflow["workflow1"].task["task1"].dagGenerator.input = "$INPUT_DATA_FILE"
+
+config.workflow["workflow1"].task["task1"].preJob.script.keywords["USERHOME"] = "$USER_HOME"
+config.workflow["workflow1"].task["task1"].preJob.script.keywords["USERNAME"] = "$USER_NAME"
+config.workflow["workflow1"].task["task1"].preJob.script.keywords["DATADIR"] = "$DATA_DIRECTORY"
+config.workflow["workflow1"].task["task1"].preJob.script.keywords["EUPS_PATH"] = "$EUPS_PATH"
+config.workflow["workflow1"].task["task1"].preJob.script.keywords["CTRL_EXECUTE_SETUP_PACKAGES"] = "$CTRL_EXECUTE_SETUP_PACKAGES"
+config.workflow["workflow1"].task["task1"].preJob.script.keywords["COMMAND"] = "$COMMAND"
+
+config.workflow["workflow1"].task["task1"].workerJob.script.keywords["USERHOME"] = "$USER_HOME"
+config.workflow["workflow1"].task["task1"].workerJob.script.keywords["USERNAME"] = "$USER_NAME"
+config.workflow["workflow1"].task["task1"].workerJob.script.keywords["DATADIR"] = "$DATA_DIRECTORY"
+config.workflow["workflow1"].task["task1"].workerJob.script.keywords["EUPS_PATH"] = "$EUPS_PATH"
+config.workflow["workflow1"].task["task1"].workerJob.script.keywords["COMMAND"] = "$COMMAND"
+
+
+config.workflow["workflow1"].task["task1"].dagGenerator.dagName = "S2012Pipe"
+config.workflow["workflow1"].task["task1"].dagGenerator.script = "$CTRL_EXECUTE_DIR/etc/scripts/generateDag.py"
+config.workflow["workflow1"].task["task1"].dagGenerator.idsPerJob = $IDS_PER_JOB
+config.workflow["workflow1"].task["task1"].dagGenerator.input = "$INPUT_DATA_FILE"
