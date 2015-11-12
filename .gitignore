@@ -5,3 +5,8 @@ config.log
 *.cfgc
 tests/.tests
 version.py
+bin/allocateNodes.py
+bin/dagIdInfo.py
+bin/qdelete.py
+bin/qstatus.py
+bin/runOrca.py
