@@ -32,8 +32,8 @@ class TestDagIdInfo(unittest.TestCase):
         return stdout
 
     def test1(self):
-        execPath = os.path.join("bin","dagIdInfo.py")
-        filename = os.path.join("tests","testfiles", "test.diamond.dag")
+        execPath = os.path.join("bin.src", "dagIdInfo.py")
+        filename = os.path.join("tests", "testfiles", "test.diamond.dag")
 
         stdout = self.executeCommand("%s A1 %s" % (execPath, filename))
         self.assertTrue(stdout == "run=1033 filter=r camcol=2 field=229\n")
