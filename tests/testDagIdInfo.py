@@ -21,7 +21,7 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import os, unittest
+import os, sys, unittest
 from subprocess import Popen, PIPE
 
 class TestDagIdInfo(unittest.TestCase):
@@ -32,21 +32,21 @@ class TestDagIdInfo(unittest.TestCase):
         return stdout
 
     def test1(self):
+        exe = sys.executable
         execPath = os.path.join("bin.src", "dagIdInfo.py")
         filename = os.path.join("tests", "testfiles", "test.diamond.dag")
 
-        stdout = self.executeCommand("%s A1 %s" % (execPath, filename))
+        stdout = self.executeCommand("%s %s A1 %s" % (exe, execPath, filename))
         self.assertTrue(stdout == "run=1033 filter=r camcol=2 field=229\n")
 
-        stdout = self.executeCommand("%s A3 %s" % (execPath, filename))
+        stdout = self.executeCommand("%s %s A3 %s" % (exe, execPath, filename))
         self.assertTrue(stdout == "run=1033 filter=i camcol=2 field=47\n")
 
-        stdout = self.executeCommand("%s A17 %s" % (execPath, filename))
+        stdout = self.executeCommand("%s %s A17 %s" % (exe, execPath, filename))
         self.assertTrue(stdout == "run=1033 filter=r camcol=2 field=229 run=1033 filter=i camcol=2 field=47\n")
 
-        stdout = self.executeCommand("%s B1 %s" % (execPath, filename))
+        stdout = self.executeCommand("%s %s B1 %s" % (exe, execPath, filename))
         self.assertTrue(stdout == "")
 
 if __name__ == "__main__":
     unittest.main()
-
