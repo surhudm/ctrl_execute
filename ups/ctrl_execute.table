@@ -1,3 +1,4 @@
+setupRequired(python_future)
 setupRequired(ctrl_orca)
 setupRequired(pex_config)
 setupRequired(utils)
