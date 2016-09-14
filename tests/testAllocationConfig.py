@@ -23,30 +23,40 @@
 import unittest
 import os.path
 from lsst.ctrl.execute.allocationConfig import AllocationConfig
+import lsst.utils.tests
 
 
-class test1(unittest.TestCase):
+def setup_module(module):
+    lsst.utils.tests.init()
+
+
+class AllocationConfigTest(lsst.utils.tests.TestCase):
 
     def setUp(self):
         self.config = AllocationConfig()
 
     def test_config1(self):
 
-        self.assertTrue(self.config.platform.queue == None)
-        self.assertTrue(self.config.platform.email == None)
-        self.assertTrue(self.config.platform.scratchDirectory == None)
-        self.assertTrue(self.config.platform.loginHostName == None)
-        self.assertTrue(self.config.platform.utilityPath == None)
+        self.assertIsNone(self.config.platform.queue)
+        self.assertIsNone(self.config.platform.email)
+        self.assertIsNone(self.config.platform.scratchDirectory)
+        self.assertIsNone(self.config.platform.loginHostName)
+        self.assertIsNone(self.config.platform.utilityPath)
 
     def test_config2(self):
         path = os.path.join("tests", "testfiles", "config_allocation.py")
         self.config.load(path)
 
-        self.assertTrue(self.config.platform.queue == "normal")
-        self.assertTrue(self.config.platform.email == "#PBS mail -be")
-        self.assertTrue(self.config.platform.scratchDirectory == "/tmp")
-        self.assertTrue(self.config.platform.loginHostName == "bighost.lsstcorp.org")
-        self.assertTrue(self.config.platform.utilityPath == "/bin")
+        self.assertEqual(self.config.platform.queue, "normal")
+        self.assertEqual(self.config.platform.email, "#PBS mail -be")
+        self.assertEqual(self.config.platform.scratchDirectory, "/tmp")
+        self.assertEqual(self.config.platform.loginHostName, "bighost.lsstcorp.org")
+        self.assertEqual(self.config.platform.utilityPath, "/bin")
+
+
+class AllocationConfigMemoryTest(lsst.utils.tests.MemoryTestCase):
+    pass
 
 if __name__ == "__main__":
+    lsst.utils.tests.init()
     unittest.main()

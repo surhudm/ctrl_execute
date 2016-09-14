@@ -25,12 +25,9 @@
 
 from __future__ import print_function
 import lsst.utils
-import re
 import sys
 import os
 import os.path
-import optparse
-import lsst.pex.config as pexConfig
 from lsst.ctrl.execute.configurator import Configurator
 from lsst.ctrl.execute.runOrcaParser import RunOrcaParser
 
@@ -59,7 +56,7 @@ def main():
         sys.stdin.close()
         sys.stdout.close()
         sys.stderr.close()
-        if creator.isVerbose == False:
+        if creator.isVerbose is False:
             os.close(0)
             os.close(1)
             os.close(2)

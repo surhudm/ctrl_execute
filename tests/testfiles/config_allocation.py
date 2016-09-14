@@ -1,3 +1,4 @@
+# flake8: noqa
 config.platform.queue = "normal"
 config.platform.email = "#PBS mail -be"
 config.platform.scratchDirectory = "/tmp"

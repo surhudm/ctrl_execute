@@ -26,9 +26,7 @@
 from __future__ import print_function
 import sys
 import os
-import optparse
 import lsst.utils
-import lsst.pex.config as pexConfig
 from lsst.ctrl.execute.allocator import Allocator
 from lsst.ctrl.execute.allocatorParser import AllocatorParser
 from string import Template
@@ -43,8 +41,8 @@ def main():
     remoteLoginCmd = "/usr/bin/gsissh"
     remoteCopyCmd = "/usr/bin/gsiscp"
 
-    UNKNOWN_PLATFORM_EXIT_CODE = 10
-    MISSING_PBS_CONFIG_EXIT_CODE = 20
+    # UNKNOWN_PLATFORM_EXIT_CODE = 10
+    # MISSING_PBS_CONFIG_EXIT_CODE = 20
 
     p = AllocatorParser(sys.argv[0])
     platform = p.getPlatform()

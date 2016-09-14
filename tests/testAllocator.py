@@ -27,9 +27,14 @@ import filecmp
 import unittest
 from lsst.ctrl.execute.allocator import Allocator
 from lsst.ctrl.execute.allocatorParser import AllocatorParser
+import lsst.utils.tests
 
 
-class TestAllocator(unittest.TestCase):
+def setup_module(module):
+    lsst.utils.tests.init()
+
+
+class TestAllocator(lsst.utils.tests.TestCase):
 
     def verboseArgs(self):
         argv = ["allocator_test",
@@ -84,15 +89,15 @@ class TestAllocator(unittest.TestCase):
         al.load(path)
         fileName = os.path.join("tests", "testfiles", "config_allocation.py")
         al.loadPbs(fileName)
-        self.assertTrue(al.getHostName() == "bighost.lsstcorp.org")
-        self.assertTrue(al.getUtilityPath() == "/bin")
-        self.assertTrue(al.getScratchDirectory() == "/tmp")
-        self.assertTrue(al.getNodeSetName() == "test_set")
-        self.assertTrue(al.getNodes() == 64)
-        self.assertTrue(al.getSlots() == 12)
-        self.assertTrue(al.getWallClock() == "00:30:00")
-        self.assertTrue(al.getParameter("NODE_COUNT") == 64)
-        self.assertTrue(al.getParameter("KAZOO") == None)
+        self.assertEqual(al.getHostName(), "bighost.lsstcorp.org")
+        self.assertEqual(al.getUtilityPath(), "/bin")
+        self.assertEqual(al.getScratchDirectory(), "/tmp")
+        self.assertEqual(al.getNodeSetName(), "test_set")
+        self.assertEqual(al.getNodes(), 64)
+        self.assertEqual(al.getSlots(), 12)
+        self.assertEqual(al.getWallClock(), "00:30:00")
+        self.assertEqual(al.getParameter("NODE_COUNT"), 64)
+        self.assertEqual(al.getParameter("KAZOO"), None)
         self.assertTrue(al.isVerbose())
 
     def test3(self):
@@ -120,5 +125,9 @@ class TestAllocator(unittest.TestCase):
         os.rmdir(localScratch)
 
 
+class AllocatorMemoryTest(lsst.utils.tests.MemoryTestCase):
+    pass
+
 if __name__ == "__main__":
+    lsst.utils.tests.init()
     unittest.main()

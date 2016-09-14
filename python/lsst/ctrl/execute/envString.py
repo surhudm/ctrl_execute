@@ -24,6 +24,7 @@
 
 import re
 import os
+import sys
 
 # Given a string, look for any $ prefixed word, attempt to substitute
 # an environment variable with that name.
@@ -38,7 +39,7 @@ def resolve(strVal):
     for i in exprs:
         var = i[1:]
         val = os.getenv(var, None)
-        if val == None:
+        if val is None:
             raise RuntimeError("couldn't find environment variable "+i)
             sys.exit(120)
         retVal = p.sub(val, retVal, 1)

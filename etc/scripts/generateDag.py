@@ -23,20 +23,19 @@
 #
 
 from __future__ import print_function
-import math
-import argparse
-import os
-import subprocess
-import sys
-import time
 
-from textwrap import dedent
-import glob
-import re
+import argparse
+
+import sys
+
+try:
+    from shlex import split as cmd_split
+except ImportError:
+    from pipes import split as cmd_split
 
 
 def _line_to_args(self, line):
-    for arg in shlex.split(line, comments=True, posix=True):
+    for arg in cmd_split.split(line, comments=True, posix=True):
         if not arg.strip():
             continue
         yield arg

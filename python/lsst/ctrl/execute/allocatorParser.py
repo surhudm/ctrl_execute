@@ -22,9 +22,6 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import sys
-import os
-import os.path
 import argparse
 
 
@@ -49,7 +46,6 @@ class AllocatorParser(object):
         @param argv: list containing the command line arguments
         @return: the parser options and remaining arguments
         """
-        #basename = os.path.basename(argv[0])
 
         parser = argparse.ArgumentParser(prog=basename)
         parser.add_argument("platform", help="node allocation platform")

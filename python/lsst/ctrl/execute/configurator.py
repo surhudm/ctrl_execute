@@ -27,7 +27,7 @@ import os
 import os.path
 import pwd
 import sys
-import lsst.pex.config as pexConfig
+
 import lsst.utils
 import eups
 from datetime import datetime
@@ -52,7 +52,6 @@ class Configurator(object):
 
         self.defaults = {}
 
-        #configFileName = "$HOME/.lsst/condor-info.py"
         fileName = envString.resolve(configFileName)
 
         condorInfoConfig = CondorInfoConfig()
@@ -134,7 +133,7 @@ class Configurator(object):
         # the LSST platform, use the template that allows usage of the
         # Condor "getenv" method of environment setup.  Otherwise use
         # template that uses LSST "setup" commands for each package.
-        if (self.opts.setup == None) and (self.platform == "lsst"):
+        if (self.opts.setup is None) and (self.platform == "lsst"):
             genericConfigName = os.path.join(executePkgDir,
                                              "etc", "templates", "config_with_getenv.py.template")
         else:
@@ -186,7 +185,7 @@ class Configurator(object):
             if self.platform == "lsst":
                 a = a + "setup -j %s %s\\n\\\n" % (name, version)
             else:
-                if version.startswith("LOCAL:") == False:
+                if version.startswith("LOCAL:") is False:
                     a = a + "setup -j %s %s\\n\\\n" % (name, version)
         return a
 
@@ -222,7 +221,7 @@ class Configurator(object):
         @return the newly created Orca configuration file
         """
         resolvedInputName = envString.resolve(input)
-        if self.opts.verbose == True:
+        if self.opts.verbose is True:
             print("creating configuration using ", resolvedInputName)
         template = TemplateWriter()
         substitutes = self.defaults.copy()
@@ -234,10 +233,10 @@ class Configurator(object):
         substitutes["CTRL_EXECUTE_SETUP_PACKAGES"] = self.getSetupPackages()
 
         configDir = os.path.join(substitutes["LOCAL_SCRATCH"], "configs")
-        if os.path.exists(configDir) == False:
+        if os.path.exists(configDir) is False:
             os.mkdir(configDir)
-        self.outputFileName = os.path.join(configDir, "%s_config.py" % (self.runid))
-        if self.opts.verbose == True:
+        self.outputFileName = os.path.join(configDir, "%s.config" % (self.runid))
+        if self.opts.verbose is True:
             print("writing new configuration to ", self.outputFileName)
         template.rewrite(resolvedInputName, self.outputFileName, substitutes)
         return self.outputFileName
@@ -250,7 +249,7 @@ class Configurator(object):
 
     def getParameter(self, value):
         """Accessor for generic value
-        @return None if value is not set.  Otherwise, use the comand line override 
+        @return None if value is not set.  Otherwise, use the comand line override
         (if set), or the default Config value
         """
         if value in self.commandLineDefaults:

@@ -23,11 +23,15 @@
 
 import sys
 import unittest
-import os.path
 from lsst.ctrl.execute.allocatorParser import AllocatorParser
+import lsst.utils.tests
 
 
-class TestAllocatorParser(unittest.TestCase):
+def setup_module(module):
+    lsst.utils.tests.init()
+
+
+class TestAllocatorParser(lsst.utils.tests.TestCase):
 
     def test1(self):
         sys.argv = ["test1",
@@ -46,15 +50,20 @@ class TestAllocatorParser(unittest.TestCase):
         al = AllocatorParser(sys.argv[0])
         args = al.getArgs()
 
-        self.assertTrue(args.nodeCount == 64)
-        self.assertTrue(args.slots == 12)
-        self.assertTrue(args.maximumWallClock == "00:30:00")
-        self.assertTrue(args.nodeSet == "test_set")
-        self.assertTrue(args.queue == "normal")
+        self.assertEqual(args.nodeCount, 64)
+        self.assertEqual(args.slots, 12)
+        self.assertEqual(args.maximumWallClock, "00:30:00")
+        self.assertEqual(args.nodeSet, "test_set")
+        self.assertEqual(args.queue, "normal")
         self.assertTrue(args.email)
-        self.assertTrue(args.outputLog == "outlog")
-        self.assertTrue(args.errorLog == "errlog")
+        self.assertEqual(args.outputLog, "outlog")
+        self.assertEqual(args.errorLog, "errlog")
         self.assertTrue(args.verbose)
 
+
+class AllocatorParserMemoryTester(lsst.utils.tests.MemoryTestCase):
+    pass
+
 if __name__ == "__main__":
+    lsst.utils.tests.init()
     unittest.main()

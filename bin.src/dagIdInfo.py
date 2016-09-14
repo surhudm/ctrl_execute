@@ -38,7 +38,7 @@ if __name__ == "__main__":
     dagNode = sys.argv[1]
     filename = sys.argv[2]
 
-    if os.path.exists(filename) == False:
+    if os.path.exists(filename) is False:
         print("file %s not found" % filename)
         sys.exit(errno.ENOENT)
 

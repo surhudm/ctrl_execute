@@ -51,7 +51,7 @@ class UserConfig(pexConfig.Config):
 
 class CondorInfoConfig(pexConfig.Config):
     """A pex_config file describing the platform specific information about
-    remote user logins.  
+    remote user logins.
     """
     platform = pexConfig.ConfigChoiceField("platform info", FakeTypeMap(UserConfig))
 

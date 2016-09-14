@@ -26,9 +26,14 @@ import os.path
 import filecmp
 import pwd
 from lsst.ctrl.execute.templateWriter import TemplateWriter
+import lsst.utils.tests
 
 
-class TestTemplateWriter(unittest.TestCase):
+def setup_module(module):
+    lsst.utils.tests.init()
+
+
+class TestTemplateWriter(lsst.utils.tests.TestCase):
 
     def test1(self):
         pairs = {}
@@ -44,5 +49,10 @@ class TestTemplateWriter(unittest.TestCase):
         os.remove(outfile)
 
 
+class TestTemplateWriterTestCase(lsst.utils.tests.MemoryTestCase):
+    pass
+
+
 if __name__ == "__main__":
+    lsst.utils.tests.init()
     unittest.main()

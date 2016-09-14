@@ -27,9 +27,14 @@ import os.path
 import time
 from lsst.ctrl.execute.configurator import Configurator
 from lsst.ctrl.execute.runOrcaParser import RunOrcaParser
+import lsst.utils.tests
 
 
-class TestConfigurator(unittest.TestCase):
+def setup_module(module):
+    lsst.utils.tests.init()
+
+
+class TestConfigurator(lsst.utils.tests.TestCase):
 
     def getRemoteArgs(self):
         sys.argv = ["configurator_test",
@@ -76,18 +81,18 @@ class TestConfigurator(unittest.TestCase):
     def test1(self):
         configurator = self.setup(self.getRemoteArgs())
         self.assertTrue(configurator.isVerbose())
-        self.assertTrue(configurator.getParameter("EUPS_PATH") == "/tmp")
-        self.assertTrue(configurator.getParameter("USER_NAME") == "thx1138")
-        self.assertTrue(configurator.getParameter("USER_HOME") == "/home/thx1138")
+        self.assertEqual(configurator.getParameter("EUPS_PATH"), "/tmp")
+        self.assertEqual(configurator.getParameter("USER_NAME"), "thx1138")
+        self.assertEqual(configurator.getParameter("USER_HOME"), "/home/thx1138")
 
     def test2(self):
         configurator = self.setup(self.getLocalArgs())
-        self.assertTrue(configurator.isVerbose() == False)
-        self.assertTrue(configurator.getParameter("EUPS_PATH") == "/tmp2")
-        self.assertTrue(configurator.getParameter("USER_NAME") == "c3po")
-        self.assertTrue(configurator.getParameter("USER_HOME") == "/lsst/home/c3po")
-        self.assertTrue(configurator.getParameter("NODE_SET") == "test_set2")
-        self.assertTrue(configurator.getParameter("KAZOO") == None)
+        self.assertFalse(configurator.isVerbose())
+        self.assertEqual(configurator.getParameter("EUPS_PATH"), "/tmp2")
+        self.assertEqual(configurator.getParameter("USER_NAME"), "c3po")
+        self.assertEqual(configurator.getParameter("USER_HOME"), "/lsst/home/c3po")
+        self.assertEqual(configurator.getParameter("NODE_SET"), "test_set2")
+        self.assertIsNone(configurator.getParameter("KAZOO"))
 
     def test3(self):
         configurator = self.setup(self.getRemoteArgs())
@@ -115,8 +120,12 @@ class TestConfigurator(unittest.TestCase):
 
     def test7(self):
         configurator = self.setup(self.getRemoteArgs())
-        self.assertTrue(configurator.getSetupPackages() != None)
+        self.assertIsNotNone(configurator.getSetupPackages())
 
+
+class ConfiguratorMemoryTestCase(lsst.utils.tests.MemoryTestCase):
+    pass
 
 if __name__ == "__main__":
+    lsst.utils.tests.init()
     unittest.main()

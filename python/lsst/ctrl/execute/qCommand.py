@@ -21,11 +21,8 @@
 #
 
 import lsst.utils
-import sys
 import os
 import os.path
-import string
-import lsst.pex.config as pexConfig
 from lsst.ctrl.execute import envString
 from lsst.ctrl.execute.allocationConfig import AllocationConfig
 from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
@@ -37,8 +34,11 @@ class QCommand(object):
 
     def __init__(self, platform):
 
-        self.remoteLoginCmd = "/usr/bin/gsissh" # can handle both grid-proxy and ssh logins
-        self.remoteCopyCmd = "/usr/bin/gsiscp" # can handle both grid-proxy and ssh copies
+        # can handle both grid-proxy and ssh logins
+        self.remoteLoginCmd = "/usr/bin/gsissh"
+
+        # can handle both grid-proxy and ssh copies
+        self.remoteCopyCmd = "/usr/bin/gsiscp"
 
         configFileName = "$HOME/.lsst/condor-info.py"
         fileName = envString.resolve(configFileName)

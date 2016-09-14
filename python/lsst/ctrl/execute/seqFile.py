@@ -31,7 +31,7 @@ class SeqFile(object):
     """
 
     def __init__(self, seqFileName):
-        """Constructor 
+        """Constructor
         @param seqFileName file name to operate on
         """
         self.fileName = envString.resolve(seqFileName)
@@ -41,7 +41,7 @@ class SeqFile(object):
         @return a sequence number
         """
         seq = 0
-        if os.path.exists(self.fileName) == False:
+        if os.path.exists(self.fileName) is False:
             self.writeSeq(seq)
         else:
             seq = self.readSeq()

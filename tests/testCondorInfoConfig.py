@@ -23,9 +23,14 @@
 import unittest
 import os.path
 from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
+import lsst.utils.tests
 
 
-class TestCondorInfoConfig(unittest.TestCase):
+def setup_module(module):
+    lsst.utils.tests.init()
+
+
+class TestCondorInfoConfig(lsst.utils.tests.TestCase):
 
     def test1(self):
         path = os.path.join("tests", "testfiles", "config_condorInfo.py")
@@ -38,5 +43,10 @@ class TestCondorInfoConfig(unittest.TestCase):
         self.assertTrue(config.platform["test2"].user.name == "test2")
         self.assertTrue(config.platform["test2"].user.home == "/home/test2")
 
+
+class CondorInfoConfigMemoryTestCase(lsst.utils.tests.MemoryTestCase):
+    pass
+
 if __name__ == "__main__":
+    lsst.utils.tests.init()
     unittest.main()

@@ -25,7 +25,6 @@
 from __future__ import print_function
 import os
 import pwd
-import lsst.pex.config as pexConfig
 from datetime import datetime
 from string import Template
 from lsst.ctrl.execute import envString
@@ -106,7 +105,7 @@ class Allocator(object):
         return nodeSetName
 
     def createUniqueIdentifier(self):
-        """Creates a unique file identifier, based on the user's name 
+        """Creates a unique file identifier, based on the user's name
         and the time at which this method is invoked.
         @return the new identifier
         """
@@ -213,7 +212,7 @@ class Allocator(object):
 
     def createFile(self, input, output):
         """Creates a new file, using "input" as a Template, and writes the
-        new file to output. 
+        new file to output.
         @return the newly created file
         """
         resolvedInputName = envString.resolve(input)
@@ -293,7 +292,8 @@ class Allocator(object):
 
     def getParameter(self, value):
         """Accessor for generic value
-        @return None if value is not set.  Otherwise, use the command line override (if set), or the default Config value
+        @return None if value is not set.  Otherwise, use the command line ",
+        override (if set), or the default Config value
         """
         if value in self.commandLineDefaults:
             return self.commandLineDefaults[value]

@@ -26,14 +26,19 @@ import os
 import os.path
 import pwd
 from lsst.ctrl.execute.seqFile import SeqFile
+import lsst.utils.tests
 
 
-class TestSeqFile(unittest.TestCase):
+def setup_module(module):
+    lsst.utils.tests.init()
+
+
+class TestSeqFile(lsst.utils.tests.TestCase):
 
     def test1(self):
         username = pwd.getpwuid(os.geteuid()).pw_name
         filename = os.path.join("/tmp", username+"_"+str(os.getpid())+".seq")
-        if os.path.exists(filename) == True:
+        if os.path.exists(filename) is True:
             os.remove(filename)
         sf = SeqFile(filename)
         a = sf.nextSeq()
@@ -42,5 +47,10 @@ class TestSeqFile(unittest.TestCase):
         self.assertTrue(a == 1)
         os.remove(filename)
 
+
+class TestSeqFileMemoryTest(lsst.utils.tests.MemoryTestCase):
+    pass
+
 if __name__ == "__main__":
+    lsst.utils.tests.init()
     unittest.main()
