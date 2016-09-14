@@ -22,6 +22,7 @@
 #
 
 from __future__ import print_function
+from builtins import object
 from lsst.ctrl.execute import envString
 import os.path
 

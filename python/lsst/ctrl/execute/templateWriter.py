@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 #!/usr/bin/env python
 
 #
@@ -27,7 +29,7 @@
 #
 
 
-class TemplateWriter:
+class TemplateWriter(object):
     """Class to take a template file, substitute values through it, and
     write a new file with those values.
     """

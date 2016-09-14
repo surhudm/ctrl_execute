@@ -23,6 +23,7 @@
 
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import object
 import os
 import os.path
 import pwd
@@ -64,7 +65,7 @@ class Configurator(object):
         # user running this command and the value of $HOME, respectively.
         user_name = None
         user_home = None
-        for name in condorInfoConfig.platform.keys():
+        for name in list(condorInfoConfig.platform.keys()):
             if name == self.platform:
                 user_name = condorInfoConfig.platform[name].user.name
                 user_home = condorInfoConfig.platform[name].user.home

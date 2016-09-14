@@ -23,6 +23,8 @@
 #
 
 from __future__ import print_function
+from builtins import str
+from builtins import object
 import os
 import pwd
 from datetime import datetime
@@ -63,7 +65,7 @@ class Allocator(object):
         # command and the value of $HOME, respectively.
         user_name = None
         user_home = None
-        for name in condorInfoConfig.platform.keys():
+        for name in list(condorInfoConfig.platform.keys()):
             if name == self.platform:
                 user_name = condorInfoConfig.platform[name].user.name
                 user_home = condorInfoConfig.platform[name].user.home

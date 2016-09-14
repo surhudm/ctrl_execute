@@ -61,5 +61,5 @@ if __name__ == "__main__":
     filename = envString.resolve(filename)
     config.load(filename)
 
-    for i in config.platform.keys():
+    for i in list(config.platform.keys()):
         print(i)
