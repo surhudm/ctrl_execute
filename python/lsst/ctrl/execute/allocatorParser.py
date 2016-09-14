@@ -1,4 +1,3 @@
-from builtins import object
 #!/usr/bin/env python
 
 #
@@ -23,6 +22,7 @@ from builtins import object
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
+from builtins import object
 import argparse
 
 

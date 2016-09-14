@@ -1,4 +1,3 @@
-from builtins import str
 #!/usr/bin/env python
 #
 # LSST Data Management System
@@ -22,6 +21,7 @@ from builtins import str
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
+from builtins import str
 import unittest
 import os
 import os.path

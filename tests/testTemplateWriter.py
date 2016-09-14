@@ -1,4 +1,3 @@
-from builtins import str
 #!/usr/bin/env python
 #
 # LSST Data Management System
@@ -21,6 +20,8 @@ from builtins import str
 # the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
+
+from builtins import str
 import unittest
 import os
 import os.path
