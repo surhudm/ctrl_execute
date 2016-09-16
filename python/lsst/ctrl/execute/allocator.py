@@ -41,6 +41,15 @@ class Allocator(object):
     """A class which consolidates allocation pex_config information with override
     information (obtained from the command line) and produces a PBS file using
     these values.
+
+    Parameters
+    ----------
+    platform : `str`
+        the name of the platform to execute on
+    opts : `Config`
+        Config object containing options
+    configFileName : `str`
+        Name of the file containing Config information
     """
 
     def __init__(self, platform, opts, configFileName):
@@ -99,7 +108,11 @@ class Allocator(object):
     def createNodeSetName(self):
         """Creates the next "node_set" name, using the remote user name and
         a stored sequence number.
-        @return the new node_set name
+
+        Returns
+        -------
+        nodeSetName : `str`
+            the new node_set name
         """
         s = SeqFile("$HOME/.lsst/node-set.seq")
         n = s.nextSeq()
@@ -109,7 +122,11 @@ class Allocator(object):
     def createUniqueIdentifier(self):
         """Creates a unique file identifier, based on the user's name
         and the time at which this method is invoked.
-        @return the new identifier
+
+        Returns
+        -------
+        ident : `str`
+            the new identifier
         """
         # This naming scheme follows the conventions used for creating
         # RUNID names.  We've found this allows these files to be more
@@ -118,14 +135,13 @@ class Allocator(object):
         # and does not guarantee a file name can that easily be identified.
         now = datetime.now()
         username = pwd.getpwuid(os.geteuid()).pw_name
-        fileName = "%s_%02d_%02d%02d_%02d%02d%02d" % (
+        ident = "%s_%02d_%02d%02d_%02d%02d%02d" % (
             username, now.year, now.month, now.day, now.hour, now.minute, now.second)
-        return fileName
+        return ident
 
     def load(self, name):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
-        @return True on success, False if the platform to allocate can not be found.
         """
         resolvedName = envString.resolve(name)
         configuration = CondorConfig()
@@ -135,7 +151,6 @@ class Allocator(object):
     def loadPbs(self, name):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
-        @return True on success, False if the platform to allocate can not be found.
         """
         resolvedName = envString.resolve(name)
         configuration = AllocationConfig()
@@ -196,7 +211,11 @@ class Allocator(object):
 
     def createPbsFile(self, input):
         """Creates a PBS file using the file "input" as a Template
-        @return the newly created file
+
+        Returns
+        -------
+        outfile : `str`
+            The newly created file name
         """
         outfile = self.createFile(input, self.pbsFileName)
         if self.opts.verbose:
@@ -205,7 +224,11 @@ class Allocator(object):
 
     def createCondorConfigFile(self, input):
         """Creates a Condor config file using the file "input" as a Template
-        @return the newly created file
+
+        Returns
+        -------
+        outfile : `str`
+            The newly created file name
         """
         outfile = self.createFile(input, self.condorConfigFileName)
         if self.opts.verbose:
@@ -215,7 +238,11 @@ class Allocator(object):
     def createFile(self, input, output):
         """Creates a new file, using "input" as a Template, and writes the
         new file to output.
-        @return the newly created file
+
+        Returns
+        -------
+        outfile : `str`
+            The newly created file name
         """
         resolvedInputName = envString.resolve(input)
         if self.opts.verbose:

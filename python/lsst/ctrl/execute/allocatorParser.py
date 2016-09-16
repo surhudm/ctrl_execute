@@ -28,6 +28,11 @@ import argparse
 
 class AllocatorParser(object):
     """An argument parser for node allocation requests.
+
+    Parameters
+    ----------
+    basename : `str`
+        The name used to identify the running program
     """
 
     def __init__(self, basename):
@@ -44,8 +49,15 @@ class AllocatorParser(object):
 
     def parseArgs(self, basename):
         """Parse command line, and test for required arguments
-        @param argv: list containing the command line arguments
-        @return: the parser options and remaining arguments
+
+        Parameters
+        ----------
+        argv: `list` 
+            list of strings containing the command line arguments
+
+        Returns
+        -------
+        The parser options and remaining arguments
         """
 
         parser = argparse.ArgumentParser(prog=basename)
@@ -78,13 +90,21 @@ class AllocatorParser(object):
     def getArgs(self):
         """Accessor method to get arguments left after standard parsed options
         are initialized.
-        @return args: remaining command line arguments
+
+        Returns
+        -------
+        args: `list`
+            remaining command line arguments
         """
         return self.args
 
     def getPlatform(self):
         """Accessor method to retrieve the "platform" that was specified on
         the command line.
-        @return platform: the name of the "platform"
+
+        Returns
+        -------
+        platform: `str`
+            the name of the "platform"
         """
         return self.args.platform
