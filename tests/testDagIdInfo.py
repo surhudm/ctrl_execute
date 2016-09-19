@@ -24,7 +24,6 @@
 import os
 import sys
 import unittest
-from builtins import bytes
 from subprocess import Popen, PIPE
 import lsst.utils.tests
 
@@ -38,6 +37,7 @@ class TestDagIdInfo(lsst.utils.tests.TestCase):
     def executeCommand(self, cmd):
         p = Popen(cmd.split(), stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
+        stdout = stdout.decode()
         return stdout
 
     def test1(self):
@@ -46,21 +46,17 @@ class TestDagIdInfo(lsst.utils.tests.TestCase):
         filename = os.path.join("tests", "testfiles", "test.diamond.dag")
 
         stdout = self.executeCommand("%s %s A1 %s" % (exe, execPath, filename))
-        stdout = bytes(stdout)
-        self.assertEqual(stdout, b'run=1033 filter=r camcol=2 field=229\n')
+        self.assertEqual(stdout, 'run=1033 filter=r camcol=2 field=229\n')
 
         stdout = self.executeCommand("%s %s A3 %s" % (exe, execPath, filename))
-        stdout = bytes(stdout)
-        self.assertEqual(stdout, b'run=1033 filter=i camcol=2 field=47\n')
+        self.assertEqual(stdout, 'run=1033 filter=i camcol=2 field=47\n')
 
         stdout = self.executeCommand("%s %s A17 %s" % (exe, execPath, filename))
-        stdout = bytes(stdout)
-        val = b'run=1033 filter=r camcol=2 field=229 run=1033 filter=i camcol=2 field=47\n'
+        val = 'run=1033 filter=r camcol=2 field=229 run=1033 filter=i camcol=2 field=47\n'
         self.assertEqual(stdout, val)
 
         stdout = self.executeCommand("%s %s B1 %s" % (exe, execPath, filename))
-        stdout = bytes(stdout)
-        self.assertEqual(stdout, b'')
+        self.assertEqual(stdout, '')
 
 
 class TestDagInfoMemoryTest(lsst.utils.tests.MemoryTestCase):

@@ -74,7 +74,7 @@ class Allocator(object):
         # command and the value of $HOME, respectively.
         user_name = None
         user_home = None
-        for name in list(condorInfoConfig.platform.keys()):
+        for name in condorInfoConfig.platform:
             if name == self.platform:
                 user_name = condorInfoConfig.platform[name].user.name
                 user_home = condorInfoConfig.platform[name].user.home
@@ -193,8 +193,8 @@ class Allocator(object):
         # This is the TOTAL number of cores in the job, not just the total
         # of the cores you intend to use.   In other words, the total available
         # on a machine, times the number of machines.
-        self.commandLineDefaults["TOTAL_CORE_COUNT"] = int(
-            self.opts.nodeCount) * configuration.platform.totalCoresPerNode
+        totalCoresPerNode = configuration.platform.totalCoresPerNode
+        self.commandLineDefaults["TOTAL_CORE_COUNT"] = self.opts.nodeCount * totalCoresPerNode
 
         uniqueIdentifier = self.createUniqueIdentifier()
 
@@ -321,7 +321,7 @@ class Allocator(object):
 
     def getParameter(self, value):
         """Accessor for generic value
-        @return None if value is not set.  Otherwise, use the command line ",
+        @return None if value is not set.  Otherwise, use the command line
         override (if set), or the default Config value
         """
         if value in self.commandLineDefaults:

@@ -52,7 +52,7 @@ class AllocatorParser(object):
 
         Parameters
         ----------
-        argv: `list` 
+        argv: `list`
             list of strings containing the command line arguments
 
         Returns

@@ -42,7 +42,7 @@ class SeqFile(object):
         @return a sequence number
         """
         seq = 0
-        if os.path.exists(self.fileName) is False:
+        if not os.path.exists(self.fileName):
             self.writeSeq(seq)
         else:
             seq = self.readSeq()

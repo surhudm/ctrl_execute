@@ -21,12 +21,10 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from builtins import str
 import unittest
 import os
 import os.path
 import filecmp
-import pwd
 from lsst.ctrl.execute.templateWriter import TemplateWriter
 import lsst.utils.tests
 
@@ -43,12 +41,10 @@ class TestTemplateWriter(lsst.utils.tests.TestCase):
         pairs["TEST2"] = "Goodbye"
         infile = os.path.join("tests", "testfiles", "templateWriter.template")
         compare = os.path.join("tests", "testfiles", "templateWriter.txt")
-        username = pwd.getpwuid(os.geteuid()).pw_name
-        outfile = os.path.join("/tmp", username+"_"+str(os.getpid())+"_template.txt")
-        temp = TemplateWriter()
-        temp.rewrite(infile, outfile, pairs)
-        self.assertTrue(filecmp.cmp(compare, outfile))
-        os.remove(outfile)
+        with lsst.utils.tests.getTempFilePath("_template.txt") as outfile:
+            temp = TemplateWriter()
+            temp.rewrite(infile, outfile, pairs)
+            self.assertTrue(filecmp.cmp(compare, outfile))
 
 
 class TestTemplateWriterTestCase(lsst.utils.tests.MemoryTestCase):

@@ -29,10 +29,7 @@ import argparse
 
 import sys
 
-try:
-    from shlex import split as cmd_split
-except ImportError:
-    from pipes import split as cmd_split
+from shlex import split as cmd_split
 
 
 def _line_to_args(self, line):
@@ -154,7 +151,7 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
         # extended input like :  visit=887136081 raft=2,2 sensor=0,1
         # If there is no space, the dataid is something simple like a skytile id
         newData = myData
-        visit = str(int(count / 100))
+        visit = str(count // 100)
 
         myDataList.append(myData)
         newDataList.append(newData)

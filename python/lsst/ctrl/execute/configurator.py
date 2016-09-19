@@ -186,7 +186,7 @@ class Configurator(object):
             if self.platform == "lsst":
                 a = a + "setup -j %s %s\\n\\\n" % (name, version)
             else:
-                if version.startswith("LOCAL:") is False:
+                if not version.startswith("LOCAL:"):
                     a = a + "setup -j %s %s\\n\\\n" % (name, version)
         return a
 
@@ -222,7 +222,7 @@ class Configurator(object):
         @return the newly created Orca configuration file
         """
         resolvedInputName = envString.resolve(input)
-        if self.opts.verbose is True:
+        if self.opts.verbose:
             print("creating configuration using ", resolvedInputName)
         template = TemplateWriter()
         substitutes = self.defaults.copy()
@@ -234,10 +234,10 @@ class Configurator(object):
         substitutes["CTRL_EXECUTE_SETUP_PACKAGES"] = self.getSetupPackages()
 
         configDir = os.path.join(substitutes["LOCAL_SCRATCH"], "configs")
-        if os.path.exists(configDir) is False:
+        if not os.path.exists(configDir):
             os.mkdir(configDir)
         self.outputFileName = os.path.join(configDir, "%s.config" % (self.runid))
-        if self.opts.verbose is True:
+        if self.opts.verbose:
             print("writing new configuration to ", self.outputFileName)
         template.rewrite(resolvedInputName, self.outputFileName, substitutes)
         return self.outputFileName

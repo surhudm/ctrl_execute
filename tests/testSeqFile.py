@@ -21,11 +21,7 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from builtins import str
 import unittest
-import os
-import os.path
-import pwd
 from lsst.ctrl.execute.seqFile import SeqFile
 import lsst.utils.tests
 
@@ -37,16 +33,12 @@ def setup_module(module):
 class TestSeqFile(lsst.utils.tests.TestCase):
 
     def test1(self):
-        username = pwd.getpwuid(os.geteuid()).pw_name
-        filename = os.path.join("/tmp", username+"_"+str(os.getpid())+".seq")
-        if os.path.exists(filename) is True:
-            os.remove(filename)
-        sf = SeqFile(filename)
-        a = sf.nextSeq()
-        self.assertTrue(a == 0)
-        a = sf.nextSeq()
-        self.assertTrue(a == 1)
-        os.remove(filename)
+        with lsst.utils.tests.getTempFilePath(".seq") as filename:
+            sf = SeqFile(filename)
+            a = sf.nextSeq()
+            self.assertTrue(a == 0)
+            a = sf.nextSeq()
+            self.assertTrue(a == 1)
 
 
 class TestSeqFileMemoryTest(lsst.utils.tests.MemoryTestCase):

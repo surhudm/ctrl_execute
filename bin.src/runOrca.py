@@ -56,7 +56,7 @@ def main():
         sys.stdin.close()
         sys.stdout.close()
         sys.stderr.close()
-        if creator.isVerbose is False:
+        if not creator.isVerbose:
             os.close(0)
             os.close(1)
             os.close(2)
