@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# 
+#
 # LSST Data Management System
 # Copyright 2008-2012 LSST Corporation.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -10,34 +10,41 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import os, os.path, pwd
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import object
+import os
+import os.path
+import pwd
 import sys
-import lsst.pex.config as pexConfig
+
 import lsst.utils
 import eups
 from datetime import datetime
 from string import Template
-from templateWriter import TemplateWriter
-from condorConfig import CondorConfig
-from condorInfoConfig import CondorInfoConfig
+from .templateWriter import TemplateWriter
+from .condorConfig import CondorConfig
+from .condorInfoConfig import CondorInfoConfig
 from lsst.ctrl.execute import envString
+
 
 class Configurator(object):
     """A class which consolidates Condor pex_config information with override
     information (obtained from the command line) and produces Condor files
     using these values.
     """
+
     def __init__(self, opts, configFileName):
         """Constructor
         @param opts: options to override
@@ -46,7 +53,6 @@ class Configurator(object):
 
         self.defaults = {}
 
-        #configFileName = "$HOME/.lsst/condor-info.py"
         fileName = envString.resolve(configFileName)
 
         condorInfoConfig = CondorInfoConfig()
@@ -54,13 +60,12 @@ class Configurator(object):
 
         self.platform = self.opts.platform
 
-
         # Look up the user's name and home directory in the $HOME//.lsst/condor-info.py file
         # If the platform is lsst, and the user_name or user_home is not in there, then default to
         # user running this command and the value of $HOME, respectively.
         user_name = None
         user_home = None
-        for name in condorInfoConfig.platform.keys():
+        for name in list(condorInfoConfig.platform.keys()):
             if name == self.platform:
                 user_name = condorInfoConfig.platform[name].user.name
                 user_home = condorInfoConfig.platform[name].user.home
@@ -76,19 +81,17 @@ class Configurator(object):
                 user_home = os.getenv('HOME')
 
         if user_name is None:
-            raise RuntimeError("error: %s does not specify user name for platform %s" % 
-                                (configFileName, self.platform))
+            raise RuntimeError("error: %s does not specify user name for platform %s" %
+                               (configFileName, self.platform))
         if user_home is None:
-            raise RuntimeError("error: %s does not specify user home for platform %s" % 
-                                (configFileName, self.platform))
-        
-            
+            raise RuntimeError("error: %s does not specify user home for platform %s" %
+                               (configFileName, self.platform))
 
         self.commandLineDefaults = {}
         self.commandLineDefaults["USER_NAME"] = user_name
         self.commandLineDefaults["USER_HOME"] = user_home
-        
-        self.commandLineDefaults["DEFAULT_ROOT"]  = self.opts.defaultRoot
+
+        self.commandLineDefaults["DEFAULT_ROOT"] = self.opts.defaultRoot
         self.commandLineDefaults["LOCAL_SCRATCH"] = self.opts.localScratch
         self.commandLineDefaults["DATA_DIRECTORY"] = self.opts.dataDirectory
         self.commandLineDefaults["IDS_PER_JOB"] = self.opts.idsPerJob
@@ -106,7 +109,7 @@ class Configurator(object):
         # override user name, if given
         if self.opts.user_name is not None:
             self.commandLineDefaults["USER_NAME"] = self.opts.user_name
-        
+
         # override user home, if given
         if self.opts.user_home is not None:
             self.commandLineDefaults["USER_HOME"] = self.opts.user_home
@@ -115,12 +118,11 @@ class Configurator(object):
             self.runid = self.opts.runid
         else:
             self.runid = self.createRunId()
-        
+
         self.commandLineDefaults["COMMAND"] = self.opts.command
         if self.commandLineDefaults["INPUT_DATA_FILE"] is not None:
             self.commandLineDefaults["COMMAND"] = self.commandLineDefaults["COMMAND"]+" ${id_option}"
 
-        
     def getGenericConfigFileName(self):
         """Retrieve a ctrl_execute orca config template, depending
         on which target environment jobs will be running on.
@@ -132,12 +134,12 @@ class Configurator(object):
         # the LSST platform, use the template that allows usage of the
         # Condor "getenv" method of environment setup.  Otherwise use
         # template that uses LSST "setup" commands for each package.
-        if (self.opts.setup == None) and (self.platform == "lsst"):
-            genericConfigName = os.path.join(executePkgDir, 
-                            "etc", "templates", "config_with_getenv.py.template")
+        if (self.opts.setup is None) and (self.platform == "lsst"):
+            genericConfigName = os.path.join(executePkgDir,
+                                             "etc", "templates", "config_with_getenv.py.template")
         else:
-            genericConfigName = os.path.join(executePkgDir, 
-                            "etc", "templates", "config_with_setups.py.template")
+            genericConfigName = os.path.join(executePkgDir,
+                                             "etc", "templates", "config_with_setups.py.template")
         return genericConfigName
 
     def createRunId(self):
@@ -147,8 +149,8 @@ class Configurator(object):
         # runid is in the form of <login>_YYYY_MMDD_HHMMSS
         now = datetime.now()
         username = pwd.getpwuid(os.geteuid()).pw_name
-        runid = "%s_%02d_%02d%02d_%02d%02d%02d" % (username, now.year, now.month, 
-                                now.day, now.hour, now.minute, now.second)
+        runid = "%s_%02d_%02d%02d_%02d%02d%02d" % (username, now.year, now.month,
+                                                   now.day, now.hour, now.minute, now.second)
         self.runid = runid
         return runid
 
@@ -175,7 +177,7 @@ class Configurator(object):
             for i, pkg in enumerate(self.opts.setup):
                 name = pkg[0]
                 version = pkg[1]
-                print "name = %s, version = %s" % (name, version)
+                print("name = %s, version = %s" % (name, version))
                 allProducts[name] = version
 
         # write out all products, except those that are setup locally.
@@ -184,7 +186,7 @@ class Configurator(object):
             if self.platform == "lsst":
                 a = a + "setup -j %s %s\\n\\\n" % (name, version)
             else:
-                if version.startswith("LOCAL:") == False:
+                if not version.startswith("LOCAL:"):
                     a = a + "setup -j %s %s\\n\\\n" % (name, version)
         return a
 
@@ -197,14 +199,14 @@ class Configurator(object):
         configuration.load(resolvedName)
         self.defaults = {}
 
-        if configuration.platform.nodeSetRequired and self.opts.nodeSet is None :
-                print "error: nodeset parameter required by this platform"
-                sys.exit(10)
-        
+        if configuration.platform.nodeSetRequired and self.opts.nodeSet is None:
+            print("error: nodeset parameter required by this platform")
+            sys.exit(10)
+
         tempDefaultRoot = Template(configuration.platform.defaultRoot)
         self.defaults["DEFAULT_ROOT"] = tempDefaultRoot.substitute(
-                            USER_NAME=self.commandLineDefaults["USER_NAME"])
-        
+            USER_NAME=self.commandLineDefaults["USER_NAME"])
+
         self.defaults["LOCAL_SCRATCH"] = envString.resolve(configuration.platform.localScratch)
         self.defaults["IDS_PER_JOB"] = configuration.platform.idsPerJob
         self.defaults["DATA_DIRECTORY"] = envString.resolve(configuration.platform.dataDirectory)
@@ -220,8 +222,8 @@ class Configurator(object):
         @return the newly created Orca configuration file
         """
         resolvedInputName = envString.resolve(input)
-        if self.opts.verbose == True:
-            print "creating configuration using ",resolvedInputName
+        if self.opts.verbose:
+            print("creating configuration using ", resolvedInputName)
         template = TemplateWriter()
         substitutes = self.defaults.copy()
         for key in self.commandLineDefaults:
@@ -230,13 +232,13 @@ class Configurator(object):
                 substitutes[key] = self.commandLineDefaults[key]
 
         substitutes["CTRL_EXECUTE_SETUP_PACKAGES"] = self.getSetupPackages()
-        
+
         configDir = os.path.join(substitutes["LOCAL_SCRATCH"], "configs")
-        if os.path.exists(configDir) == False:
+        if not os.path.exists(configDir):
             os.mkdir(configDir)
-        self.outputFileName = os.path.join(configDir, "%s_config.py" % (self.runid))
-        if self.opts.verbose == True:
-            print "writing new configuration to ",self.outputFileName
+        self.outputFileName = os.path.join(configDir, "%s.config" % (self.runid))
+        if self.opts.verbose:
+            print("writing new configuration to ", self.outputFileName)
         template.rewrite(resolvedInputName, self.outputFileName, substitutes)
         return self.outputFileName
 
@@ -246,9 +248,9 @@ class Configurator(object):
         """
         return self.opts.verbose
 
-    def getParameter(self,value):
+    def getParameter(self, value):
         """Accessor for generic value
-        @return None if value is not set.  Otherwise, use the comand line override 
+        @return None if value is not set.  Otherwise, use the comand line override
         (if set), or the default Config value
         """
         if value in self.commandLineDefaults:

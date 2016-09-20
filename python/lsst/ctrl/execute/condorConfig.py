@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-# 
+#
 # LSST Data Management System
 # Copyright 2008-2012 LSST Corporation.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -11,29 +11,32 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
 import lsst.pex.config as pexConfig
 
+
 class PlatformConfig(pexConfig.Config):
     """Platform specific information
     """
-    defaultRoot = pexConfig.Field(doc="remote root for working directories",dtype=str, default=None) 
-    localScratch = pexConfig.Field(doc="local Condor scratch directory",dtype=str, default=None) 
-    idsPerJob = pexConfig.Field(doc="number of ids to work on per job",dtype=int, default=1)
-    dataDirectory = pexConfig.Field(doc="remote directory where date that jobs will use is kept", dtype=str, default=None)
+    defaultRoot = pexConfig.Field(doc="remote root for working directories", dtype=str, default=None)
+    localScratch = pexConfig.Field(doc="local Condor scratch directory", dtype=str, default=None)
+    idsPerJob = pexConfig.Field(doc="number of ids to work on per job", dtype=int, default=1)
+    dataDirectory = pexConfig.Field(
+        doc="remote directory where date that jobs will use is kept", dtype=str, default=None)
     fileSystemDomain = pexConfig.Field(doc="network domain name of remote system", dtype=str, default=None)
     eupsPath = pexConfig.Field(doc="location of remote EUPS stack", dtype=str, default=None)
     nodeSetRequired = pexConfig.Field(doc="is the nodeset required", dtype=bool, default=False)
+
 
 class CondorConfig(pexConfig.Config):
     """A pex_config file describing the platform specific information required
@@ -41,9 +44,11 @@ class CondorConfig(pexConfig.Config):
     """
     platform = pexConfig.ConfigField("platform configuration", PlatformConfig)
 
-class FakeTypeMap(dict):
-   def __init__(self, configClass):
-       self.configClass = configClass
 
-   def __getitem__(self, k):
-       return self.setdefault(k, self.configClass)
+class FakeTypeMap(dict):
+
+    def __init__(self, configClass):
+        self.configClass = configClass
+
+    def __getitem__(self, k):
+        return self.setdefault(k, self.configClass)

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-# 
+#
 # LSST Data Management System
 # Copyright 2008-2012 LSST Corporation.
-# 
+#
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
 #
@@ -11,19 +11,22 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
-# You should have received a copy of the LSST License Statement and 
-# the GNU General Public License along with this program.  If not, 
+#
+# You should have received a copy of the LSST License Statement and
+# the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-import os, pwd
-import lsst.pex.config as pexConfig
+from __future__ import print_function
+from builtins import str
+from builtins import object
+import os
+import pwd
 from datetime import datetime
 from string import Template
 from lsst.ctrl.execute import envString
@@ -33,11 +36,22 @@ from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
 from lsst.ctrl.execute.templateWriter import TemplateWriter
 from lsst.ctrl.execute.seqFile import SeqFile
 
+
 class Allocator(object):
     """A class which consolidates allocation pex_config information with override
     information (obtained from the command line) and produces a PBS file using
     these values.
+
+    Parameters
+    ----------
+    platform : `str`
+        the name of the platform to execute on
+    opts : `Config`
+        Config object containing options
+    configFileName : `str`
+        Name of the file containing Config information
     """
+
     def __init__(self, platform, opts, configFileName):
         """Constructor
         @param platform: target platform for PBS submission
@@ -53,15 +67,14 @@ class Allocator(object):
 
         self.platform = platform
 
-
-        # Look up the user's name and home directory in the 
+        # Look up the user's name and home directory in the
         # $HOME/.lsst/condor-info.py file
-        # If the platform is lsst, and the user_name or user_home 
-        # is not in there, then default to user running this 
+        # If the platform is lsst, and the user_name or user_home
+        # is not in there, then default to user running this
         # command and the value of $HOME, respectively.
         user_name = None
         user_home = None
-        for name in condorInfoConfig.platform.keys():
+        for name in condorInfoConfig.platform:
             if name == self.platform:
                 user_name = condorInfoConfig.platform[name].user.name
                 user_home = condorInfoConfig.platform[name].user.home
@@ -73,9 +86,11 @@ class Allocator(object):
                 user_home = os.getenv('HOME')
 
         if user_name is None:
-            raise RuntimeError("error: %s does not specify user name for platform %s" % (configFileName, self.platform))
+            raise RuntimeError("error: %s does not specify user name for platform %s" %
+                               (configFileName, self.platform))
         if user_home is None:
-            raise RuntimeError("error: %s does not specify user home for platform %s" % (configFileName, self.platform))
+            raise RuntimeError("error: %s does not specify user home for platform %s" %
+                               (configFileName, self.platform))
 
         self.defaults["USER_NAME"] = user_name
         self.defaults["USER_HOME"] = user_home
@@ -93,32 +108,40 @@ class Allocator(object):
     def createNodeSetName(self):
         """Creates the next "node_set" name, using the remote user name and
         a stored sequence number.
-        @return the new node_set name
+
+        Returns
+        -------
+        nodeSetName : `str`
+            the new node_set name
         """
         s = SeqFile("$HOME/.lsst/node-set.seq")
         n = s.nextSeq()
         nodeSetName = "%s_%d" % (self.defaults["USER_NAME"], n)
         return nodeSetName
-        
+
     def createUniqueIdentifier(self):
-        """Creates a unique file identifier, based on the user's name 
+        """Creates a unique file identifier, based on the user's name
         and the time at which this method is invoked.
-        @return the new identifier
+
+        Returns
+        -------
+        ident : `str`
+            the new identifier
         """
-        # This naming scheme follows the conventions used for creating 
+        # This naming scheme follows the conventions used for creating
         # RUNID names.  We've found this allows these files to be more
         # easily located and shared with other users when debugging
         # The tempfile.mkstemp method restricts the file to only the user,
         # and does not guarantee a file name can that easily be identified.
         now = datetime.now()
         username = pwd.getpwuid(os.geteuid()).pw_name
-        fileName = "%s_%02d_%02d%02d_%02d%02d%02d" % (username, now.year, now.month, now.day, now.hour, now.minute, now.second)
-        return fileName
+        ident = "%s_%02d_%02d%02d_%02d%02d%02d" % (
+            username, now.year, now.month, now.day, now.hour, now.minute, now.second)
+        return ident
 
     def load(self, name):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
-        @return True on success, False if the platform to allocate can not be found.
         """
         resolvedName = envString.resolve(name)
         configuration = CondorConfig()
@@ -128,7 +151,6 @@ class Allocator(object):
     def loadPbs(self, name):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
-        @return True on success, False if the platform to allocate can not be found.
         """
         resolvedName = envString.resolve(name)
         configuration = AllocationConfig()
@@ -171,7 +193,8 @@ class Allocator(object):
         # This is the TOTAL number of cores in the job, not just the total
         # of the cores you intend to use.   In other words, the total available
         # on a machine, times the number of machines.
-        self.commandLineDefaults["TOTAL_CORE_COUNT"] = int(self.opts.nodeCount) * configuration.platform.totalCoresPerNode
+        totalCoresPerNode = configuration.platform.totalCoresPerNode
+        self.commandLineDefaults["TOTAL_CORE_COUNT"] = self.opts.nodeCount * totalCoresPerNode
 
         uniqueIdentifier = self.createUniqueIdentifier()
 
@@ -188,33 +211,45 @@ class Allocator(object):
 
     def createPbsFile(self, input):
         """Creates a PBS file using the file "input" as a Template
-        @return the newly created file
+
+        Returns
+        -------
+        outfile : `str`
+            The newly created file name
         """
         outfile = self.createFile(input, self.pbsFileName)
         if self.opts.verbose:
-            print "wrote new PBS file to %s" %  outfile
+            print("wrote new PBS file to %s" % outfile)
         return outfile
 
     def createCondorConfigFile(self, input):
         """Creates a Condor config file using the file "input" as a Template
-        @return the newly created file
+
+        Returns
+        -------
+        outfile : `str`
+            The newly created file name
         """
         outfile = self.createFile(input, self.condorConfigFileName)
         if self.opts.verbose:
-            print "wrote new condor_config file to %s" %  outfile
+            print("wrote new condor_config file to %s" % outfile)
         return outfile
 
     def createFile(self, input, output):
         """Creates a new file, using "input" as a Template, and writes the
-        new file to output. 
-        @return the newly created file
+        new file to output.
+
+        Returns
+        -------
+        outfile : `str`
+            The newly created file name
         """
         resolvedInputName = envString.resolve(input)
         if self.opts.verbose:
-            print "creating file using %s" % resolvedInputName
+            print("creating file using %s" % resolvedInputName)
         template = TemplateWriter()
         # Uses the associative arrays of "defaults" and "commandLineDefaults"
-        # to write out the new file from the template.  
+        # to write out the new file from the template.
         # The commandLineDefaults override values in "defaults"
         substitutes = self.defaults.copy()
         for key in self.commandLineDefaults:
@@ -223,7 +258,6 @@ class Allocator(object):
                 substitutes[key] = self.commandLineDefaults[key]
         template.rewrite(resolvedInputName, output, substitutes)
         return output
-
 
     def isVerbose(self):
         """Status of the verbose flag
@@ -285,10 +319,10 @@ class Allocator(object):
         """
         return self.getParameter("WALL_CLOCK")
 
-
-    def getParameter(self,value):
+    def getParameter(self, value):
         """Accessor for generic value
-        @return None if value is not set.  Otherwise, use the command line override (if set), or the default Config value
+        @return None if value is not set.  Otherwise, use the command line
+        override (if set), or the default Config value
         """
         if value in self.commandLineDefaults:
             return self.commandLineDefaults[value]
