@@ -3,7 +3,7 @@ config.production.eventBrokerHost = "lsst8.ncsa.uiuc.edu"
 config.production.productionShutdownTopic = "productionShutdown2"
 
 config.database["db1"].name = "dc3bGlobal"
-config.database["db1"].system.authInfo.host = "lsst10.ncsa.illinois.edu"
+config.database["db1"].system.authInfo.host = "lsst-db.ncsa.illinois.edu"
 config.database["db1"].system.authInfo.port = 3306
 config.database["db1"].system.runCleanup.daysFirstNotice = 7
 config.database["db1"].system.runCleanup.daysFinalNotice = 1
