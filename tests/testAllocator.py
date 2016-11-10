@@ -110,7 +110,7 @@ class TestAllocator(lsst.utils.tests.TestCase):
         al.loadPbs(fileName)
         pbsName = os.path.join("tests", "testfiles", "generic.pbs.template")
         compare = os.path.join("tests", "testfiles", "generic.pbs.txt")
-        generatedPbsFile = al.createPbsFile(pbsName)
+        generatedPbsFile = al.createSubmitFile(pbsName)
 
         self.assertTrue(filecmp.cmp(compare, generatedPbsFile))
         condorFile = os.path.join("tests", "testfiles", "glidein_condor_config.template")

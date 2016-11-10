@@ -147,6 +147,7 @@ class Allocator(object):
         configuration = CondorConfig()
         configuration.load(resolvedName)
         self.defaults["LOCAL_SCRATCH"] = envString.resolve(configuration.platform.localScratch)
+        self.defaults["SCHEDULER"] = configuration.platform.scheduler
 
     def loadPbs(self, name):
         """Loads all values from configuration and command line overrides into
@@ -162,6 +163,7 @@ class Allocator(object):
         self.defaults["EMAIL_NOTIFICATION"] = configuration.platform.email
         self.defaults["HOST_NAME"] = configuration.platform.loginHostName
 
+        print("sd = %s" % configuration.platform.scratchDirectory)
         template = Template(configuration.platform.scratchDirectory)
         scratchDir = template.substitute(USER_HOME=self.getUserHome())
         self.defaults["SCRATCH_DIR"] = scratchDir
@@ -203,13 +205,78 @@ class Allocator(object):
         if not os.path.exists(configDir):
             os.makedirs(configDir)
 
-        self.pbsFileName = os.path.join(configDir, "alloc_%s.pbs" % uniqueIdentifier)
+        self.submitFileName = os.path.join(configDir, "alloc_%s.pbs" % uniqueIdentifier)
 
         self.condorConfigFileName = os.path.join(configDir, "condor_%s.config" % uniqueIdentifier)
 
         self.defaults["GENERATED_CONFIG"] = os.path.basename(self.condorConfigFileName)
+        self.defaults["CONFIGURATION_ID"] = uniqueIdentifier
 
-    def createPbsFile(self, input):
+    def loadSlurm(self, name):
+        """Loads all values from configuration and command line overrides into
+        data structures suitable for use by the TemplateWriter object.
+        """
+        resolvedName = envString.resolve(name)
+        configuration = AllocationConfig()
+        if not os.path.exists(resolvedName):
+            raise RuntimeError("%s was not found." % resolvedName)
+        configuration.load(resolvedName)
+
+        self.defaults["QUEUE"] = configuration.platform.queue
+        self.defaults["HOST_NAME"] = configuration.platform.loginHostName
+
+        template = Template(configuration.platform.scratchDirectory)
+        scratchDir = template.substitute(USER_NAME=self.getUserName())
+        self.defaults["SCRATCH_DIR"] = scratchDir
+
+        self.defaults["UTILITY_PATH"] = configuration.platform.utilityPath
+
+        if self.opts.glideinShutdown is None:
+            self.defaults["GLIDEIN_SHUTDOWN"] = str(configuration.platform.glideinShutdown)
+        else:
+            self.defaults["GLIDEIN_SHUTDOWN"] = str(self.opts.glideinShutdown)
+
+        if self.opts.nodeSet is None:
+            self.defaults["NODE_SET"] = self.createNodeSetName()
+        else:
+            self.defaults["NODE_SET"] = self.opts.nodeSet
+
+        nodeSetName = self.defaults["NODE_SET"]
+
+        if self.opts.outputLog is not None:
+            self.defaults["OUTPUT_LOG"] = self.opts.outputLog
+        else:
+            self.defaults["OUTPUT_LOG"] = "%s.out" % nodeSetName
+
+        if self.opts.errorLog is not None:
+            self.defaults["ERROR_LOG"] = self.opts.errorLog
+        else:
+            self.defaults["ERROR_LOG"] = "%s.err" % nodeSetName
+
+        # This is the TOTAL number of cores in the job, not just the total
+        # of the cores you intend to use.   In other words, the total available
+        # on a machine, times the number of machines.
+        totalCoresPerNode = configuration.platform.totalCoresPerNode
+        self.commandLineDefaults["TOTAL_CORE_COUNT"] = self.opts.nodeCount * totalCoresPerNode
+
+        uniqueIdentifier = self.createUniqueIdentifier()
+
+        # write these pbs and config files to {LOCAL_DIR}/configs
+        configDir = os.path.join(self.defaults["LOCAL_SCRATCH"], "configs")
+        if not os.path.exists(configDir):
+            os.makedirs(configDir)
+
+        self.submitFileName = os.path.join(configDir, "alloc_%s.sl" % uniqueIdentifier)
+
+        self.condorConfigFileName = os.path.join(configDir, "condor_%s.config" % uniqueIdentifier)
+
+        self.allocationFileName = os.path.join(configDir, "allocation_%s.sh" % uniqueIdentifier)
+
+        self.defaults["GENERATED_ALLOCATE_SCRIPT"] = os.path.basename(self.allocationFileName)
+        self.defaults["GENERATED_CONFIG"] = os.path.basename(self.condorConfigFileName)
+        self.defaults["CONFIGURATION_ID"] = uniqueIdentifier
+
+    def createSubmitFile(self, inputFile):
         """Creates a PBS file using the file "input" as a Template
 
         Returns
@@ -217,7 +284,7 @@ class Allocator(object):
         outfile : `str`
             The newly created file name
         """
-        outfile = self.createFile(input, self.pbsFileName)
+        outfile = self.createFile(inputFile, self.submitFileName)
         if self.opts.verbose:
             print("wrote new PBS file to %s" % outfile)
         return outfile
@@ -234,6 +301,21 @@ class Allocator(object):
         if self.opts.verbose:
             print("wrote new condor_config file to %s" % outfile)
         return outfile
+
+    def createAllocationFile(self, input):
+        """Creates an Allocation script file using the file "input" as a Template
+
+        Returns
+        -------
+        outfile : `str`
+            The newly created file name
+        """
+        outfile = self.createFile(input, self.allocationFileName)
+        if self.opts.verbose:
+            print("wrote new allocation script file to %s" % outfile)
+        os.chmod(outfile, 0755)
+        return outfile
+
 
     def createFile(self, input, output):
         """Creates a new file, using "input" as a Template, and writes the
@@ -318,6 +400,12 @@ class Allocator(object):
         @return the value of WALL_CLOCK
         """
         return self.getParameter("WALL_CLOCK")
+
+    def getScheduler(self):
+        """Accessor for SCHEDULER
+        @return the value of SCHEDULER
+        """
+        return self.getParameter("SCHEDULER")
 
     def getParameter(self, value):
         """Accessor for generic value

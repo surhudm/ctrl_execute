@@ -26,6 +26,7 @@
 from __future__ import print_function
 import sys
 import os
+import shutil
 import lsst.utils
 from lsst.ctrl.execute.allocator import Allocator
 from lsst.ctrl.execute.allocatorParser import AllocatorParser
@@ -33,13 +34,8 @@ from string import Template
 
 
 def main():
-    """Allocates Condor glide-in nodes through PBS scheduler on a remote Node.
+    """Allocates Condor glide-in nodes a scheduler on a remote Node.
     """
-    # This have specific paths to prevent abitrary binaries from being
-    # executed. The "gsi"* utilities are configured to use either grid proxies
-    # or ssh, automatically.
-    remoteLoginCmd = "/usr/bin/gsissh"
-    remoteCopyCmd = "/usr/bin/gsiscp"
 
     # UNKNOWN_PLATFORM_EXIT_CODE = 10
     # MISSING_PBS_CONFIG_EXIT_CODE = 20
@@ -50,11 +46,82 @@ def main():
     creator = Allocator(platform, p.getArgs(), "$HOME/.lsst/condor-info.py")
 
     platformPkgDir = lsst.utils.getPackageDir("ctrl_platform_"+platform)
-    configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
     execConfigName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
+
 
     creator.load(execConfigName)
 
+    if creator.getScheduler() == "slurm":
+        submitViaSlurm(creator, platform, platformPkgDir)
+    elif creator.getScheduler() == "pbs":
+        submitViaPBS(creator, platform, platformPkgDir)
+    else:
+        print("unknown scheduler: %s" % creator.getScheduler())
+        return
+
+def submitViaSlurm(creator, platform, platformPkgDir):
+    remoteCopyCmd = "/usr/bin/cp"
+
+    configName = os.path.join(platformPkgDir, "etc", "config", "slurmConfig.py")
+
+    creator.loadSlurm(configName) # XXX - change to use a plug-in
+    verbose = creator.isVerbose()
+
+    userName = creator.getUserName()
+    hostName = creator.getHostName()
+    scratchDirParam = creator.getScratchDirectory()
+
+    template = Template(scratchDirParam)
+    scratchDir = template.substitute(USER_HOME=creator.getUserHome())
+
+    #
+    # Steps - run command to allocate nodes; in PBS this requires writing a PBS file and submitting 
+    # it; with slurm, it's a command line option
+
+    slurmName = os.path.join(platformPkgDir, "etc", "templates", "generic.slurm.template")
+    generatedSlurmFile = creator.createSubmitFile(slurmName)
+
+    condorFile = os.path.join(platformPkgDir, "etc", "templates", "glidein_condor_config.template")
+    generatedCondorConfigFile = creator.createCondorConfigFile(condorFile)
+
+    allocationName = os.path.join(platformPkgDir, "etc", "templates", "allocation.sh.template")
+    allocationFile = creator.createAllocationFile(allocationName)
+
+    #dst = os.path.join(scratchDir, os.path.basename(generatedCondorConfigFile))
+    #shutil.copyfile(generatedCondorConfigFile, dst)
+
+    # run the salloc command
+
+    cmd = "sbatch %s" % generatedSlurmFile
+    exitCode = runCommand(cmd, verbose)
+    if exitCode != 0:
+        print("error running %s" % cmd)
+        sys.exit(exitCode)
+
+    nodes = creator.getNodes()
+    slots = creator.getSlots()
+    wallClock = creator.getWallClock()
+
+    nodeString = ""
+    if int(nodes) > 1:
+        nodeString = "s"
+    print("%s node%s will be allocated on %s with %s slots per node and maximum time limit of %s" %
+          (nodes, nodeString, platform, slots, wallClock))
+    print("Node set name:")
+    print(creator.getNodeSetName())
+    sys.exit(0)
+        
+
+    return
+
+def submitViaPBS(creator, platform, platformPkgDir):
+    # This have specific paths to prevent abitrary binaries from being
+    # executed. The "gsi"* utilities are configured to use either grid proxies
+    # or ssh, automatically.
+    remoteLoginCmd = "/usr/bin/gsissh"
+    remoteCopyCmd = "/usr/bin/gsiscp"
+
+    configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
     creator.loadPbs(configName)
 
     verbose = creator.isVerbose()

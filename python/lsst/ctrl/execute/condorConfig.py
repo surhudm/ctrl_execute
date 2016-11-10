@@ -36,6 +36,7 @@ class PlatformConfig(pexConfig.Config):
     fileSystemDomain = pexConfig.Field(doc="network domain name of remote system", dtype=str, default=None)
     eupsPath = pexConfig.Field(doc="location of remote EUPS stack", dtype=str, default=None)
     nodeSetRequired = pexConfig.Field(doc="is the nodeset required", dtype=bool, default=False)
+    scheduler = pexConfig.Field(doc="scheduler type", dtype=str, default=None)
 
 
 class CondorConfig(pexConfig.Config):
