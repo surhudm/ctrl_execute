@@ -149,7 +149,7 @@ class Allocator(object):
         self.defaults["LOCAL_SCRATCH"] = envString.resolve(configuration.platform.localScratch)
         self.defaults["SCHEDULER"] = configuration.platform.scheduler
 
-    def loadPbs(self, name):
+    def loadAllocation(self, name):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
         """
@@ -162,11 +162,6 @@ class Allocator(object):
         self.defaults["QUEUE"] = configuration.platform.queue
         self.defaults["EMAIL_NOTIFICATION"] = configuration.platform.email
         self.defaults["HOST_NAME"] = configuration.platform.loginHostName
-
-        print("sd = %s" % configuration.platform.scratchDirectory)
-        template = Template(configuration.platform.scratchDirectory)
-        scratchDir = template.substitute(USER_HOME=self.getUserHome())
-        self.defaults["SCRATCH_DIR"] = scratchDir
 
         self.defaults["UTILITY_PATH"] = configuration.platform.utilityPath
 
@@ -198,21 +193,40 @@ class Allocator(object):
         totalCoresPerNode = configuration.platform.totalCoresPerNode
         self.commandLineDefaults["TOTAL_CORE_COUNT"] = self.opts.nodeCount * totalCoresPerNode
 
-        uniqueIdentifier = self.createUniqueIdentifier()
+        self.uniqueIdentifier = self.createUniqueIdentifier()
 
         # write these pbs and config files to {LOCAL_DIR}/configs
-        configDir = os.path.join(self.defaults["LOCAL_SCRATCH"], "configs")
-        if not os.path.exists(configDir):
-            os.makedirs(configDir)
+        self.configDir = os.path.join(self.defaults["LOCAL_SCRATCH"], "configs")
+        if not os.path.exists(self.configDir):
+            os.makedirs(self.configDir)
 
-        self.submitFileName = os.path.join(configDir, "alloc_%s.pbs" % uniqueIdentifier)
+        self.submitFileName = os.path.join(self.configDir, "alloc_%s.pbs" % self.uniqueIdentifier)
 
-        self.condorConfigFileName = os.path.join(configDir, "condor_%s.config" % uniqueIdentifier)
+        self.condorConfigFileName = os.path.join(self.configDir, "condor_%s.config" % self.uniqueIdentifier)
 
         self.defaults["GENERATED_CONFIG"] = os.path.basename(self.condorConfigFileName)
-        self.defaults["CONFIGURATION_ID"] = uniqueIdentifier
+        self.defaults["CONFIGURATION_ID"] = self.uniqueIdentifier
+        return configuration
+
+        
+    def loadPbs(self, name):
+        configuration = self.loadAllocation(name)
+        template = Template(configuration.platform.scratchDirectory)
+        scratchDir = template.substitute(USER_HOME=self.getUserHome())
+        self.defaults["SCRATCH_DIR"] = scratchDir
 
     def loadSlurm(self, name):
+        configuration = self.loadAllocation(name)
+
+        template = Template(configuration.platform.scratchDirectory)
+        scratchDir = template.substitute(USER_NAME=self.getUserName())
+        self.defaults["SCRATCH_DIR"] = scratchDir
+
+        self.allocationFileName = os.path.join(self.configDir, "allocation_%s.sh" % self.uniqueIdentifier)
+        self.defaults["GENERATED_ALLOCATE_SCRIPT"] = os.path.basename(self.allocationFileName)
+
+
+    def loadSlurm2(self, name):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
         """
@@ -223,6 +237,7 @@ class Allocator(object):
         configuration.load(resolvedName)
 
         self.defaults["QUEUE"] = configuration.platform.queue
+        self.defaults["EMAIL_NOTIFICATION"] = configuration.platform.email
         self.defaults["HOST_NAME"] = configuration.platform.loginHostName
 
         template = Template(configuration.platform.scratchDirectory)
