@@ -48,11 +48,11 @@ class Allocator(object):
         the name of the platform to execute on
     opts : `Config`
         Config object containing options
-    configFileName : `str`
+    condorInfoFileName : `str`
         Name of the file containing Config information
     """
 
-    def __init__(self, platform, opts, configFileName):
+    def __init__(self, platform, opts, configuration, condorInfoFileName):
         """Constructor
         @param platform: target platform for PBS submission
         @param opts: options to override
@@ -60,10 +60,11 @@ class Allocator(object):
         self.opts = opts
         self.defaults = {}
 
-        fileName = envString.resolve(configFileName)
-
+        fileName = envString.resolve(condorInfoFileName)
         condorInfoConfig = CondorInfoConfig()
         condorInfoConfig.load(fileName)
+
+        self.load(configuration)
 
         self.platform = platform
 
@@ -86,11 +87,11 @@ class Allocator(object):
                 user_home = os.getenv('HOME')
 
         if user_name is None:
-            raise RuntimeError("error: %s does not specify user name for platform %s" %
-                               (configFileName, self.platform))
+            raise RuntimeError("error:  does not specify user name for platform %s" %
+                               (condorInfoFileName, self.platform))
         if user_home is None:
             raise RuntimeError("error: %s does not specify user home for platform %s" %
-                               (configFileName, self.platform))
+                               (condorInfoFileName, self.platform))
 
         self.defaults["USER_NAME"] = user_name
         self.defaults["USER_HOME"] = user_home
@@ -139,17 +140,17 @@ class Allocator(object):
             username, now.year, now.month, now.day, now.hour, now.minute, now.second)
         return ident
 
-    def load(self, name):
+    def load(self, configuration):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
         """
-        resolvedName = envString.resolve(name)
-        configuration = CondorConfig()
-        configuration.load(resolvedName)
+        #resolvedName = envString.resolve(name)
+        #configuration = CondorConfig()
+        #configuration.load(resolvedName)
         self.defaults["LOCAL_SCRATCH"] = envString.resolve(configuration.platform.localScratch)
         self.defaults["SCHEDULER"] = configuration.platform.scheduler
 
-    def loadAllocation(self, name):
+    def loadAllocationConfig(self, name):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
         """
@@ -207,16 +208,15 @@ class Allocator(object):
         self.defaults["GENERATED_CONFIG"] = os.path.basename(self.condorConfigFileName)
         self.defaults["CONFIGURATION_ID"] = self.uniqueIdentifier
         return configuration
-
         
-    def loadPbs(self, name):
-        configuration = self.loadAllocation(name)
+    def loadPbsXYZZY(self, name):
+        configuration = self.loadAllocationConfig(name)
         template = Template(configuration.platform.scratchDirectory)
         scratchDir = template.substitute(USER_HOME=self.getUserHome())
         self.defaults["SCRATCH_DIR"] = scratchDir
 
-    def loadSlurm(self, name):
-        configuration = self.loadAllocation(name)
+    def loadSlurmXYZZY(self, name):
+        configuration = self.loadAllocationConfig(name)
 
         template = Template(configuration.platform.scratchDirectory)
         scratchDir = template.substitute(USER_NAME=self.getUserName())
@@ -251,7 +251,7 @@ class Allocator(object):
             print("wrote new condor_config file to %s" % outfile)
         return outfile
 
-    def createAllocationFile(self, input):
+    def createAllocationFileXYZZY(self, input):
         """Creates an Allocation script file using the file "input" as a Template
 
         Returns
@@ -366,3 +366,37 @@ class Allocator(object):
         if value in self.defaults:
             return self.defaults[value]
         return None
+
+    def runCommand(self, cmd, verbose):
+        cmd_split = cmd.split()
+        pid = os.fork()
+        if not pid:
+            # Methods of file transfer and login may
+            # produce different output, depending on how
+            # the "gsi" utilities are used.  The user can
+            # either use grid proxies or ssh, and gsiscp/gsissh
+            # does the right thing.  Since the output will be
+            # different in either case anything potentially parsing this
+            # output (like drpRun), would have to go through extra
+            # steps to deal with this output, and which ultimately
+            # end up not being useful.  So we optinally close the i/o output
+            # of the executing command down.
+            #
+            # stdin/stdio/stderr is treated specially
+            # by python, so we have to close down
+            # both the python objects and the
+            # underlying c implementations
+            if not verbose:
+                # close python i/o
+                sys.stdin.close()
+                sys.stdout.close()
+                sys.stderr.close()
+                # close C's i/o
+                os.close(0)
+                os.close(1)
+                os.close(2)
+            os.execvp(cmd_split[0], cmd_split)
+        pid, status = os.wait()
+        # high order bits are status, low order bits are signal.
+        exitCode = (status & 0xff00) >> 8
+        return exitCode

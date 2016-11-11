@@ -36,25 +36,25 @@ from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
 from lsst.ctrl.execute.templateWriter import TemplateWriter
 from lsst.ctrl.execute.seqFile import SeqFile
 
-from lsst.ctrl.execute.plugin import Plugin
+from lsst.ctrl.execute.allocator import Allocator
 
 
-class slurmPlugin(Plugin):
+class slurmPlugin(Allocator):
 
-    def submit(self, creator, platform, platformPkgDir):
+    def submit(self, platform, platformPkgDir):
         remoteCopyCmd = "/usr/bin/cp"
     
         configName = os.path.join(platformPkgDir, "etc", "config", "slurmConfig.py")
     
-        creator.loadSlurm(configName) # XXX - change to use a plug-in
-        verbose = creator.isVerbose()
+        self.loadSlurm(configName)
+        verbose = self.isVerbose()
     
-        userName = creator.getUserName()
-        hostName = creator.getHostName()
-        scratchDirParam = creator.getScratchDirectory()
+        userName = self.getUserName()
+        hostName = self.getHostName()
+        scratchDirParam = self.getScratchDirectory()
     
         template = Template(scratchDirParam)
-        scratchDir = template.substitute(USER_HOME=creator.getUserHome())
+        scratchDir = template.substitute(USER_HOME=self.getUserHome())
     
         #
         # Steps - run command to allocate nodes; in PBS this requires writing a PBS file and submitting 
@@ -62,13 +62,13 @@ class slurmPlugin(Plugin):
         #
     
         slurmName = os.path.join(platformPkgDir, "etc", "templates", "generic.slurm.template")
-        generatedSlurmFile = creator.createSubmitFile(slurmName)
+        generatedSlurmFile = self.createSubmitFile(slurmName)
     
         condorFile = os.path.join(platformPkgDir, "etc", "templates", "glidein_condor_config.template")
-        generatedCondorConfigFile = creator.createCondorConfigFile(condorFile)
+        generatedCondorConfigFile = self.createCondorConfigFile(condorFile)
     
         allocationName = os.path.join(platformPkgDir, "etc", "templates", "allocation.sh.template")
-        allocationFile = creator.createAllocationFile(allocationName)
+        allocationFile = self.createAllocationFile(allocationName)
     
         # run the salloc command
     
@@ -78,9 +78,9 @@ class slurmPlugin(Plugin):
             print("error running %s" % cmd)
             sys.exit(exitCode)
     
-        nodes = creator.getNodes()
-        slots = creator.getSlots()
-        wallClock = creator.getWallClock()
+        nodes = self.getNodes()
+        slots = self.getSlots()
+        wallClock = self.getWallClock()
     
         nodeString = ""
         if int(nodes) > 1:
@@ -88,4 +88,28 @@ class slurmPlugin(Plugin):
         print("%s node%s will be allocated on %s with %s slots per node and maximum time limit of %s" %
               (nodes, nodeString, platform, slots, wallClock))
         print("Node set name:")
-        print(creator.getNodeSetName())
+        print(self.getNodeSetName())
+
+    def loadSlurm(self, name):
+        configuration = self.loadAllocationConfig(name)
+
+        template = Template(configuration.platform.scratchDirectory)
+        scratchDir = template.substitute(USER_NAME=self.getUserName())
+        self.defaults["SCRATCH_DIR"] = scratchDir
+
+        self.allocationFileName = os.path.join(self.configDir, "allocation_%s.sh" % self.uniqueIdentifier)
+        self.defaults["GENERATED_ALLOCATE_SCRIPT"] = os.path.basename(self.allocationFileName)
+
+    def createAllocationFile(self, input):
+        """Creates an Allocation script file using the file "input" as a Template
+
+        Returns
+        -------
+        outfile : `str`
+            The newly created file name
+        """
+        outfile = self.createFile(input, self.allocationFileName)
+        if self.opts.verbose:
+            print("wrote new allocation script file to %s" % outfile)
+        os.chmod(outfile, 0755)
+        return outfile

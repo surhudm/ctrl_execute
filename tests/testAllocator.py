@@ -25,8 +25,10 @@ import os.path
 import time
 import filecmp
 import unittest
+from lsst.ctrl.execute.namedClassFactory import NamedClassFactory
 from lsst.ctrl.execute.allocator import Allocator
 from lsst.ctrl.execute.allocatorParser import AllocatorParser
+from lsst.ctrl.execute.condorConfig import CondorConfig
 import lsst.utils.tests
 
 
@@ -66,11 +68,20 @@ class TestAllocator(lsst.utils.tests.TestCase):
         return argv
 
     def subSetup(self):
-        fileName = os.path.join("tests", "testfiles", "allocator-info1.py")
         alp = AllocatorParser(sys.argv[0])
         args = alp.getArgs()
-        al = Allocator("lsst", args, fileName)
-        return al
+
+        condorConfigFile = os.path.join("tests", "testfiles", "config_condor.py")
+        configuration = CondorConfig()
+        configuration.load(condorConfigFile)
+
+        fileName = os.path.join("tests", "testfiles", "allocator-info1.py")
+
+        schedulerName = configuration.platform.scheduler
+        schedulerClass = NamedClassFactory.createClass("lsst.ctrl.execute." + schedulerName + "Plugin")
+        
+        scheduler = schedulerClass("lsst", args, configuration, fileName)
+        return scheduler
 
     def test1(self):
         sys.argv = self.verboseArgs()
@@ -85,8 +96,6 @@ class TestAllocator(lsst.utils.tests.TestCase):
         sys.argv = self.verboseArgs()
         al = self.subSetup()
 
-        path = os.path.join("tests", "testfiles", "config_condor.py")
-        al.load(path)
         fileName = os.path.join("tests", "testfiles", "config_allocation.py")
         al.loadPbs(fileName)
         self.assertEqual(al.getHostName(), "bighost.lsstcorp.org")
@@ -104,8 +113,6 @@ class TestAllocator(lsst.utils.tests.TestCase):
         sys.argv = self.regularArgs()
         al = self.subSetup()
 
-        path = os.path.join("tests", "testfiles", "config_condor.py")
-        al.load(path)
         fileName = os.path.join("tests", "testfiles", "config_allocation.py")
         al.loadPbs(fileName)
         pbsName = os.path.join("tests", "testfiles", "generic.pbs.template")

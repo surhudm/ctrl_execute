@@ -31,6 +31,8 @@ import lsst.utils
 from lsst.ctrl.execute.namedClassFactory import NamedClassFactory
 from lsst.ctrl.execute.allocator import Allocator
 from lsst.ctrl.execute.allocatorParser import AllocatorParser
+from lsst.ctrl.execute.condorConfig import CondorConfig
+from lsst.ctrl.execute import envString
 from string import Template
 
 
@@ -38,25 +40,26 @@ def main():
     """Allocates Condor glide-in nodes a scheduler on a remote Node.
     """
 
-    # UNKNOWN_PLATFORM_EXIT_CODE = 10
-    # MISSING_PBS_CONFIG_EXIT_CODE = 20
-
     p = AllocatorParser(sys.argv[0])
     platform = p.getPlatform()
-
-    creator = Allocator(platform, p.getArgs(), "$HOME/.lsst/condor-info.py")
 
     platformPkgDir = lsst.utils.getPackageDir("ctrl_platform_"+platform)
     execConfigName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
 
+    # load the CondorConfig file
+    resolvedName = envString.resolve(execConfigName)
+    configuration = CondorConfig()
+    configuration.load(resolvedName)
 
-    creator.load(execConfigName)
+    # create the plugin class
+    schedulerName = configuration.platform.scheduler
+    schedulerClass = NamedClassFactory.createClass("lsst.ctrl.execute." + schedulerName +"Plugin")
 
-    schedulerClass = NamedClassFactory.createClass("lsst.ctrl.execute."+creator.getScheduler()+"Plugin")
+    # create the plugin
+    scheduler = schedulerClass(platform, p.getArgs(), configuration, "$HOME/.lsst/condor-info.py")
 
-    scheduler = schedulerClass()
-
-    scheduler.submit(creator, platform, platformPkgDir)
+    # submit the request
+    scheduler.submit(platform, platformPkgDir)
 
 if __name__ == "__main__":
     main()

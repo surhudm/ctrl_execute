@@ -36,11 +36,11 @@ from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
 from lsst.ctrl.execute.templateWriter import TemplateWriter
 from lsst.ctrl.execute.seqFile import SeqFile
 
-from lsst.ctrl.execute.plugin import Plugin
+from lsst.ctrl.execute.allocator import Allocator
 
-class PbsPlugin(Plugin):
+class pbsPlugin(Allocator):
 
-    def submit(self, creator, platform, platformPkgDir):
+    def submit(self, platform, platformPkgDir):
         # This have specific paths to prevent abitrary binaries from being
         # executed. The "gsi"* utilities are configured to use either grid proxies
         # or ssh, automatically.
@@ -48,24 +48,24 @@ class PbsPlugin(Plugin):
         remoteCopyCmd = "/usr/bin/gsiscp"
     
         configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
-        creator.loadPbs(configName)
+        self.loadPbs(configName)
     
-        verbose = creator.isVerbose()
+        verbose = self.isVerbose()
     
         pbsName = os.path.join(platformPkgDir, "etc", "templates", "generic.pbs.template")
-        generatedPbsFile = creator.createPbsFile(pbsName)
+        generatedPbsFile = self.createPbsFile(pbsName)
     
         condorFile = os.path.join(platformPkgDir, "etc", "templates", "glidein_condor_config.template")
-        generatedCondorConfigFile = creator.createCondorConfigFile(condorFile)
+        generatedCondorConfigFile = self.createCondorConfigFile(condorFile)
     
-        scratchDirParam = creator.getScratchDirectory()
+        scratchDirParam = self.getScratchDirectory()
         template = Template(scratchDirParam)
-        scratchDir = template.substitute(USER_HOME=creator.getUserHome())
-        userName = creator.getUserName()
+        scratchDir = template.substitute(USER_HOME=self.getUserHome())
+        userName = self.getUserName()
     
-        hostName = creator.getHostName()
+        hostName = self.getHostName()
     
-        utilityPath = creator.getUtilityPath()
+        utilityPath = self.getUtilityPath()
     
         #
         # execute copy of PBS file to XSEDE node
@@ -103,13 +103,20 @@ class PbsPlugin(Plugin):
             print("error running %s to %s." % (remoteLoginCmd, hostName))
             sys.exit(exitCode)
     
-        nodes = creator.getNodes()
-        slots = creator.getSlots()
-        wallClock = creator.getWallClock()
+        nodes = self.getNodes()
+        slots = self.getSlots()
+        wallClock = self.getWallClock()
         nodeString = ""
+
         if int(nodes) > 1:
             nodeString = "s"
         print("%s node%s will be allocated on %s with %s slots per node and maximum time limit of %s" %
               (nodes, nodeString, platform, slots, wallClock))
         print("Node set name:")
-        print(creator.getNodeSetName())
+        print(self.getNodeSetName())
+
+    def loadPbs(self, name):
+        configuration = self.loadAllocationConfig(name)
+        template = Template(configuration.platform.scratchDirectory)
+        scratchDir = template.substitute(USER_HOME=self.getUserHome())
+        self.defaults["SCRATCH_DIR"] = scratchDir
