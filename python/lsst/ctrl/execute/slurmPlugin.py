@@ -49,51 +49,38 @@ class slurmPlugin(Allocator):
         self.loadSlurm(configName)
         verbose = self.isVerbose()
     
-        userName = self.getUserName()
-        hostName = self.getHostName()
+        # create the fully-resolved scratch directory string
         scratchDirParam = self.getScratchDirectory()
-    
         template = Template(scratchDirParam)
         scratchDir = template.substitute(USER_HOME=self.getUserHome())
     
-        #
-        # Steps - run command to allocate nodes; in PBS this requires writing a PBS file and submitting 
-        # it; with slurm, it's a command line option
-        #
-    
+        # create the slurm submit file
         slurmName = os.path.join(platformPkgDir, "etc", "templates", "generic.slurm.template")
         generatedSlurmFile = self.createSubmitFile(slurmName)
     
+        # create the condor configuration file
         condorFile = os.path.join(platformPkgDir, "etc", "templates", "glidein_condor_config.template")
         generatedCondorConfigFile = self.createCondorConfigFile(condorFile)
     
+        # create the script that the slurm submit file calls
         allocationName = os.path.join(platformPkgDir, "etc", "templates", "allocation.sh.template")
         allocationFile = self.createAllocationFile(allocationName)
     
-        # run the salloc command
-    
+        # run the sbatch command
+        os.chdir(self.configuration.platform.localScratch)
         cmd = "sbatch %s" % generatedSlurmFile
         exitCode = self.runCommand(cmd, verbose)
         if exitCode != 0:
             print("error running %s" % cmd)
             sys.exit(exitCode)
     
-        nodes = self.getNodes()
-        slots = self.getSlots()
-        wallClock = self.getWallClock()
-    
-        nodeString = ""
-        if int(nodes) > 1:
-            nodeString = "s"
-        print("%s node%s will be allocated on %s with %s slots per node and maximum time limit of %s" %
-              (nodes, nodeString, platform, slots, wallClock))
-        print("Node set name:")
-        print(self.getNodeSetName())
+        # print node set information
+        self.printNodeSetInfo()
 
     def loadSlurm(self, name):
-        configuration = self.loadAllocationConfig(name)
+        allocationConfig = self.loadAllocationConfig(name)
 
-        template = Template(configuration.platform.scratchDirectory)
+        template = Template(allocationConfig.platform.scratchDirectory)
         scratchDir = template.substitute(USER_NAME=self.getUserName())
         self.defaults["SCRATCH_DIR"] = scratchDir
 

@@ -59,12 +59,13 @@ class Allocator(object):
         """
         self.opts = opts
         self.defaults = {}
+        self.configuration = configuration
 
         fileName = envString.resolve(condorInfoFileName)
         condorInfoConfig = CondorInfoConfig()
         condorInfoConfig.load(fileName)
 
-        self.load(configuration)
+        self.load()
 
         self.platform = platform
 
@@ -140,34 +141,32 @@ class Allocator(object):
             username, now.year, now.month, now.day, now.hour, now.minute, now.second)
         return ident
 
-    def load(self, configuration):
+    def load(self):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
         """
-        #resolvedName = envString.resolve(name)
-        #configuration = CondorConfig()
-        #configuration.load(resolvedName)
-        self.defaults["LOCAL_SCRATCH"] = envString.resolve(configuration.platform.localScratch)
-        self.defaults["SCHEDULER"] = configuration.platform.scheduler
+
+        self.defaults["LOCAL_SCRATCH"] = envString.resolve(self.configuration.platform.localScratch)
+        self.defaults["SCHEDULER"] = self.configuration.platform.scheduler
 
     def loadAllocationConfig(self, name):
-        """Loads all values from configuration and command line overrides into
+        """Loads all values from allocationConfig and command line overrides into
         data structures suitable for use by the TemplateWriter object.
         """
         resolvedName = envString.resolve(name)
-        configuration = AllocationConfig()
+        allocationConfig = AllocationConfig()
         if not os.path.exists(resolvedName):
             raise RuntimeError("%s was not found." % resolvedName)
-        configuration.load(resolvedName)
+        allocationConfig.load(resolvedName)
 
-        self.defaults["QUEUE"] = configuration.platform.queue
-        self.defaults["EMAIL_NOTIFICATION"] = configuration.platform.email
-        self.defaults["HOST_NAME"] = configuration.platform.loginHostName
+        self.defaults["QUEUE"] = allocationConfig.platform.queue
+        self.defaults["EMAIL_NOTIFICATION"] = allocationConfig.platform.email
+        self.defaults["HOST_NAME"] = allocationConfig.platform.loginHostName
 
-        self.defaults["UTILITY_PATH"] = configuration.platform.utilityPath
+        self.defaults["UTILITY_PATH"] = allocationConfig.platform.utilityPath
 
         if self.opts.glideinShutdown is None:
-            self.defaults["GLIDEIN_SHUTDOWN"] = str(configuration.platform.glideinShutdown)
+            self.defaults["GLIDEIN_SHUTDOWN"] = str(allocationConfig.platform.glideinShutdown)
         else:
             self.defaults["GLIDEIN_SHUTDOWN"] = str(self.opts.glideinShutdown)
 
@@ -191,7 +190,7 @@ class Allocator(object):
         # This is the TOTAL number of cores in the job, not just the total
         # of the cores you intend to use.   In other words, the total available
         # on a machine, times the number of machines.
-        totalCoresPerNode = configuration.platform.totalCoresPerNode
+        totalCoresPerNode = allocationConfig.platform.totalCoresPerNode
         self.commandLineDefaults["TOTAL_CORE_COUNT"] = self.opts.nodeCount * totalCoresPerNode
 
         self.uniqueIdentifier = self.createUniqueIdentifier()
@@ -207,24 +206,8 @@ class Allocator(object):
 
         self.defaults["GENERATED_CONFIG"] = os.path.basename(self.condorConfigFileName)
         self.defaults["CONFIGURATION_ID"] = self.uniqueIdentifier
-        return configuration
+        return allocationConfig
         
-    def loadPbsXYZZY(self, name):
-        configuration = self.loadAllocationConfig(name)
-        template = Template(configuration.platform.scratchDirectory)
-        scratchDir = template.substitute(USER_HOME=self.getUserHome())
-        self.defaults["SCRATCH_DIR"] = scratchDir
-
-    def loadSlurmXYZZY(self, name):
-        configuration = self.loadAllocationConfig(name)
-
-        template = Template(configuration.platform.scratchDirectory)
-        scratchDir = template.substitute(USER_NAME=self.getUserName())
-        self.defaults["SCRATCH_DIR"] = scratchDir
-
-        self.allocationFileName = os.path.join(self.configDir, "allocation_%s.sh" % self.uniqueIdentifier)
-        self.defaults["GENERATED_ALLOCATE_SCRIPT"] = os.path.basename(self.allocationFileName)
-
     def createSubmitFile(self, inputFile):
         """Creates a PBS file using the file "input" as a Template
 
@@ -250,21 +233,6 @@ class Allocator(object):
         if self.opts.verbose:
             print("wrote new condor_config file to %s" % outfile)
         return outfile
-
-    def createAllocationFileXYZZY(self, input):
-        """Creates an Allocation script file using the file "input" as a Template
-
-        Returns
-        -------
-        outfile : `str`
-            The newly created file name
-        """
-        outfile = self.createFile(input, self.allocationFileName)
-        if self.opts.verbose:
-            print("wrote new allocation script file to %s" % outfile)
-        os.chmod(outfile, 0755)
-        return outfile
-
 
     def createFile(self, input, output):
         """Creates a new file, using "input" as a Template, and writes the
@@ -366,6 +334,19 @@ class Allocator(object):
         if value in self.defaults:
             return self.defaults[value]
         return None
+
+    def printNodeSetInfo(self):
+        nodes = self.getNodes()
+        slots = self.getSlots()
+        wallClock = self.getWallClock()
+        nodeString = ""
+
+        if int(nodes) > 1:
+            nodeString = "s"
+        print("%s node%s will be allocated on %s with %s slots per node and maximum time limit of %s" %
+              (nodes, nodeString, self.platform, slots, wallClock))
+        print("Node set name:")
+        print(self.getNodeSetName())
 
     def runCommand(self, cmd, verbose):
         cmd_split = cmd.split()

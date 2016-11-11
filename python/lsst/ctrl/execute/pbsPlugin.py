@@ -48,8 +48,8 @@ class pbsPlugin(Allocator):
         remoteCopyCmd = "/usr/bin/gsiscp"
     
         configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
+
         self.loadPbs(configName)
-    
         verbose = self.isVerbose()
     
         pbsName = os.path.join(platformPkgDir, "etc", "templates", "generic.pbs.template")
@@ -61,8 +61,8 @@ class pbsPlugin(Allocator):
         scratchDirParam = self.getScratchDirectory()
         template = Template(scratchDirParam)
         scratchDir = template.substitute(USER_HOME=self.getUserHome())
+
         userName = self.getUserName()
-    
         hostName = self.getHostName()
     
         utilityPath = self.getUtilityPath()
@@ -103,17 +103,7 @@ class pbsPlugin(Allocator):
             print("error running %s to %s." % (remoteLoginCmd, hostName))
             sys.exit(exitCode)
     
-        nodes = self.getNodes()
-        slots = self.getSlots()
-        wallClock = self.getWallClock()
-        nodeString = ""
-
-        if int(nodes) > 1:
-            nodeString = "s"
-        print("%s node%s will be allocated on %s with %s slots per node and maximum time limit of %s" %
-              (nodes, nodeString, platform, slots, wallClock))
-        print("Node set name:")
-        print(self.getNodeSetName())
+        self.printNodeSetInfo()
 
     def loadPbs(self, name):
         configuration = self.loadAllocationConfig(name)

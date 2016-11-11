@@ -43,10 +43,10 @@ def main():
     p = AllocatorParser(sys.argv[0])
     platform = p.getPlatform()
 
+    # load the CondorConfig file
     platformPkgDir = lsst.utils.getPackageDir("ctrl_platform_"+platform)
     execConfigName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
 
-    # load the CondorConfig file
     resolvedName = envString.resolve(execConfigName)
     configuration = CondorConfig()
     configuration.load(resolvedName)
