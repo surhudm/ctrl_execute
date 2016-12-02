@@ -25,7 +25,7 @@
 from __future__ import print_function
 from builtins import str
 from builtins import object
-import os
+import os, sys
 import pwd
 from datetime import datetime
 from string import Template
@@ -64,8 +64,6 @@ class Allocator(object):
         fileName = envString.resolve(condorInfoFileName)
         condorInfoConfig = CondorInfoConfig()
         condorInfoConfig.load(fileName)
-
-        self.load()
 
         self.platform = platform
 
@@ -107,6 +105,8 @@ class Allocator(object):
         if self.opts.email == "no":
             self.commandLineDefaults["EMAIL_NOTIFICATION"] = "#"
 
+        self.load()
+
     def createNodeSetName(self):
         """Creates the next "node_set" name, using the remote user name and
         a stored sequence number.
@@ -145,8 +145,10 @@ class Allocator(object):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
         """
-
-        self.defaults["LOCAL_SCRATCH"] = envString.resolve(self.configuration.platform.localScratch)
+        # 11/17/16 - srp XXX
+        tempLocalScratch = Template(self.configuration.platform.localScratch)
+        self.defaults["LOCAL_SCRATCH"] = tempLocalScratch.substitute(USER_NAME=self.defaults["USER_NAME"])
+        # print("localScratch-> %s" % self.defaults["LOCAL_SCRATCH"])
         self.defaults["SCHEDULER"] = self.configuration.platform.scheduler
 
     def loadAllocationConfig(self, name):
@@ -293,6 +295,12 @@ class Allocator(object):
         @return the value of SCRATCH_DIR
         """
         return self.getParameter("SCRATCH_DIR")
+
+    def getLocalScratchDirectory(self):
+        """Accessor for LOCAL_SCRATCH
+        @return the value of LOCAL_SCRATCH
+        """
+        return self.getParameter("LOCAL_SCRATCH")
 
     def getNodeSetName(self):
         """Accessor for NODE_SET

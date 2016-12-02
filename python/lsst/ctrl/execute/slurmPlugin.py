@@ -25,7 +25,7 @@
 from __future__ import print_function
 from builtins import str
 from builtins import object
-import os
+import os, sys
 import pwd
 from datetime import datetime
 from string import Template
@@ -67,7 +67,11 @@ class slurmPlugin(Allocator):
         allocationFile = self.createAllocationFile(allocationName)
     
         # run the sbatch command
-        os.chdir(self.configuration.platform.localScratch)
+        template = Template(self.getLocalScratchDirectory())
+        localScratchDir = template.substitute(USER_NAME=self.getUserName())
+        if not os.path.exists(localScratchDir):
+            os.mkdir(localScratchDir)
+        os.chdir(localScratchDir)
         cmd = "sbatch %s" % generatedSlurmFile
         exitCode = self.runCommand(cmd, verbose)
         if exitCode != 0:

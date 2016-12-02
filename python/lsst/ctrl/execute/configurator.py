@@ -134,12 +134,26 @@ class Configurator(object):
         # the LSST platform, use the template that allows usage of the
         # Condor "getenv" method of environment setup.  Otherwise use
         # template that uses LSST "setup" commands for each package.
-        if (self.opts.setup is None) and (self.platform == "lsst"):
-            genericConfigName = os.path.join(executePkgDir,
-                                             "etc", "templates", "config_with_getenv.py.template")
-        else:
+
+        # if opts.setup_using isn't specified, default to the safest thing,
+        # which is using setups
+        print("setup_using = %s" % self.setup_using)
+        if (self.setup_using is None):
             genericConfigName = os.path.join(executePkgDir,
                                              "etc", "templates", "config_with_setups.py.template")
+        # if setup is not set on the command line, and setup_using is 
+        # set to "getenv", use "getenv" 
+        elif (self.opts.setup is None) and (self.setup_using == "getenv"):
+            genericConfigName = os.path.join(executePkgDir,
+                                             "etc", "templates", "config_with_getenv.py.template")
+        # if setup was set on the command line or if we specify "setups" in the
+        # setup_using config", use "setups"
+        elif (self.opts.setup is not None) or (self.setup_using == "setups"):
+            genericConfigName = os.path.join(executePkgDir,
+                                             "etc", "templates", "config_with_setups.py.template")
+        # if setup_using is not "getenv" or "setups", throw a RuntimeError
+        else:
+             raise RuntimeError("invalid value for execConfig element 'setup_using'= '%s'; should be 'getenv' or 'setups'" % self.setup_using)
         return genericConfigName
 
     def createRunId(self):
@@ -207,7 +221,8 @@ class Configurator(object):
         self.defaults["DEFAULT_ROOT"] = tempDefaultRoot.substitute(
             USER_NAME=self.commandLineDefaults["USER_NAME"])
 
-        self.defaults["LOCAL_SCRATCH"] = envString.resolve(configuration.platform.localScratch)
+        tempLocalScratch = Template(configuration.platform.localScratch)
+        self.defaults["LOCAL_SCRATCH"] = tempLocalScratch.substitute(USER_NAME=self.commandLineDefaults["USER_NAME"])
         self.defaults["IDS_PER_JOB"] = configuration.platform.idsPerJob
         self.defaults["DATA_DIRECTORY"] = envString.resolve(configuration.platform.dataDirectory)
         self.defaults["FILE_SYSTEM_DOMAIN"] = configuration.platform.fileSystemDomain
@@ -215,6 +230,7 @@ class Configurator(object):
 
         platform_dir = lsst.utils.getPackageDir("ctrl_platform_"+self.opts.platform)
         self.defaults["PLATFORM_DIR"] = platform_dir
+        self.setup_using = configuration.platform.setup_using
 
     def createConfiguration(self, input):
         """ creates a new Orca configuration file

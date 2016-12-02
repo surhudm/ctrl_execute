@@ -50,6 +50,7 @@ def main():
     print("runid for this run is ", runid)
 
     cmd = "orca.py %s %s" % (generatedConfigFile, runid)
+    print(cmd)
     cmd_split = cmd.split()
     pid = os.fork()
     if not pid:
