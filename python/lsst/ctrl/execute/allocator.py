@@ -151,7 +151,7 @@ class Allocator(object):
         # print("localScratch-> %s" % self.defaults["LOCAL_SCRATCH"])
         self.defaults["SCHEDULER"] = self.configuration.platform.scheduler
 
-    def loadAllocationConfig(self, name):
+    def loadAllocationConfig(self, name, suffix):
         """Loads all values from allocationConfig and command line overrides into
         data structures suitable for use by the TemplateWriter object.
         """
@@ -202,7 +202,7 @@ class Allocator(object):
         if not os.path.exists(self.configDir):
             os.makedirs(self.configDir)
 
-        self.submitFileName = os.path.join(self.configDir, "alloc_%s.pbs" % self.uniqueIdentifier)
+        self.submitFileName = os.path.join(self.configDir, "alloc_%s.%s" % (self.uniqueIdentifier, suffix))
 
         self.condorConfigFileName = os.path.join(self.configDir, "condor_%s.config" % self.uniqueIdentifier)
 

@@ -106,7 +106,7 @@ class pbsPlugin(Allocator):
         self.printNodeSetInfo()
 
     def loadPbs(self, name):
-        configuration = self.loadAllocationConfig(name)
+        configuration = self.loadAllocationConfig(name, "pbs")
         template = Template(configuration.platform.scratchDirectory)
         scratchDir = template.substitute(USER_HOME=self.getUserHome())
         self.defaults["SCRATCH_DIR"] = scratchDir

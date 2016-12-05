@@ -82,7 +82,7 @@ class slurmPlugin(Allocator):
         self.printNodeSetInfo()
 
     def loadSlurm(self, name):
-        allocationConfig = self.loadAllocationConfig(name)
+        allocationConfig = self.loadAllocationConfig(name, "slurm")
 
         template = Template(allocationConfig.platform.scratchDirectory)
         scratchDir = template.substitute(USER_NAME=self.getUserName())
