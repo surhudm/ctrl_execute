@@ -50,6 +50,7 @@ class Configurator(object):
         @param opts: options to override
         """
         self.opts = opts
+        self.setup_using = None
 
         self.defaults = {}
 
@@ -137,7 +138,6 @@ class Configurator(object):
 
         # if opts.setup_using isn't specified, default to the safest thing,
         # which is using setups
-        print("setup_using = %s" % self.setup_using)
         if (self.setup_using is None):
             genericConfigName = os.path.join(executePkgDir,
                                              "etc", "templates", "config_with_setups.py.template")

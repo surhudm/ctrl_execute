@@ -67,11 +67,11 @@ class TestAllocator(lsst.utils.tests.TestCase):
                 ]
         return argv
 
-    def subSetup(self):
+    def subSetup(self, configFileName):
         alp = AllocatorParser(sys.argv[0])
         args = alp.getArgs()
 
-        condorConfigFile = os.path.join("tests", "testfiles", "config_condor.py")
+        condorConfigFile = os.path.join("tests", "testfiles", configFileName)
         configuration = CondorConfig()
         configuration.load(condorConfigFile)
 
@@ -85,7 +85,7 @@ class TestAllocator(lsst.utils.tests.TestCase):
 
     def test1(self):
         sys.argv = self.verboseArgs()
-        al = self.subSetup()
+        al = self.subSetup("config_condor.py")
 
         identifier1 = al.createUniqueIdentifier()
         time.sleep(1)
@@ -94,7 +94,7 @@ class TestAllocator(lsst.utils.tests.TestCase):
 
     def test2(self):
         sys.argv = self.verboseArgs()
-        al = self.subSetup()
+        al = self.subSetup("config_condor.py")
 
         fileName = os.path.join("tests", "testfiles", "config_allocation.py")
         al.loadPbs(fileName)
@@ -111,7 +111,7 @@ class TestAllocator(lsst.utils.tests.TestCase):
 
     def test3(self):
         sys.argv = self.regularArgs()
-        al = self.subSetup()
+        al = self.subSetup("config_condor.py")
 
         fileName = os.path.join("tests", "testfiles", "config_allocation.py")
         al.loadPbs(fileName)
@@ -131,6 +131,27 @@ class TestAllocator(lsst.utils.tests.TestCase):
         os.rmdir(configPath)
         os.rmdir(localScratch)
 
+    def test4(self):
+        sys.argv = self.regularArgs()
+        al = self.subSetup("config_condor_slurm.py")
+
+        fileName = os.path.join("tests", "testfiles", "config_allocation_slurm.py")
+        al.loadSlurm(fileName)
+        slurmName = os.path.join("tests", "testfiles", "generic.slurm.template")
+        compare = os.path.join("tests", "testfiles", "generic.slurm.txt")
+        generatedSlurmFile = al.createSubmitFile(slurmName)
+
+        self.assertTrue(filecmp.cmp(compare, generatedSlurmFile))
+        condorFile = os.path.join("tests", "testfiles", "glidein_condor_config.template")
+        compare = os.path.join("tests", "testfiles", "glidein_condor_config.txt")
+        generatedCondorConfigFile = al.createCondorConfigFile(condorFile)
+        self.assertTrue(filecmp.cmp(compare, generatedCondorConfigFile))
+        os.remove(generatedCondorConfigFile)
+        os.remove(generatedSlurmFile)
+        localScratch = "./tests/condor_scratch"
+        configPath = "./tests/condor_scratch/configs"
+        os.rmdir(configPath)
+        os.rmdir(localScratch)
 
 class AllocatorMemoryTest(lsst.utils.tests.MemoryTestCase):
     pass
