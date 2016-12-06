@@ -86,10 +86,10 @@ class Allocator(object):
                 user_home = os.getenv('HOME')
 
         if user_name is None:
-            raise RuntimeError("error:  does not specify user name for platform %s" %
+            raise RuntimeError("error: %s does not specify user name for platform == %s" %
                                (condorInfoFileName, self.platform))
         if user_home is None:
-            raise RuntimeError("error: %s does not specify user home for platform %s" %
+            raise RuntimeError("error: %s does not specify user home for platform == %s" %
                                (condorInfoFileName, self.platform))
 
         self.defaults["USER_NAME"] = user_name
@@ -145,7 +145,6 @@ class Allocator(object):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
         """
-        # 11/17/16 - srp XXX
         tempLocalScratch = Template(self.configuration.platform.localScratch)
         self.defaults["LOCAL_SCRATCH"] = tempLocalScratch.substitute(USER_NAME=self.defaults["USER_NAME"])
         # print("localScratch-> %s" % self.defaults["LOCAL_SCRATCH"])
