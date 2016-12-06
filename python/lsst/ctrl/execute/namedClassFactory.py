@@ -28,7 +28,7 @@ class NamedClassFactory(object):
     Parameters
     ----------
     name : `str`
-        the fully qualified nname of an object
+        the fully qualified name of an object
  
     Returns
     -------
