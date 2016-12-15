@@ -102,5 +102,5 @@ class slurmPlugin(Allocator):
         outfile = self.createFile(input, self.allocationFileName)
         if self.opts.verbose:
             print("wrote new allocation script file to %s" % outfile)
-        os.chmod(outfile, 0755)
+        os.chmod(outfile, 0o755)
         return outfile
