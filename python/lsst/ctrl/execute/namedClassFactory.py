@@ -1,6 +1,10 @@
 #
 # LSST Data Management System
+<<<<<<< HEAD
 # Copyright 2008, 2009, 2010 LSST Corporation.
+=======
+# Copyright 2008-2016 LSST Corporation.
+>>>>>>> 4417caf602e5ebf21fd5f98a9840ca9fade24ae4
 #
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
