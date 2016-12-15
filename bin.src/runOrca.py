@@ -2,7 +2,7 @@
 
 #
 # LSST Data Management System
-# Copyright 2008, 2009, 2010 LSST Corporation.
+# Copyright 2008-2016 LSST Corporation.
 #
 # This product includes software developed by the
 # LSST Project (http://www.lsst.org/).
@@ -50,6 +50,7 @@ def main():
     print("runid for this run is ", runid)
 
     cmd = "orca.py %s %s" % (generatedConfigFile, runid)
+    print(cmd)
     cmd_split = cmd.split()
     pid = os.fork()
     if not pid:
