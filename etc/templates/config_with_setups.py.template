@@ -2,20 +2,16 @@ config.production.shortName = "DataRelease"
 config.production.eventBrokerHost = "lsst8.ncsa.uiuc.edu"
 config.production.productionShutdownTopic = "productionShutdown2"
 
+# note that the database plugin, DatabaseConfigurator, is a placeholder
+# and does no interaction with the database.
 config.database["db1"].name = "dc3bGlobal"
 config.database["db1"].system.authInfo.host = "lsst-db.ncsa.illinois.edu"
 config.database["db1"].system.authInfo.port = 3306
 config.database["db1"].system.runCleanup.daysFirstNotice = 7
 config.database["db1"].system.runCleanup.daysFinalNotice = 1
 
-config.database["db1"].configurationClass = "lsst.ctrl.orca.db.DC3Configurator"
+config.database["db1"].configurationClass = "lsst.ctrl.orca.DatabaseConfigurator"
 config.database["db1"].configuration["production"].globalDbName = "GlobalDB"
-
-config.database["db1"].configuration["production"].dcVersion = "S12_sdss"
-config.database["db1"].configuration["production"].dcDbName = "DC3b_DB"
-config.database["db1"].configuration["production"].minPercDiskSpaceReq = 10
-config.database["db1"].configuration["production"].userRunLife = 2
-config.database["db1"].logger.launch = True
 
 config.workflow["workflow1"].platform.dir.defaultRoot = "$DEFAULT_ROOT"
 
