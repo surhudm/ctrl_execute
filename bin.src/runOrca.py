@@ -38,9 +38,13 @@ def main():
     creator = Configurator(args, "$HOME/.lsst/condor-info.py")
 
     platformPkgDir = lsst.utils.getPackageDir("ctrl_platform_"+creator.platform)
-    configName = os.path.join(platformPkgDir, "etc", "config", "execConfig.py")
+    if args.platformConfig is None:
+        configFileName = os.path.join(platformPkgDir, 
+                            "etc", "config", "execConfig.py")
+    else:
+        configFileName = args.platformConfig
 
-    creator.load(configName)
+    creator.load(configFileName)
 
     genericConfigName = creator.getGenericConfigFileName()
     generatedConfigFile = creator.createConfiguration(genericConfigName)
