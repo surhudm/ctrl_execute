@@ -37,7 +37,9 @@ class PlatformConfig(pexConfig.Config):
     eupsPath = pexConfig.Field(doc="location of remote EUPS stack", dtype=str, default=None)
     nodeSetRequired = pexConfig.Field(doc="is the nodeset required", dtype=bool, default=False)
     scheduler = pexConfig.Field(doc="scheduler type", dtype=str, default=None)
+    manager = pexConfig.Field(doc="workflow manager", dtype=str, default=None)
     setup_using = pexConfig.Field(doc="environment setup type", dtype=str, default=None)
+    manager_software_home = pexConfig.Field(doc="location of workflow manager software", dtype=str, default=None)
 
 
 class CondorConfig(pexConfig.Config):
