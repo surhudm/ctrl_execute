@@ -27,27 +27,27 @@ config.workflow["workflow1"].configuration["condor"].condorData.localScratch = "
 
 config.workflow["workflow1"].task["task1"].scriptDir = "workers"
 
-config.workflow["workflow1"].task["task1"].preJob.script.inputFile = "$PLATFORM_DIR/etc/templates/getenv/preJob.sh.template"
+config.workflow["workflow1"].task["task1"].preJob.script.inputFile = "$PLATFORM_DIR/etc/templates/dagman/getenv/preJob.sh.template"
 config.workflow["workflow1"].task["task1"].preJob.script.outputFile = "preJob.sh"
-config.workflow["workflow1"].task["task1"].preJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/getenv/preJob.condor.template"
+config.workflow["workflow1"].task["task1"].preJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/dagman/getenv/preJob.condor.template"
 config.workflow["workflow1"].task["task1"].preJob.condor.keywords["NODE_SET"] = "$NODE_SET"
 config.workflow["workflow1"].task["task1"].preJob.condor.keywords["FILE_SYSTEM_DOMAIN"] = "$FILE_SYSTEM_DOMAIN"
 
-config.workflow["workflow1"].task["task1"].preJob.condor.outputFile = "S2012Pipe.pre"
+config.workflow["workflow1"].task["task1"].preJob.condor.outputFile = "Workflow.pre"
 
-config.workflow["workflow1"].task["task1"].postJob.script.inputFile = "$PLATFORM_DIR/etc/templates/getenv/postJob.sh.template"
+config.workflow["workflow1"].task["task1"].postJob.script.inputFile = "$PLATFORM_DIR/etc/templates/dagman/getenv/postJob.sh.template"
 config.workflow["workflow1"].task["task1"].postJob.script.outputFile = "postJob.sh"
-config.workflow["workflow1"].task["task1"].postJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/getenv/postJob.condor.template"
+config.workflow["workflow1"].task["task1"].postJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/dagman/getenv/postJob.condor.template"
 config.workflow["workflow1"].task["task1"].postJob.condor.keywords["FILE_SYSTEM_DOMAIN"] = "$FILE_SYSTEM_DOMAIN"
 config.workflow["workflow1"].task["task1"].postJob.condor.keywords["NODE_SET"] = "$NODE_SET"
-config.workflow["workflow1"].task["task1"].postJob.condor.outputFile = "S2012Pipe.post"
+config.workflow["workflow1"].task["task1"].postJob.condor.outputFile = "Workflow.post"
 
-config.workflow["workflow1"].task["task1"].workerJob.script.inputFile = "$PLATFORM_DIR/etc/templates/getenv/worker.sh.template"
+config.workflow["workflow1"].task["task1"].workerJob.script.inputFile = "$PLATFORM_DIR/etc/templates/dagman/getenv/worker.sh.template"
 config.workflow["workflow1"].task["task1"].workerJob.script.outputFile = "worker.sh"
-config.workflow["workflow1"].task["task1"].workerJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/getenv/workerJob.condor.template"
+config.workflow["workflow1"].task["task1"].workerJob.condor.inputFile = "$PLATFORM_DIR/etc/templates/dagman/getenv/workerJob.condor.template"
 config.workflow["workflow1"].task["task1"].workerJob.condor.keywords["FILE_SYSTEM_DOMAIN"] = "$FILE_SYSTEM_DOMAIN"
 config.workflow["workflow1"].task["task1"].workerJob.condor.keywords["NODE_SET"] = "$NODE_SET"
-config.workflow["workflow1"].task["task1"].workerJob.condor.outputFile = "S2012Pipeline-template.condor"
+config.workflow["workflow1"].task["task1"].workerJob.condor.outputFile = "Workflow-template.condor"
 
 
 
@@ -64,7 +64,7 @@ config.workflow["workflow1"].task["task1"].workerJob.script.keywords["EUPS_PATH"
 config.workflow["workflow1"].task["task1"].workerJob.script.keywords["COMMAND"] = "$COMMAND"
 
 
-config.workflow["workflow1"].task["task1"].dagGenerator.dagName = "S2012Pipe"
-config.workflow["workflow1"].task["task1"].dagGenerator.script = "$CTRL_EXECUTE_DIR/etc/scripts/generateDag.py"
-config.workflow["workflow1"].task["task1"].dagGenerator.idsPerJob = $IDS_PER_JOB
-config.workflow["workflow1"].task["task1"].dagGenerator.input = "$INPUT_DATA_FILE"
+config.workflow["workflow1"].task["task1"].generator["dag"].dagName = "Workflow"
+config.workflow["workflow1"].task["task1"].generator["dag"].script = "$CTRL_EXECUTE_DIR/etc/scripts/generateDag.py"
+config.workflow["workflow1"].task["task1"].generator["dag"].idsPerJob = $IDS_PER_JOB
+config.workflow["workflow1"].task["task1"].generator["dag"].inputFile = "$INPUT_DATA_FILE"
