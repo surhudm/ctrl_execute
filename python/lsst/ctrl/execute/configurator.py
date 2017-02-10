@@ -51,6 +51,7 @@ class Configurator(object):
         """
         self.opts = opts
         self.setup_using = None
+        self.manager = None
 
         self.defaults = {}
 
@@ -120,6 +121,15 @@ class Configurator(object):
         else:
             self.runid = self.createRunId()
 
+        if self.opts.dagscript is not None:
+            self.commandLineDefaults["DAGSCRIPT"] = self.opts.dagscript
+
+        if self.opts.inputscript is not None:
+            self.commandLineDefaults["INPUTSCRIPT"] = self.opts.inputscript
+
+        if self.opts.platformConfig is not None:
+            self.commandLineDefaults["PLATFORM_CONFIG"] = self.opts.platformConfig
+
         self.commandLineDefaults["COMMAND"] = self.opts.command
         if self.commandLineDefaults["INPUT_DATA_FILE"] is not None:
             self.commandLineDefaults["COMMAND"] = self.commandLineDefaults["COMMAND"]+" ${id_option}"
@@ -130,31 +140,15 @@ class Configurator(object):
         @return the name of the orca config template
         """
         executePkgDir = lsst.utils.getPackageDir('ctrl_execute')
-        genericConfigName = None
-        # if no command line setups are done, and if you're targeting
-        # the LSST platform, use the template that allows usage of the
-        # Condor "getenv" method of environment setup.  Otherwise use
-        # template that uses LSST "setup" commands for each package.
 
-        # if opts.setup_using isn't specified, default to the safest thing,
-        # which is using setups
-        if (self.setup_using is None):
-            genericConfigName = os.path.join(executePkgDir,
-                                             "etc", "templates", "config_with_setups.py.template")
-        # if setup is not set on the command line, and setup_using is 
-        # set to "getenv", use "getenv" 
-        elif (self.opts.setup is None) and (self.setup_using == "getenv"):
-            genericConfigName = os.path.join(executePkgDir,
-                                             "etc", "templates", "config_with_getenv.py.template")
-        # if setup was set on the command line or if we specify "setups" in the
-        # setup_using config", use "setups"
-        elif (self.opts.setup is not None) or (self.setup_using == "setups"):
-            genericConfigName = os.path.join(executePkgDir,
-                                             "etc", "templates", "config_with_setups.py.template")
-        # if setup_using is not "getenv" or "setups", throw a RuntimeError
-        else:
-             raise RuntimeError("invalid value for execConfig element 'setup_using'= '%s'; should be 'getenv' or 'setups'" % self.setup_using)
-        return genericConfigName
+        name = "config_with_%s.py.template" % self.setup_using
+        print("self.manager = %s " % self.manager)
+        genericConfigName = os.path.join(executePkgDir, 
+                            "etc", "templates", self.manager, name)
+        if os.path.exists(genericConfigName):
+            return genericConfigName
+        raise RuntimeError("File %s not found; check etc/templates." % 
+                            genericConfigName)
 
     def createRunId(self):
         """create a unique runid
@@ -227,9 +221,11 @@ class Configurator(object):
         self.defaults["DATA_DIRECTORY"] = envString.resolve(configuration.platform.dataDirectory)
         self.defaults["FILE_SYSTEM_DOMAIN"] = configuration.platform.fileSystemDomain
         self.defaults["EUPS_PATH"] = configuration.platform.eupsPath
+        self.defaults["MANAGER_SOFTWARE_HOME"] = configuration.platform.manager_software_home
 
         platform_dir = lsst.utils.getPackageDir("ctrl_platform_"+self.opts.platform)
         self.defaults["PLATFORM_DIR"] = platform_dir
+        self.manager = configuration.platform.manager
         self.setup_using = configuration.platform.setup_using
 
     def createConfiguration(self, input):
