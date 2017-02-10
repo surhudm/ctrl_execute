@@ -54,6 +54,7 @@ class TestCondorConfig(lsst.utils.tests.TestCase):
         self.assertEqual(self.config.platform.fileSystemDomain, "lsstcorp.org")
         self.assertEqual(self.config.platform.eupsPath, "/var/tmp")
         self.assertEqual(self.config.platform.scheduler, "pbs")
+        self.assertEqual(self.config.platform.manager, "dagman")
         self.assertIsNone(self.config.platform.setup_using)
 
     def test3(self):
@@ -67,6 +68,7 @@ class TestCondorConfig(lsst.utils.tests.TestCase):
         self.assertEqual(self.config.platform.eupsPath, "/var/tmp")
         self.assertEqual(self.config.platform.scheduler, "pbs")
         self.assertEqual(self.config.platform.setup_using, "getenv")
+        self.assertEqual(self.config.platform.manager, "dagman")
 
     def test4(self):
         path = os.path.join("tests", "testfiles", "config_condor_setups.py")
@@ -79,6 +81,7 @@ class TestCondorConfig(lsst.utils.tests.TestCase):
         self.assertEqual(self.config.platform.eupsPath, "/var/tmp")
         self.assertEqual(self.config.platform.scheduler, "pbs")
         self.assertEqual(self.config.platform.setup_using, "setups")
+        self.assertEqual(self.config.platform.manager, "dagman")
 
     def test3(self):
         path = os.path.join("tests", "testfiles", "config_condor_slurm.py")
@@ -91,6 +94,20 @@ class TestCondorConfig(lsst.utils.tests.TestCase):
         self.assertEqual(self.config.platform.eupsPath, "/var/tmp")
         self.assertEqual(self.config.platform.scheduler, "slurm")
         self.assertEqual(self.config.platform.setup_using, "getenv")
+        self.assertEqual(self.config.platform.manager, "dagman")
+
+    def test4(self):
+        path = os.path.join("tests", "testfiles", "config_pegasus.py")
+        self.config.load(path)
+
+        self.assertEqual(self.config.platform.defaultRoot, "/mount2/condor_work")
+        self.assertEqual(self.config.platform.localScratch, "/mount1/scratch")
+        self.assertEqual(self.config.platform.dataDirectory, "/datasets")
+        self.assertEqual(self.config.platform.fileSystemDomain, "lsstcorp.org")
+        self.assertEqual(self.config.platform.eupsPath, "/var/tmp")
+        self.assertEqual(self.config.platform.scheduler, "slurm")
+        self.assertEqual(self.config.platform.setup_using, "getenv")
+        self.assertEqual(self.config.platform.manager, "pegasus")
 
 class CondorConfigMemoryTest(lsst.utils.tests.MemoryTestCase):
     pass

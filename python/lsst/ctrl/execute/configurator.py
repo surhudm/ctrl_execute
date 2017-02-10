@@ -142,6 +142,8 @@ class Configurator(object):
         executePkgDir = lsst.utils.getPackageDir('ctrl_execute')
 
         name = "config_with_%s.py.template" % self.setup_using
+        print("setup_using = %s " % self.setup_using)
+        print("name = %s " % name)
         print("self.manager = %s " % self.manager)
         genericConfigName = os.path.join(executePkgDir, 
                             "etc", "templates", self.manager, name)
@@ -202,6 +204,7 @@ class Configurator(object):
         """Loads all values from configuration and command line overrides into
         data structures suitable for use by the TemplateWriter object.
         """
+        print("load called")
         resolvedName = envString.resolve(name)
         configuration = CondorConfig()
         configuration.load(resolvedName)

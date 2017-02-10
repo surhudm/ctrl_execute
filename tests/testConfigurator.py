@@ -96,30 +96,13 @@ class TestConfigurator(lsst.utils.tests.TestCase):
 
     def test3(self):
         configurator = self.setup(self.getRemoteArgs())
-        testname = "config_with_setups.py.template"
-        print(configurator.getGenericConfigFileName())
-        self.assertTrue(os.path.basename(configurator.getGenericConfigFileName()) == testname)
-
-    def test4(self):
-        configurator = self.setup(self.getLocalArgs())
-        testname = "config_with_setups.py.template"
-        print(os.path.basename(configurator.getGenericConfigFileName()))
-        self.assertTrue(os.path.basename(configurator.getGenericConfigFileName()) == testname)
-
-    def test5(self):
-        configurator = self.setup(self.getLocalWithSetupArgs())
-        testname = "config_with_setups.py.template"
-        self.assertTrue(os.path.basename(configurator.getGenericConfigFileName()) == testname)
-
-    def test6(self):
-        configurator = self.setup(self.getRemoteArgs())
         runId1 = configurator.createRunId()
         time.sleep(1)
         runId2 = configurator.createRunId()
         self.assertTrue(runId1 != runId2)
         self.assertTrue(runId2 == configurator.getRunId())
 
-    def test7(self):
+    def test4(self):
         configurator = self.setup(self.getRemoteArgs())
         self.assertIsNotNone(configurator.getSetupPackages())
 
