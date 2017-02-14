@@ -48,13 +48,34 @@ class RunOrcaParser(object):
         @return: the parser options and remaining arguments
         """
 
-        parser = argparse.ArgumentParser(prog=basename)
+        parser = argparse.ArgumentParser(prog=basename, usage ="[-h] -p PLATFORM -e EUPSPATH \
+((-c COMMAND -i INPUTDATAFILE) | (-D DAGSCRIPT -I INPUTSCRIPT)) \
+[-N NODESET] \
+[-n IDSPERJOB] \
+[-r DEFAULTROOT] \
+[-l LOCALSCRATCH] \
+[-d DATADIRECTORY] \
+[-F FILESYSTEMDOMAIN] \
+[-u USER_NAME] \
+[-H USER_HOME] \
+[-P PLATFORMCONFIG] \
+[-R RUNID] \
+[-v] [-s SETUP SETUP]")
         parser.add_argument("-p", "--platform", action="store", dest="platform",
                             default=None, help="platform", required=True)
-        parser.add_argument("-c", "--command", action="store", dest="command",
-                            default=None, help="command", required=True)
-        parser.add_argument("-i", "--id-file", action="store", dest="inputDataFile",
-                            default=None, help="list of ids", required=True)
+
+        command_group = parser.add_argument_group("parallel command")
+        command_group.add_argument("-c", "--command", action="store", dest="command",
+                            default=None, help="command")
+        command_group.add_argument("-i", "--id-file", action="store", dest="inputDataFile",
+                            default=None, help="list of ids")
+
+        dag_group = parser.add_argument_group("dag script")
+        dag_group.add_argument("-D", "--dag-script", action ="store", dest="dagscript",
+                            default=None, help="dag script")
+        dag_group.add_argument("-I", "--input-script", action ="store", dest="inputscript",
+                            default=None, help="input script")
+        
         parser.add_argument("-e", "--eups-path", action="store", dest="eupsPath",
                             default=None, help="eups path", required=True)
         parser.add_argument("-N", "--node-set", action="store",
@@ -78,9 +99,14 @@ class RunOrcaParser(object):
         parser.add_argument("-v", "--verbose", action="store_true", dest="verbose",
                             default=False, help="verbose")
         parser.add_argument("-s", "--setup", action="append", nargs=2, help="setup")
+        parser.add_argument("-P", "--platformconfig", action="store", dest="platformConfig", default=None, help="platform configuration file")
 
         args = parser.parse_args()
 
+        if args.dagscript is None:
+            if args.command is None or args.inputDataFile is None:
+                parser.print_help()
+                parser.exit()
         return args
 
     def getArgs(self):

@@ -208,7 +208,7 @@ def main():
     print(ns)
     print(ns.idsPerJob)
 
-    pipeline = "S2012Pipe"
+    pipeline = "Workflow"
 
     writeDagFile(pipeline, ns.template, ns.source, ns.workerdir, ns.prescript, ns.runid, int(ns.idsPerJob))
 
