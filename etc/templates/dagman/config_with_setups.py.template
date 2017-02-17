@@ -1,6 +1,4 @@
 config.production.shortName = "DataRelease"
-config.production.eventBrokerHost = "lsst8.ncsa.uiuc.edu"
-config.production.productionShutdownTopic = "productionShutdown2"
 
 # note that the database plugin, DatabaseConfigurator, is a placeholder
 # and does no interaction with the database.
@@ -16,8 +14,6 @@ config.database["db1"].configuration["production"].globalDbName = "GlobalDB"
 config.workflow["workflow1"].platform.dir.defaultRoot = "$DEFAULT_ROOT"
 
 config.workflow["workflow1"].platform.deploy.defaultDomain = "$FILE_SYSTEM_DOMAIN"
-
-config.workflow["workflow1"].shutdownTopic = "workflowShutdown2"
 
 config.workflow["workflow1"].configurationType = "condor"
 config.workflow["workflow1"].configurationClass = "lsst.ctrl.orca.CondorWorkflowConfigurator"
