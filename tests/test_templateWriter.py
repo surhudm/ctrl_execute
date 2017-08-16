@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # LSST Data Management System
 # Copyright 2008-2012 LSST Corporation.
@@ -22,7 +21,10 @@
 #
 
 import unittest
-from lsst.ctrl.execute.seqFile import SeqFile
+import os
+import os.path
+import filecmp
+from lsst.ctrl.execute.templateWriter import TemplateWriter
 import lsst.utils.tests
 
 
@@ -30,19 +32,23 @@ def setup_module(module):
     lsst.utils.tests.init()
 
 
-class TestSeqFile(lsst.utils.tests.TestCase):
+class TestTemplateWriter(lsst.utils.tests.TestCase):
 
     def test1(self):
-        with lsst.utils.tests.getTempFilePath(".seq") as filename:
-            sf = SeqFile(filename)
-            a = sf.nextSeq()
-            self.assertTrue(a == 0)
-            a = sf.nextSeq()
-            self.assertTrue(a == 1)
+        pairs = {}
+        pairs["TEST1"] = "Hello"
+        pairs["TEST2"] = "Goodbye"
+        infile = os.path.join("tests", "testfiles", "templateWriter.template")
+        compare = os.path.join("tests", "testfiles", "templateWriter.txt")
+        with lsst.utils.tests.getTempFilePath("_template.txt") as outfile:
+            temp = TemplateWriter()
+            temp.rewrite(infile, outfile, pairs)
+            self.assertTrue(filecmp.cmp(compare, outfile))
 
 
-class TestSeqFileMemoryTest(lsst.utils.tests.MemoryTestCase):
+class TestTemplateWriterTestCase(lsst.utils.tests.MemoryTestCase):
     pass
+
 
 if __name__ == "__main__":
     lsst.utils.tests.init()
