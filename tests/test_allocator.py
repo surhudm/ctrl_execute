@@ -93,7 +93,7 @@ class TestAllocator(lsst.utils.tests.TestCase):
 
     def test2(self):
         sys.argv = self.verboseArgs()
-        al = self.subSetup("config_condor.py")
+        al = self.subSetup("config_asserts.py")
 
         fileName = os.path.join("tests", "testfiles", "config_allocation.py")
         al.loadPbs(fileName)
@@ -107,6 +107,10 @@ class TestAllocator(lsst.utils.tests.TestCase):
         self.assertEqual(al.getParameter("NODE_COUNT"), 64)
         self.assertEqual(al.getParameter("KAZOO"), None)
         self.assertTrue(al.isVerbose())
+        localScratch = "./tests/condor_scratch_asserts"
+        configPath = "./tests/condor_scratch_asserts/configs"
+        os.rmdir(configPath)
+        os.rmdir(localScratch)
 
     def test3(self):
         sys.argv = self.regularArgs()
