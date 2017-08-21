@@ -125,8 +125,8 @@ class TestAllocator(lsst.utils.tests.TestCase):
         self.assertTrue(filecmp.cmp(compare, generatedCondorConfigFile))
         os.remove(generatedCondorConfigFile)
         os.remove(generatedPbsFile)
-        localScratch = "./tests/condor_scratch"
-        configPath = "./tests/condor_scratch/configs"
+        localScratch = "./tests/condor_scratch_condor"
+        configPath = "./tests/condor_scratch_condor/configs"
         os.rmdir(configPath)
         os.rmdir(localScratch)
 
@@ -147,8 +147,8 @@ class TestAllocator(lsst.utils.tests.TestCase):
         self.assertTrue(filecmp.cmp(compare, generatedCondorConfigFile))
         os.remove(generatedCondorConfigFile)
         os.remove(generatedSlurmFile)
-        localScratch = "./tests/condor_scratch"
-        configPath = "./tests/condor_scratch/configs"
+        localScratch = "./tests/condor_scratch_slurm"
+        configPath = "./tests/condor_scratch_slurm/configs"
         os.rmdir(configPath)
         os.rmdir(localScratch)
 
