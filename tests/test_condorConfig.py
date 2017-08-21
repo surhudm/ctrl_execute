@@ -48,8 +48,8 @@ class TestCondorConfig(lsst.utils.tests.TestCase):
         self.config.load(path)
 
         self.assertEqual(self.config.platform.defaultRoot, "/usr")
-        self.assertEqual(self.config.platform.localScratch, "./tests/condor_scratch")
-        self.assertEqual(self.config.platform.dataDirectory, "/tmp/data")
+        self.assertEqual(self.config.platform.localScratch, "./tests/condor_scratch_condor")
+        self.assertEqual(self.config.platform.dataDirectory, "/tmp/data_condor")
         self.assertEqual(self.config.platform.fileSystemDomain, "lsstcorp.org")
         self.assertEqual(self.config.platform.eupsPath, "/var/tmp")
         self.assertEqual(self.config.platform.scheduler, "pbs")
@@ -87,8 +87,8 @@ class TestCondorConfig(lsst.utils.tests.TestCase):
         self.config.load(path)
 
         self.assertEqual(self.config.platform.defaultRoot, "/usr")
-        self.assertEqual(self.config.platform.localScratch, "./tests/condor_scratch")
-        self.assertEqual(self.config.platform.dataDirectory, "/tmp/data")
+        self.assertEqual(self.config.platform.localScratch, "./tests/condor_scratch_slurm")
+        self.assertEqual(self.config.platform.dataDirectory, "/tmp/data_slurm")
         self.assertEqual(self.config.platform.fileSystemDomain, "lsstcorp.org")
         self.assertEqual(self.config.platform.eupsPath, "/var/tmp")
         self.assertEqual(self.config.platform.scheduler, "slurm")
