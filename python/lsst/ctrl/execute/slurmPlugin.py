@@ -82,6 +82,11 @@ class slurmPlugin(Allocator):
         self.printNodeSetInfo()
 
     def loadSlurm(self, name):
+        if self.opts.reservation is not None:
+            self.defaults["RESERVATION"] = "#SBATCH --reservation=%s" % self.opts.reservation
+        else:
+            self.defaults["RESERVATION"] = ""
+
         allocationConfig = self.loadAllocationConfig(name, "slurm")
 
         template = Template(allocationConfig.platform.scratchDirectory)

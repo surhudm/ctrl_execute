@@ -331,6 +331,12 @@ class Allocator(object):
         """
         return self.getParameter("SCHEDULER")
 
+    def getReservation(self):
+        """Accessor for RESERVATION
+        @return the value of RESERVATION
+        """
+        return self.getParameter("RESERVATION")
+
     def getParameter(self, value):
         """Accessor for generic value
         @return None if value is not set.  Otherwise, use the command line
