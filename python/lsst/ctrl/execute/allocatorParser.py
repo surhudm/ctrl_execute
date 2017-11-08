@@ -82,6 +82,7 @@ class AllocatorParser(object):
         parser.add_argument("-g", "--glidein-shutdown", action="store", dest="glideinShutdown",
                             type=int, default=None, help="glide-in inactivity shutdown time in seconds")
         parser.add_argument("-v", "--verbose", action="store_true", dest="verbose", help="verbose")
+        parser.add_argument("-r", "--reservation", action="store", dest="reservation", default=None, help="run id")
 
         self.args = parser.parse_args()
 
