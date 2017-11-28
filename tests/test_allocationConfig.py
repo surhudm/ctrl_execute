@@ -36,7 +36,7 @@ class AllocationConfigTest(lsst.utils.tests.TestCase):
 
     def test_config1(self):
 
-        self.assertIsNone(self.config.platform.queue)
+        self.assertEqual(self.config.platform.queue, "debug")
         self.assertIsNone(self.config.platform.email)
         self.assertIsNone(self.config.platform.scratchDirectory)
         self.assertIsNone(self.config.platform.loginHostName)
