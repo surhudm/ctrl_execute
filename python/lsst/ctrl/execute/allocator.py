@@ -25,13 +25,13 @@
 from __future__ import print_function
 from builtins import str
 from builtins import object
-import os, sys
+import os
+import sys
 import pwd
 from datetime import datetime
 from string import Template
 from lsst.ctrl.execute import envString
 from lsst.ctrl.execute.allocationConfig import AllocationConfig
-from lsst.ctrl.execute.condorConfig import CondorConfig
 from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
 from lsst.ctrl.execute.templateWriter import TemplateWriter
 from lsst.ctrl.execute.seqFile import SeqFile
@@ -208,7 +208,7 @@ class Allocator(object):
         self.defaults["GENERATED_CONFIG"] = os.path.basename(self.condorConfigFileName)
         self.defaults["CONFIGURATION_ID"] = self.uniqueIdentifier
         return allocationConfig
-        
+
     def createSubmitFile(self, inputFile):
         """Creates a PBS file using the file "input" as a Template
 

@@ -55,6 +55,7 @@ class CondorInfoConfig(pexConfig.Config):
     """
     platform = pexConfig.ConfigChoiceField("platform info", FakeTypeMap(UserConfig))
 
+
 if __name__ == "__main__":
     config = CondorInfoConfig()
     filename = "$HOME/.lsst/condor-info.py"

@@ -142,12 +142,12 @@ class Configurator(object):
         executePkgDir = lsst.utils.getPackageDir('ctrl_execute')
 
         name = "config_with_%s.py.template" % self.setup_using
-        genericConfigName = os.path.join(executePkgDir, 
-                            "etc", "templates", self.manager, name)
+        genericConfigName = os.path.join(executePkgDir,
+                                         "etc", "templates", self.manager, name)
         if os.path.exists(genericConfigName):
             return genericConfigName
-        raise RuntimeError("File %s not found; check etc/templates." % 
-                            genericConfigName)
+        raise RuntimeError("File %s not found; check etc/templates." %
+                           genericConfigName)
 
     def createRunId(self):
         """create a unique runid
@@ -215,7 +215,8 @@ class Configurator(object):
             USER_NAME=self.commandLineDefaults["USER_NAME"])
 
         tempLocalScratch = Template(configuration.platform.localScratch)
-        self.defaults["LOCAL_SCRATCH"] = tempLocalScratch.substitute(USER_NAME=self.commandLineDefaults["USER_NAME"])
+        self.defaults["LOCAL_SCRATCH"] = tempLocalScratch.substitute(
+            USER_NAME=self.commandLineDefaults["USER_NAME"])
         self.defaults["IDS_PER_JOB"] = configuration.platform.idsPerJob
         self.defaults["DATA_DIRECTORY"] = envString.resolve(configuration.platform.dataDirectory)
         self.defaults["FILE_SYSTEM_DOMAIN"] = configuration.platform.fileSystemDomain

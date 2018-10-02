@@ -19,23 +19,24 @@
 # the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
- 
+
 from builtins import object
- 
+
+
 class NamedClassFactory(object):
     """Create a new "name" class object
- 
+
     Parameters
     ----------
     name : `str`
         the fully qualified name of an object
- 
+
     Returns
     -------
     classobj : `object`
         an object of the specified name
     """
- 
+
     def createClass(name):
         dot = name.rindex('.')
         pack = name[0:dot]
