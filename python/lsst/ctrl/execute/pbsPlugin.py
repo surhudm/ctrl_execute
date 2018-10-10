@@ -27,6 +27,8 @@ import sys
 from string import Template
 from lsst.ctrl.execute.allocator import Allocator
 
+__all__ = ["PbsPlugin", ]
+
 
 class PbsPlugin(Allocator):
 

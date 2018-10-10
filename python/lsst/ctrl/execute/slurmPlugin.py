@@ -28,6 +28,8 @@ from string import Template
 
 from lsst.ctrl.execute.allocator import Allocator
 
+__all__ = ["SlurmPlugin", ]
+
 
 class SlurmPlugin(Allocator):
 
