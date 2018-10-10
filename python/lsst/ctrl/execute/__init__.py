@@ -1,2 +1,2 @@
-from SlurmPlugin import *
-from PbsPlugin import *
+from .slurmPlugin import *
+from .pbsPlugin import *
