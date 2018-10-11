@@ -41,6 +41,8 @@ class NamedClassFactory(object):
         dot = name.rindex('.')
         pack = name[0:dot]
         modname = name[dot+1:]
+        # modules should have lower case, but classes should be upper
+        modname = modname[0].upper() + modname[1:]
         # -1 is no longer accepted in python 3
         # module = __import__(name, globals(), locals(), [modname], -1)
         module = __import__(name, globals(), locals(), [modname], 0)
