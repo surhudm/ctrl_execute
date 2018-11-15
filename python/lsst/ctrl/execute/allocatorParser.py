@@ -72,7 +72,7 @@ class AllocatorParser(object):
         parser.add_argument("-N", "--node-set", action="store",
                             dest="nodeSet", default=None, help="node set name")
         parser.add_argument("-q", "--queue", action="store", dest="queue",
-                            default=None, help="pbs queue name")
+                            default="debug", help="queue name")
         parser.add_argument("-e", "--email", action="store_true", dest="email",
                             default=None, help="email notification flag")
         parser.add_argument("-O", "--output-log", action="store", dest="outputLog",
