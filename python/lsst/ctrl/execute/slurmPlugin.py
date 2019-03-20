@@ -95,16 +95,27 @@ class slurmPlugin(Allocator):
 
         self.allocationFileName = os.path.join(self.configDir, "allocation_%s.sh" % self.uniqueIdentifier)
         self.defaults["GENERATED_ALLOCATE_SCRIPT"] = os.path.basename(self.allocationFileName)
-        if self.opts.dynamic:
-            dynamicSlotsName = os.path.join(platformPkgDir, "etc", "templates", "dynamic_slots.template")
-            with open(dynamicSlotsName) as f:
-                lines = f.readlines()
-                block = ""
-                for line in lines:
-                    block += line 
-                self.defaults["DYNAMIC_SLOTS_BLOCK"] = block
-        else:
+
+        # handle dynamic slot block template:  
+        # 1) if it isn't specified, just put a comment in it's place
+        # 2) if it's specified, but without a filename, use the default
+        # 3) if it's specified with a filename, use that.
+        dynamicSlotsName = None
+        if self.opts.dynamic is None:
             self.defaults["DYNAMIC_SLOTS_BLOCK"] = "#"
+            return
+
+        if self.opts.dynamic == "__default__":
+            dynamicSlotsName = os.path.join(platformPkgDir, "etc", "templates", "dynamic_slots.template")
+        else:
+            dynamicSlotsName = self.opts.dynamic
+
+        with open(dynamicSlotsName) as f:
+            lines = f.readlines()
+            block = ""
+            for line in lines:
+                block += line 
+            self.defaults["DYNAMIC_SLOTS_BLOCK"] = block
 
     def createAllocationFile(self, input):
         """Creates an Allocation script file using the file "input" as a Template
