@@ -46,7 +46,7 @@ class slurmPlugin(Allocator):
     
         configName = os.path.join(platformPkgDir, "etc", "config", "slurmConfig.py")
     
-        self.loadSlurm(configName)
+        self.loadSlurm(configName, platformPkgDir)
         verbose = self.isVerbose()
     
         # create the fully-resolved scratch directory string
@@ -81,7 +81,7 @@ class slurmPlugin(Allocator):
         # print node set information
         self.printNodeSetInfo()
 
-    def loadSlurm(self, name):
+    def loadSlurm(self, name, platformPkgDir):
         if self.opts.reservation is not None:
             self.defaults["RESERVATION"] = "#SBATCH --reservation=%s" % self.opts.reservation
         else:
@@ -95,6 +95,16 @@ class slurmPlugin(Allocator):
 
         self.allocationFileName = os.path.join(self.configDir, "allocation_%s.sh" % self.uniqueIdentifier)
         self.defaults["GENERATED_ALLOCATE_SCRIPT"] = os.path.basename(self.allocationFileName)
+        if self.opts.dynamic:
+            dynamicSlotsName = os.path.join(platformPkgDir, "etc", "templates", "dynamic_slots.template")
+            with open(dynamicSlotsName) as f:
+                lines = f.readlines()
+                block = ""
+                for line in lines:
+                    block += line 
+                self.defaults["DYNAMIC_SLOTS_BLOCK"] = block
+        else:
+            self.defaults["DYNAMIC_SLOTS_BLOCK"] = "#"
 
     def createAllocationFile(self, input):
         """Creates an Allocation script file using the file "input" as a Template

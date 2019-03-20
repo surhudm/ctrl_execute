@@ -98,7 +98,7 @@ class Allocator(object):
         self.commandLineDefaults = {}
 
         self.commandLineDefaults["NODE_COUNT"] = self.opts.nodeCount
-        self.commandLineDefaults["SLOTS"] = self.opts.slots
+        self.commandLineDefaults["CPUS"] = self.opts.cpus
         self.commandLineDefaults["WALL_CLOCK"] = self.opts.maximumWallClock
 
         self.commandLineDefaults["QUEUE"] = self.opts.queue
@@ -313,11 +313,11 @@ class Allocator(object):
         """
         return self.getParameter("NODE_COUNT")
 
-    def getSlots(self):
-        """Accessor for SLOTS
-        @return the value of SLOTS
+    def getCPUs(self):
+        """Accessor for CPUS
+        @return the value of CPUS
         """
-        return self.getParameter("SLOTS")
+        return self.getParameter("CPUS")
 
     def getWallClock(self):
         """Accessor for WALL_CLOCK
@@ -350,14 +350,21 @@ class Allocator(object):
 
     def printNodeSetInfo(self):
         nodes = self.getNodes()
-        slots = self.getSlots()
+        cpus = self.getCPUs()
         wallClock = self.getWallClock()
         nodeString = ""
 
         if int(nodes) > 1:
             nodeString = "s"
-        print("%s node%s will be allocated on %s with %s slots per node and maximum time limit of %s" %
-              (nodes, nodeString, self.platform, slots, wallClock))
+        if self.opts.dynamic is None:
+            print("%s node%s will be allocated on %s with %s cpus per node and maximum time limit of %s" %
+                (nodes, nodeString, self.platform, cpus, wallClock))
+        elif self.opts.dynamic == '__default__':
+            print("%s node%s will be allocated on %s with dynamic slots (%s cpus per node) and maximum time limit of %s" %
+                (nodes, nodeString, self.platform, cpus, wallClock))
+        else:
+            print("%s node%s will be allocated on %s using dynamic slot block specified '%s' in (%s cpus per node) and maximum time limit of %s" %
+                (nodes, nodeString, self.platform, self.opts.dynamic, cpus, wallClock))
         print("Node set name:")
         print(self.getNodeSetName())
 
