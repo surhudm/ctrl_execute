@@ -36,7 +36,7 @@ class TestAllocatorParser(lsst.utils.tests.TestCase):
         sys.argv = ["test1",
                     "test_platform",
                     "-n", "64",
-                    "-s", "12",
+                    "-c", "12",
                     "-m", "00:30:00",
                     "-N", "test_set",
                     "-q", "normal",
@@ -50,7 +50,7 @@ class TestAllocatorParser(lsst.utils.tests.TestCase):
         args = al.getArgs()
 
         self.assertEqual(args.nodeCount, 64)
-        self.assertEqual(args.slots, 12)
+        self.assertEqual(args.cpus, 12)
         self.assertEqual(args.maximumWallClock, "00:30:00")
         self.assertEqual(args.nodeSet, "test_set")
         self.assertEqual(args.queue, "normal")

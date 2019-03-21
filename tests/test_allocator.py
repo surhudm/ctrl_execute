@@ -41,7 +41,7 @@ class TestAllocator(lsst.utils.tests.TestCase):
         argv = ["allocator_test",
                 "test_platform",
                 "-n", "64",
-                "-s", "12",
+                "-c", "12",
                 "-m", "00:30:00",
                 "-N", "test_set",
                 "-q", "normal",
@@ -56,7 +56,7 @@ class TestAllocator(lsst.utils.tests.TestCase):
         argv = ["allocator_test",
                 "test_platform",
                 "-n", "64",
-                "-s", "12",
+                "-c", "12",
                 "-m", "00:30:00",
                 "-N", "test_set",
                 "-q", "normal",
@@ -102,7 +102,7 @@ class TestAllocator(lsst.utils.tests.TestCase):
         self.assertEqual(al.getScratchDirectory(), "/tmp")
         self.assertEqual(al.getNodeSetName(), "test_set")
         self.assertEqual(al.getNodes(), 64)
-        self.assertEqual(al.getSlots(), 12)
+        self.assertEqual(al.getCPUs(), 12)
         self.assertEqual(al.getWallClock(), "00:30:00")
         self.assertEqual(al.getParameter("NODE_COUNT"), 64)
         self.assertEqual(al.getParameter("KAZOO"), None)
@@ -139,7 +139,7 @@ class TestAllocator(lsst.utils.tests.TestCase):
         al = self.subSetup("config_condor_slurm.py")
 
         fileName = os.path.join("tests", "testfiles", "config_allocation_slurm.py")
-        al.loadSlurm(fileName)
+        al.loadSlurm(fileName, None)
         slurmName = os.path.join("tests", "testfiles", "generic.slurm.template")
         compare = os.path.join("tests", "testfiles", "generic.slurm.txt")
         generatedSlurmFile = al.createSubmitFile(slurmName)
