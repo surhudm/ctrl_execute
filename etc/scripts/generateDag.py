@@ -149,7 +149,8 @@ def writeDagFile(pipeline, templateFile, infile, workerdir, prescriptFile, runid
         #
         # Searching for a space detects
         # extended input like :  visit=887136081 raft=2,2 sensor=0,1
-        # If there is no space, the dataid is something simple like a skytile id
+        # If there is no space, the dataid is something simple like
+        # a skytile id
         newData = myData
         visit = str(count // 100)
 
@@ -213,6 +214,7 @@ def main():
     writeDagFile(pipeline, ns.template, ns.source, ns.workerdir, ns.prescript, ns.runid, int(ns.idsPerJob))
 
     sys.exit(0)
+
 
 if __name__ == '__main__':
     main()
