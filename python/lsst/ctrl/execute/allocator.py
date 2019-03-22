@@ -361,11 +361,11 @@ class Allocator(object):
                   (nodes, nodeString, self.platform, cpus, wallClock))
         elif self.opts.dynamic == '__default__':
             print("%s node%s will be allocated on %s using default dynamic slots configuration \
-                  with %s cpus per node and maximum time limit of %s" %
+with %s cpus per node and maximum time limit of %s" %
                   (nodes, nodeString, self.platform, cpus, wallClock))
         else:
             print("%s node%s will be allocated on %s using dynamic slot block specified in \
-                  '%s' with %s cpus per node and maximum time limit of %s" %
+'%s' with %s cpus per node and maximum time limit of %s" %
                   (nodes, nodeString, self.platform, self.opts.dynamic, cpus, wallClock))
         print("Node set name:")
         print(self.getNodeSetName())
