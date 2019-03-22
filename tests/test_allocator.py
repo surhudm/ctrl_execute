@@ -25,7 +25,6 @@ import time
 import filecmp
 import unittest
 from lsst.ctrl.execute.namedClassFactory import NamedClassFactory
-from lsst.ctrl.execute.allocator import Allocator
 from lsst.ctrl.execute.allocatorParser import AllocatorParser
 from lsst.ctrl.execute.condorConfig import CondorConfig
 import lsst.utils.tests
@@ -78,7 +77,7 @@ class TestAllocator(lsst.utils.tests.TestCase):
 
         schedulerName = configuration.platform.scheduler
         schedulerClass = NamedClassFactory.createClass("lsst.ctrl.execute." + schedulerName + "Plugin")
-        
+
         scheduler = schedulerClass("lsst", args, configuration, fileName)
         return scheduler
 
@@ -156,8 +155,10 @@ class TestAllocator(lsst.utils.tests.TestCase):
         os.rmdir(configPath)
         os.rmdir(localScratch)
 
+
 class AllocatorMemoryTest(lsst.utils.tests.MemoryTestCase):
     pass
+
 
 if __name__ == "__main__":
     lsst.utils.tests.init()

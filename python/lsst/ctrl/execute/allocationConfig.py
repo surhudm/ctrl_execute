@@ -45,7 +45,8 @@ class AllocatedPlatformConfig(pexConfig.Config):
 
 class AllocationConfig(pexConfig.Config):
     """A pex_config file describing the platform specific information required
-    to fill out a scheduler file which will be used to submit a scheduler request.
+    to fill out a scheduler file which will be used to submit a scheduler
+    request.
     """
     # this is done on two levels instead of one for future expansion of this
     # config class, which may require local attributes to be specified.

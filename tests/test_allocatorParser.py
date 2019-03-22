@@ -63,6 +63,7 @@ class TestAllocatorParser(lsst.utils.tests.TestCase):
 class AllocatorParserMemoryTester(lsst.utils.tests.MemoryTestCase):
     pass
 
+
 if __name__ == "__main__":
     lsst.utils.tests.init()
     unittest.main()

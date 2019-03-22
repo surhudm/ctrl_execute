@@ -62,9 +62,11 @@ class Configurator(object):
 
         self.platform = self.opts.platform
 
-        # Look up the user's name and home directory in the $HOME//.lsst/condor-info.py file
-        # If the platform is lsst, and the user_name or user_home is not in there, then default to
-        # user running this command and the value of $HOME, respectively.
+        # Look up the user's name and home directory in the
+        # $HOME//.lsst/condor-info.py file. If the platform
+        # is lsst, and the user_name or user_home is not in
+        # there, then default to user running this comman
+        # and the value of $HOME, respectively.
         user_name = None
         user_home = None
         for name in list(condorInfoConfig.platform.keys()):
@@ -75,7 +77,8 @@ class Configurator(object):
         # If we're on the lsst platform and the condorInfoConfig didn't
         # have an entry for lsst user name and home, set to reasonable values
         # These really do need to be set for all the other platforms, since
-        # while the user name may be the same, it's unlikely the home directory will be.
+        # while the user name may be the same, it's unlikely the home
+        # directory will be.
         if self.platform == "lsst":
             if user_name is None:
                 user_name = pwd.getpwuid(os.geteuid()).pw_name
@@ -142,12 +145,12 @@ class Configurator(object):
         executePkgDir = lsst.utils.getPackageDir('ctrl_execute')
 
         name = "config_with_%s.py.template" % self.setup_using
-        genericConfigName = os.path.join(executePkgDir, 
-                            "etc", "templates", self.manager, name)
+        genericConfigName = os.path.join(executePkgDir,
+                                         "etc", "templates", self.manager, name)
         if os.path.exists(genericConfigName):
             return genericConfigName
-        raise RuntimeError("File %s not found; check etc/templates." % 
-                            genericConfigName)
+        raise RuntimeError("File %s not found; check etc/templates." %
+                           genericConfigName)
 
     def createRunId(self):
         """create a unique runid
@@ -215,7 +218,8 @@ class Configurator(object):
             USER_NAME=self.commandLineDefaults["USER_NAME"])
 
         tempLocalScratch = Template(configuration.platform.localScratch)
-        self.defaults["LOCAL_SCRATCH"] = tempLocalScratch.substitute(USER_NAME=self.commandLineDefaults["USER_NAME"])
+        self.defaults["LOCAL_SCRATCH"] = \
+            tempLocalScratch.substitute(USER_NAME=self.commandLineDefaults["USER_NAME"])
         self.defaults["IDS_PER_JOB"] = configuration.platform.idsPerJob
         self.defaults["DATA_DIRECTORY"] = envString.resolve(configuration.platform.dataDirectory)
         self.defaults["FILE_SYSTEM_DOMAIN"] = configuration.platform.fileSystemDomain
@@ -261,8 +265,8 @@ class Configurator(object):
 
     def getParameter(self, value):
         """Accessor for generic value
-        @return None if value is not set.  Otherwise, use the comand line override
-        (if set), or the default Config value
+        @return None if value is not set.  Otherwise, use the comand line
+        override (if set), or the default Config value
         """
         if value in self.commandLineDefaults:
             return self.commandLineDefaults[value]

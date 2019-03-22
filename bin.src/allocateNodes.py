@@ -26,14 +26,11 @@
 from __future__ import print_function
 import sys
 import os
-import shutil
 import lsst.utils
 from lsst.ctrl.execute.namedClassFactory import NamedClassFactory
-from lsst.ctrl.execute.allocator import Allocator
 from lsst.ctrl.execute.allocatorParser import AllocatorParser
 from lsst.ctrl.execute.condorConfig import CondorConfig
 from lsst.ctrl.execute import envString
-from string import Template
 
 
 def main():
@@ -53,13 +50,14 @@ def main():
 
     # create the plugin class
     schedulerName = configuration.platform.scheduler
-    schedulerClass = NamedClassFactory.createClass("lsst.ctrl.execute." + schedulerName +"Plugin")
+    schedulerClass = NamedClassFactory.createClass("lsst.ctrl.execute." + schedulerName + "Plugin")
 
     # create the plugin
     scheduler = schedulerClass(platform, p.getArgs(), configuration, "$HOME/.lsst/condor-info.py")
 
     # submit the request
     scheduler.submit(platform, platformPkgDir)
+
 
 if __name__ == "__main__":
     main()

@@ -23,49 +23,39 @@
 #
 
 from __future__ import print_function
-from builtins import str
-from builtins import object
-import os, sys
-import pwd
-from datetime import datetime
+import os
+import sys
 from string import Template
-from lsst.ctrl.execute import envString
-from lsst.ctrl.execute.allocationConfig import AllocationConfig
-from lsst.ctrl.execute.condorConfig import CondorConfig
-from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
-from lsst.ctrl.execute.templateWriter import TemplateWriter
-from lsst.ctrl.execute.seqFile import SeqFile
 
 from lsst.ctrl.execute.allocator import Allocator
 
 
-class slurmPlugin(Allocator):
+class SlurmPlugin(Allocator):
 
     def submit(self, platform, platformPkgDir):
-        remoteCopyCmd = "/usr/bin/cp"
-    
+
         configName = os.path.join(platformPkgDir, "etc", "config", "slurmConfig.py")
-    
+
         self.loadSlurm(configName, platformPkgDir)
         verbose = self.isVerbose()
-    
+
         # create the fully-resolved scratch directory string
         scratchDirParam = self.getScratchDirectory()
         template = Template(scratchDirParam)
-        scratchDir = template.substitute(USER_HOME=self.getUserHome())
-    
+        template.substitute(USER_HOME=self.getUserHome())
+
         # create the slurm submit file
         slurmName = os.path.join(platformPkgDir, "etc", "templates", "generic.slurm.template")
         generatedSlurmFile = self.createSubmitFile(slurmName)
-    
+
         # create the condor configuration file
         condorFile = os.path.join(platformPkgDir, "etc", "templates", "glidein_condor_config.template")
-        generatedCondorConfigFile = self.createCondorConfigFile(condorFile)
-    
+        self.createCondorConfigFile(condorFile)
+
         # create the script that the slurm submit file calls
         allocationName = os.path.join(platformPkgDir, "etc", "templates", "allocation.sh.template")
-        allocationFile = self.createAllocationFile(allocationName)
-    
+        self.createAllocationFile(allocationName)
+
         # run the sbatch command
         template = Template(self.getLocalScratchDirectory())
         localScratchDir = template.substitute(USER_NAME=self.getUserName())
@@ -77,7 +67,7 @@ class slurmPlugin(Allocator):
         if exitCode != 0:
             print("error running %s" % cmd)
             sys.exit(exitCode)
-    
+
         # print node set information
         self.printNodeSetInfo()
 
@@ -96,7 +86,7 @@ class slurmPlugin(Allocator):
         self.allocationFileName = os.path.join(self.configDir, "allocation_%s.sh" % self.uniqueIdentifier)
         self.defaults["GENERATED_ALLOCATE_SCRIPT"] = os.path.basename(self.allocationFileName)
 
-        # handle dynamic slot block template:  
+        # handle dynamic slot block template:
         # 1) if it isn't specified, just put a comment in it's place
         # 2) if it's specified, but without a filename, use the default
         # 3) if it's specified with a filename, use that.
@@ -114,11 +104,11 @@ class slurmPlugin(Allocator):
             lines = f.readlines()
             block = ""
             for line in lines:
-                block += line 
+                block += line
             self.defaults["DYNAMIC_SLOTS_BLOCK"] = block
 
     def createAllocationFile(self, input):
-        """Creates an Allocation script file using the file "input" as a Template
+        """Creates Allocation script file using the file "input" as a Template
 
         Returns
         -------

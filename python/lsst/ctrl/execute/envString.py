@@ -33,7 +33,7 @@ import sys
 
 
 def resolve(strVal):
-    p = re.compile('\$[a-zA-Z0-9_]+')
+    p = re.compile(r'\$[a-zA-Z0-9_]+')
     retVal = strVal
     exprs = p.findall(retVal)
     for i in exprs:

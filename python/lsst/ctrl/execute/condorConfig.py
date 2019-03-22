@@ -39,7 +39,8 @@ class PlatformConfig(pexConfig.Config):
     scheduler = pexConfig.Field(doc="scheduler type", dtype=str, default=None)
     manager = pexConfig.Field(doc="workflow manager", dtype=str, default=None)
     setup_using = pexConfig.Field(doc="environment setup type", dtype=str, default=None)
-    manager_software_home = pexConfig.Field(doc="location of workflow manager software", dtype=str, default=None)
+    manager_software_home = pexConfig.Field(doc="location of workflow manager software",
+                                            dtype=str, default=None)
 
 
 class CondorConfig(pexConfig.Config):
