@@ -82,7 +82,7 @@ class TestCondorConfig(lsst.utils.tests.TestCase):
         self.assertEqual(self.config.platform.setup_using, "setups")
         self.assertEqual(self.config.platform.manager, "dagman")
 
-    def test3(self):
+    def test5(self):
         path = os.path.join("tests", "testfiles", "config_condor_slurm.py")
         self.config.load(path)
 
@@ -95,7 +95,7 @@ class TestCondorConfig(lsst.utils.tests.TestCase):
         self.assertEqual(self.config.platform.setup_using, "getenv")
         self.assertEqual(self.config.platform.manager, "dagman")
 
-    def test4(self):
+    def test6(self):
         path = os.path.join("tests", "testfiles", "config_pegasus.py")
         self.config.load(path)
 
@@ -108,8 +108,10 @@ class TestCondorConfig(lsst.utils.tests.TestCase):
         self.assertEqual(self.config.platform.setup_using, "getenv")
         self.assertEqual(self.config.platform.manager, "pegasus")
 
+
 class CondorConfigMemoryTest(lsst.utils.tests.MemoryTestCase):
     pass
+
 
 if __name__ == "__main__":
     lsst.utils.tests.init()

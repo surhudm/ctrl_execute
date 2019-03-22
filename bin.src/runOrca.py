@@ -39,8 +39,8 @@ def main():
 
     platformPkgDir = lsst.utils.getPackageDir("ctrl_platform_"+creator.platform)
     if args.platformConfig is None:
-        configFileName = os.path.join(platformPkgDir, 
-                            "etc", "config", "execConfig.py")
+        configFileName = os.path.join(platformPkgDir,
+                                      "etc", "config", "execConfig.py")
     else:
         configFileName = args.platformConfig
 
@@ -67,6 +67,7 @@ def main():
             os.close(2)
         os.execvp(cmd_split[0], cmd_split)
     os.wait()[0]
+
 
 if __name__ == "__main__":
     main()

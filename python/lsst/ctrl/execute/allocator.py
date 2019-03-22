@@ -25,22 +25,22 @@
 from __future__ import print_function
 from builtins import str
 from builtins import object
-import os, sys
+import os
+import sys
 import pwd
 from datetime import datetime
 from string import Template
 from lsst.ctrl.execute import envString
 from lsst.ctrl.execute.allocationConfig import AllocationConfig
-from lsst.ctrl.execute.condorConfig import CondorConfig
 from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
 from lsst.ctrl.execute.templateWriter import TemplateWriter
 from lsst.ctrl.execute.seqFile import SeqFile
 
 
 class Allocator(object):
-    """A class which consolidates allocation pex_config information with override
-    information (obtained from the command line) and produces a PBS file using
-    these values.
+    """A class which consolidates allocation pex_config information with
+    override information (obtained from the command line) and produces a
+    PBS file using these values.
 
     Parameters
     ----------
@@ -98,7 +98,7 @@ class Allocator(object):
         self.commandLineDefaults = {}
 
         self.commandLineDefaults["NODE_COUNT"] = self.opts.nodeCount
-        self.commandLineDefaults["SLOTS"] = self.opts.slots
+        self.commandLineDefaults["CPUS"] = self.opts.cpus
         self.commandLineDefaults["WALL_CLOCK"] = self.opts.maximumWallClock
 
         self.commandLineDefaults["QUEUE"] = self.opts.queue
@@ -151,8 +151,8 @@ class Allocator(object):
         self.defaults["SCHEDULER"] = self.configuration.platform.scheduler
 
     def loadAllocationConfig(self, name, suffix):
-        """Loads all values from allocationConfig and command line overrides into
-        data structures suitable for use by the TemplateWriter object.
+        """Loads all values from allocationConfig and command line overrides
+        into data structures suitable for use by the TemplateWriter object.
         """
         resolvedName = envString.resolve(name)
         allocationConfig = AllocationConfig()
@@ -208,7 +208,7 @@ class Allocator(object):
         self.defaults["GENERATED_CONFIG"] = os.path.basename(self.condorConfigFileName)
         self.defaults["CONFIGURATION_ID"] = self.uniqueIdentifier
         return allocationConfig
-        
+
     def createSubmitFile(self, inputFile):
         """Creates a PBS file using the file "input" as a Template
 
@@ -313,11 +313,11 @@ class Allocator(object):
         """
         return self.getParameter("NODE_COUNT")
 
-    def getSlots(self):
-        """Accessor for SLOTS
-        @return the value of SLOTS
+    def getCPUs(self):
+        """Accessor for CPUS
+        @return the value of CPUS
         """
-        return self.getParameter("SLOTS")
+        return self.getParameter("CPUS")
 
     def getWallClock(self):
         """Accessor for WALL_CLOCK
@@ -350,14 +350,23 @@ class Allocator(object):
 
     def printNodeSetInfo(self):
         nodes = self.getNodes()
-        slots = self.getSlots()
+        cpus = self.getCPUs()
         wallClock = self.getWallClock()
         nodeString = ""
 
         if int(nodes) > 1:
             nodeString = "s"
-        print("%s node%s will be allocated on %s with %s slots per node and maximum time limit of %s" %
-              (nodes, nodeString, self.platform, slots, wallClock))
+        if self.opts.dynamic is None:
+            print("%s node%s will be allocated on %s with %s cpus per node and maximum time limit of %s" %
+                  (nodes, nodeString, self.platform, cpus, wallClock))
+        elif self.opts.dynamic == '__default__':
+            print("%s node%s will be allocated on %s using default dynamic slots configuration \
+with %s cpus per node and maximum time limit of %s" %
+                  (nodes, nodeString, self.platform, cpus, wallClock))
+        else:
+            print("%s node%s will be allocated on %s using dynamic slot block specified in \
+'%s' with %s cpus per node and maximum time limit of %s" %
+                  (nodes, nodeString, self.platform, self.opts.dynamic, cpus, wallClock))
         print("Node set name:")
         print(self.getNodeSetName())
 

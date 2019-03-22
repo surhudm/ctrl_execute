@@ -19,27 +19,29 @@
 # the GNU General Public License along with this program.  If not,
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
- 
+
 from builtins import object
- 
+
+
 class NamedClassFactory(object):
     """Create a new "name" class object
- 
+
     Parameters
     ----------
     name : `str`
         the fully qualified name of an object
- 
+
     Returns
     -------
     classobj : `object`
         an object of the specified name
     """
- 
+
     def createClass(name):
         dot = name.rindex('.')
         pack = name[0:dot]
         modname = name[dot+1:]
+        modname = modname[0].capitalize()+modname[1:]
         # -1 is no longer accepted in python 3
         # module = __import__(name, globals(), locals(), [modname], -1)
         module = __import__(name, globals(), locals(), [modname], 0)

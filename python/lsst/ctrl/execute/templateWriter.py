@@ -36,7 +36,7 @@ class TemplateWriter(object):
     """
 
     def rewrite(self, input, output, pairs):
-        """Given a input template, take the keys from the key/values in the config
+        """Given a input template, take the keys from key/values in the config
         object and substitute the values, and write those to the output file.
         @param input - the input template name
         @param output - the output file name
