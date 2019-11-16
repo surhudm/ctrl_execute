@@ -21,13 +21,11 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from __future__ import print_function
-from builtins import object
 from lsst.ctrl.execute import envString
 import os.path
 
 
-class SeqFile(object):
+class SeqFile:
     """Class which can read and increment files used to store sequence numbers
     """
 

@@ -22,7 +22,6 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from __future__ import print_function
 import lsst.pex.config as pexConfig
 from lsst.ctrl.execute import envString
 

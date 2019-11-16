@@ -21,9 +21,6 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from __future__ import print_function
-from __future__ import absolute_import
-from builtins import object
 import os
 import os.path
 import pwd
@@ -39,7 +36,7 @@ from .condorInfoConfig import CondorInfoConfig
 from lsst.ctrl.execute import envString
 
 
-class Configurator(object):
+class Configurator:
     """A class which consolidates Condor pex_config information with override
     information (obtained from the command line) and produces Condor files
     using these values.
