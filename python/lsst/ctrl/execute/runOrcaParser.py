@@ -22,11 +22,10 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from builtins import object
 import argparse
 
 
-class RunOrcaParser(object):
+class RunOrcaParser:
     """An argument parser for the orchestration config file generation
     and execution
     """

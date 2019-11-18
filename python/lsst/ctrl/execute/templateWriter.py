@@ -22,15 +22,12 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from builtins import str
-from builtins import object
-
 # This class takes template files and substitutes the values for the given
 # keys, writing a new file generated from the template.
 #
 
 
-class TemplateWriter(object):
+class TemplateWriter:
     """Class to take a template file, substitute values through it, and
     write a new file with those values.
     """

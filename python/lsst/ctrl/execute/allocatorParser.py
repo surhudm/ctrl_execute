@@ -22,11 +22,10 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from builtins import object
 import argparse
 
 
-class AllocatorParser(object):
+class AllocatorParser:
     """An argument parser for node allocation requests.
 
     Parameters

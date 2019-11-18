@@ -22,9 +22,6 @@
 # see <http://www.lsstcorp.org/LegalNotices/>.
 #
 
-from __future__ import print_function
-from builtins import str
-from builtins import object
 import os
 import sys
 import pwd
@@ -37,7 +34,7 @@ from lsst.ctrl.execute.templateWriter import TemplateWriter
 from lsst.ctrl.execute.seqFile import SeqFile
 
 
-class Allocator(object):
+class Allocator:
     """A class which consolidates allocation pex_config information with
     override information (obtained from the command line) and produces a
     PBS file using these values.

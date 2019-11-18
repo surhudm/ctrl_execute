@@ -1,4 +1,3 @@
-from builtins import object
 #
 # LSST Data Management System
 # Copyright 2008-2016 LSST Corporation.
@@ -29,7 +28,7 @@ from lsst.ctrl.execute.allocationConfig import AllocationConfig
 from lsst.ctrl.execute.condorInfoConfig import CondorInfoConfig
 
 
-class QCommand(object):
+class QCommand:
     """A class which wraps qsub-style commands for execution
     """
 
