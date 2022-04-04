@@ -35,8 +35,8 @@ class PbsPlugin(Allocator):
         # This have specific paths to prevent abitrary binaries from being
         # executed. The "gsi"* utilities are configured to use either grid
         # proxies or ssh, automatically.
-        remoteLoginCmd = "/usr/bin/gsissh"
-        remoteCopyCmd = "/usr/bin/gsiscp"
+        remoteLoginCmd = "/usr/bin/ssh"
+        remoteCopyCmd = "/usr/bin/scp"
 
         configName = os.path.join(platformPkgDir, "etc", "config", "pbsConfig.py")
 
@@ -44,10 +44,13 @@ class PbsPlugin(Allocator):
         verbose = self.isVerbose()
 
         pbsName = os.path.join(platformPkgDir, "etc", "templates", "generic.pbs.template")
-        generatedPbsFile = self.createPbsFile(pbsName)
+        generatedPbsFile = self.createSubmitFile(pbsName)
 
         condorFile = os.path.join(platformPkgDir, "etc", "templates", "glidein_condor_config.template")
         generatedCondorConfigFile = self.createCondorConfigFile(condorFile)
+
+        allocationName = os.path.join(platformPkgDir, "etc", "templates", "allocation.sh.template")
+        self.createAllocationFile(allocationName)
 
         scratchDirParam = self.getScratchDirectory()
         template = Template(scratchDirParam)
@@ -101,3 +104,21 @@ class PbsPlugin(Allocator):
         template = Template(configuration.platform.scratchDirectory)
         scratchDir = template.substitute(USER_HOME=self.getUserHome())
         self.defaults["SCRATCH_DIR"] = scratchDir
+
+        allocationConfig = self.loadAllocationConfig(name, "pbs")
+        self.allocationFileName = os.path.join(self.configDir, "allocation_%s.sh" % self.uniqueIdentifier)
+        self.defaults["GENERATED_ALLOCATE_SCRIPT"] = os.path.basename(self.allocationFileName)
+
+    def createAllocationFile(self, input):
+        """Creates Allocation script file using the file "input" as a Template
+
+        Returns
+        -------
+        outfile : `str`
+            The newly created file name
+        """
+        outfile = self.createFile(input, self.allocationFileName)
+        if self.opts.verbose:
+            print("wrote new allocation script file to %s" % outfile)
+        os.chmod(outfile, 0o755)
+        return outfile
